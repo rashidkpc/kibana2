@@ -1,0 +1,31 @@
+Kibana - A web based log analysis tool
+Copyright 2011 Rashid Khan <flipwork #logstash irc.freenode.net>
+
+Installation
+------------
+This assumes you already have a functioning logstash/elasticsearch
+infrastructure, perhaps with some filters to define fields. Config
+of logstash and/or elasticsearch is outside of the scope of this file
+
+Other than that, it works just like any other PHP application. Untar 
+and go at it. 
+
+Edit config.php to set your elasticsearch server. 
+
+Notes
+-----
+Q: Why is there no last button?
+A: ElasticSearch isn't so hot at going to the last result of a many
+million result query. 
+
+Q: Why is everything broken?
+A: Because this is wildly alpha
+
+Q: Why is this in PHP instead of Java, Ruby, etc?
+A: Because PHP is what I know. The total PHP is less than 200 lines.
+If you want it in something else, it shouldn't be too hard to port 
+the backend to your language of choice
+
+ChangeLog
+---------
+0.0.1a - Initial release

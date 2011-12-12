@@ -1,0 +1,288 @@
+/* Dark Brown: #5a2100
+// Light Brown: #b04100
+// Orangeish: #fc6d19
+// Blue: #006363
+// Light Blue: #00b0af
+*/
+
+* {
+margin: 0;
+padding: 0;
+}
+
+body {
+background-color: #E3DCC8;
+margin:0;
+padding:0;
+width: 100%;
+font-family: 'Verdana', Geneva, sans-serif;
+font-size: 10pt;
+}
+
+a {
+color: #4e595a;
+font-family: 'Verdana', Geneva, sans-serif;
+}
+
+a.button {
+background-color: #A92C10;
+color: #fff;
+padding: 3px;
+margin-top: 30px;
+border: 1px solid #fff;
+text-decoration: none;
+font-family: 'Verdana', Geneva, sans-serif;
+}
+
+.jlink {
+cursor: pointer;
+}
+
+/* Header */
+
+#header{
+height:40px;
+margin: 0;
+padding: 0 0 0 50px;
+background: #4B5657 url('../images/logo.png') no-repeat 15px bottom;
+position: relative;
+font-size: 8pt;
+}
+
+
+#top{
+width:100%;
+background-color:#E3DCC8;
+color: #4B5657;
+font-size: 0.9em;
+font-weight: bold;
+margin-right: 100px;
+}
+
+
+/* Search related stuff */
+
+#searchdiv {
+padding: 10px 10px 0px 10px;
+background-color: #E3DCC8;
+font-family: 'Verdana', Geneva, sans-serif;
+}
+
+#queryinput {
+margin: auto;
+width: 100%;
+}
+
+form input {
+border: 1px solid #888;
+}
+
+form input.submit {
+background-color: #A92C10;
+color: #fff;
+}
+
+#searchdiv table {
+font-family: 'Verdana', Geneva, sans-serif;
+font-size: 8pt;
+text-align: left;
+color: #000;
+font-weight: normal;
+}
+
+#searchdiv table th {
+vertical-align: bottom;
+color: #4B5657;
+}
+
+#searchdiv table td {
+vertical-align: middle;
+}
+
+#fields a:hover {
+color: #A92C10;
+}
+
+#fields a.logfield_selected:hover {
+text-decoration: line-through;
+}
+
+a.logfield_selected {
+color: #A92C10;
+}
+
+
+h1,h2,h3 {
+font-family: Georgia, Serif;
+margin-bottom: 5px;
+margin-top: 5px;
+}
+
+h2 {
+font-size: 3.0em
+}
+
+img
+{
+vertical-align:middle;
+} 
+
+#graph {
+height: 100px;
+width: 95%;
+}
+
+#graphheader {
+font-size: 8pt;
+padding-bottom: 3px;
+}
+
+input.hasDatePicker {
+font-size: 8pt;
+border: 0px;
+border-bottom: 1px solid #aaa;
+width: 150px;
+text-align: center;
+cursor: pointer;
+}
+
+.tickLabel {
+white-space: nowrap;
+}
+
+#tips {
+float:right;
+padding: 5px 30px;
+color: #fff;
+font-family: 'Verdana', Geneva, sans-serif;
+}
+
+#meta {
+float: right;
+margin-right: 15px;
+margin-top: 5px;
+color: #fff;
+font-family: 'Verdana', Geneva, sans-serif;
+}
+
+#content {
+background-color: #E3DCC8;
+min-height:550px; /* for modern browsers */
+height:auto !important; /* for modern browsers */
+height:600px; /* for IE5.x and IE6 */
+padding: 10px;
+color: #333333;
+font-family: 'Verdana', Geneva, sans-serif;
+font-size: 9pt;
+}
+
+#footer {
+clear:both;
+color: #fff;
+padding-top: 15px;
+font-family: 'Verdana', Geneva, sans-serif;
+font-size: 9pt;
+background-color:#4B5657;
+height:30px;
+}
+
+#footer a {
+color: #ddd;
+}
+
+tr.alt {
+background-color: #5d6a6b;
+}
+
+div#main {
+background-color: #fff;
+padding: 15px;
+}
+
+.pagelinks {
+padding-top: 15px;
+}
+
+div#logs {
+font-family: 'Courier New', Courier, monospace;
+font-size: 9pt;
+}
+
+table.logs {
+border-collapse: collapse;
+border-spacing: 0;
+width: 100%;
+}
+
+table.logs th {
+text-align: left;
+text-transform:capitalize;
+color: #333;
+padding: 3px;
+font-family: Verdana, Geneva, sans-serif;
+}
+
+table.log tr {
+border: 1px solid #fff;
+}
+
+table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
+background-color: #eabfb0;
+cursor: pointer;
+}
+
+table.logs tr.alt {
+border: 1px solid #fff;
+background-color: #edebe7;
+padding: 2px;
+}
+
+table.logs td {
+border: 0px;
+padding: 5px;
+color: #000;
+}
+
+td.firsttd {
+white-space: nowrap;
+}
+
+table.logdetails {
+margin-left: 10px;
+}
+
+table.logdetails tr {
+background-color: #eee;
+}
+
+table.logdetails tr.alt {
+background-color: #ddd;
+}
+
+table.logdetails th {
+font-size: 7pt;
+font-weight: normal;
+background-color: #fff;
+}
+
+tr.hidedetails {
+display: none;
+}
+
+td.logopts {
+background-color: #fff;
+white-space: nowrap;
+}
+
+#fullscreen{
+position: absolute;
+z-index: 100; /*anything larger than 0 will suffice, I usually increment by 10 or larger*/
+left: 0;
+top:0;
+background-color: #4B5657;
+padding: 10px;
+margin: 0;
+color: #fff;
+height: 100%;
+width: 95%;
+}
