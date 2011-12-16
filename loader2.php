@@ -44,8 +44,11 @@ if ($_GET['page']) {
         $query['facets']['stats']['statistical']["field"] = '@timestamp';
     }
 
-
-    if ($json->{'timeframe'} != "custom") $time->{'from'} = date('c', strtotime($json->{'timeframe'} . " ago"));
+    
+    if ($json->{'timeframe'} != "custom") {
+        $time->{'from'} = date('c', strtotime($json->{'timeframe'} . " ago"));
+        $time->{'to'} = date('c');
+    }
     
 
     // Check if we have a time range, if so filter
@@ -54,10 +57,9 @@ if ($_GET['page']) {
         $query['filter']['range']['@timestamp'] = $time;
         $facet = ($_GET['mode'] == 'graph' ? "histo1" : "stats");
         $query['facets'][$facet]['facet_filter']['range']['@timestamp'] = $time;
-        // If we're searching for something in today's index, use only today's index
-        $return->{'debug'} = date('c',strtotime($time->{'from'})). "-". date('c',gmmktime(0, 0, 0));
-        if (strtotime($time->{'from'}) > gmmktime(0, 0, 0)) {
-            $index = 'logstash-' . date('Y.m.d', strtotime(date('M d Y')));
+        // If our timerange only covers 1 index, only use that index instead of _all
+        if (date('Y.m.d',strtotime($time->{'from'})) == date('Y.m.d',strtotime($time->{'to'}))) {
+            $index = 'logstash-' . date('Y.m.d', strtotime($time->{'from'}));
         }
     }
     date_default_timezone_set($real_timezone);
