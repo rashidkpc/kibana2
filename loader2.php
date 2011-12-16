@@ -43,7 +43,7 @@ if ($_GET['page']) {
     }
 
 
-    if ($json->{'timeframe'} != "custom") $time->{'from'} = gmdate('c', strtotime($json->{'timeframe'} . " ago"));
+    if ($json->{'timeframe'} != "custom") $time->{'from'} = date('c', strtotime($json->{'timeframe'} . " ago"));
     
 
     // Check if we have a time range, if so filter
@@ -52,8 +52,9 @@ if ($_GET['page']) {
         $facet = ($_GET['mode'] == 'graph' ? "histo1" : "stats");
         $query['facets'][$facet]['facet_filter']['range']['@timestamp'] = $time;
         // If we're searching for something in today's index, use only today's index
-        if (strtotime($time->{'from'}) > gmmktime(0, 0, 0)) {
-            $index = 'logstash-' . gmdate('Y.m.d', strtotime(gmdate('M d Y')));
+        if (strtotime($time->{'from'}) > mktime(0, 0, 0)) {
+            $return->{'debug'} = date('M d Y H:i:s',strtotime($time->{'from'})). ' > '. date('M d Y H:i:s',mktime(0, 0, 0));
+            //$index = 'logstash-' . date('Y.m.d', strtotime(date('M d Y')));
         }
     }
 
