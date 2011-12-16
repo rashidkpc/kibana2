@@ -3,6 +3,8 @@
 include 'config.php';
 #include 'auth_ldap.php';
 
+$real_timezone = date_default_timezone_get();
+
 if ($_GET['page']) {
 
     $index = "_all";
@@ -47,17 +49,18 @@ if ($_GET['page']) {
     
 
     // Check if we have a time range, if so filter
+    date_default_timezone_set('UTC');
     if ($time != '') {
         $query['filter']['range']['@timestamp'] = $time;
         $facet = ($_GET['mode'] == 'graph' ? "histo1" : "stats");
         $query['facets'][$facet]['facet_filter']['range']['@timestamp'] = $time;
         // If we're searching for something in today's index, use only today's index
-        if (strtotime($time->{'from'}) > mktime(0, 0, 0)) {
-            $return->{'debug'} = date('M d Y H:i:s',strtotime($time->{'from'})). ' > '. date('M d Y H:i:s',mktime(0, 0, 0));
-            //$index = 'logstash-' . date('Y.m.d', strtotime(date('M d Y')));
+        $return->{'debug'} = date('c',strtotime($time->{'from'})). "-". date('c',gmmktime(0, 0, 0));
+        if (strtotime($time->{'from'}) > gmmktime(0, 0, 0)) {
+            $index = 'logstash-' . date('Y.m.d', strtotime(date('M d Y')));
         }
     }
-
+    date_default_timezone_set($real_timezone);
     $result = esQuery($query);
 
 
