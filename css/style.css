@@ -11,7 +11,7 @@ padding: 0;
 }
 
 body {
-background-color: #E3DCC8;
+background: url('../images/main_bg.png') repeat-x scroll 0 0 #4B5657;
 margin:0;
 padding:0;
 width: 100%;
@@ -27,11 +27,22 @@ font-family: 'Verdana', Geneva, sans-serif;
 a.button {
 background-color: #A92C10;
 color: #fff;
-padding: 3px;
+padding: 4px 5px 4px 5px;
 margin-top: 30px;
-border: 1px solid #fff;
 text-decoration: none;
 font-family: 'Verdana', Geneva, sans-serif;
+}
+
+a.tab {
+background-color: #E3DCC8;
+color: #4B5657;
+padding: 4px 5px 4px 5px;
+margin-top: 30px;
+margin-left: 10px;
+text-decoration: none;
+font-family: 'Verdana', Geneva, sans-serif;
+font-size: 1.2em;
+font-weight: bold;
 }
 
 .jlink {
@@ -43,12 +54,11 @@ cursor: pointer;
 #header{
 height:40px;
 margin: 0;
-padding: 0 0 0 50px;
+padding: 10px 0 0 50px;
 background: #4B5657 url('../images/logo.png') no-repeat 15px bottom;
 position: relative;
 font-size: 8pt;
 }
-
 
 #top{
 width:100%;
@@ -78,6 +88,7 @@ border: 1px solid #888;
 }
 
 form input.submit {
+border: 0px;
 background-color: #A92C10;
 color: #fff;
 }
@@ -150,11 +161,19 @@ cursor: pointer;
 white-space: nowrap;
 }
 
-#tips {
-float:right;
+#menu {
+position: absolute;
+bottom: -1px;
+}
+
+#tips,#menu {
 padding: 5px 30px;
 color: #fff;
 font-family: 'Verdana', Geneva, sans-serif;
+}
+
+#tips {
+float: right;
 }
 
 #meta {
@@ -197,6 +216,25 @@ background-color: #5d6a6b;
 div#main {
 background-color: #fff;
 padding: 15px;
+}
+
+div#login {
+padding-top: 100px;
+padding-bottom: 100px;
+background: url('../images/gradient.png') no-repeat scroll 50% 0 transparent;
+text-align: center;
+}
+
+table#logintable td {
+padding: 2px;
+color: #fff;
+font-family: 12px 'Verdana', Geneva, sans-serif; 
+}
+
+table#logintable input {
+font-size: 1.2em;
+padding: 8px;
+text-align:right;
 }
 
 .pagelinks {

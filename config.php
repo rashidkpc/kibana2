@@ -1,2 +1,8 @@
 <?
-$elasticsearch_server = "localhost:9200";
+$elasticsearch_server = "elasticsearch1:9200";
+
+$use_auth = true;
+$auth_username = "admin";
+$auth_password = "password";
+
+

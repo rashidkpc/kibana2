@@ -38,6 +38,7 @@ $(document).ready(function () {
 
 
 function pageload(hash) {
+    if (getcookie('username') != null) $('#menu').html('<a class="tab jlink" href="auth.php?logout">Logout</a>') 
     //if hash value exists, run the ajax
     if (hash) {
         window.hashjson = JSON.parse(base64Decode(hash));
@@ -580,3 +581,13 @@ function addslashes(str) {
     return str;
 }
 
+function getcookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}

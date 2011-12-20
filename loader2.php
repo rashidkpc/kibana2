@@ -1,7 +1,7 @@
 <?
 
 include 'config.php';
-#include 'auth_ldap.php';
+if ($use_auth) include 'auth.php';
 
 $real_timezone = date_default_timezone_get();
 
