@@ -28,4 +28,5 @@ the backend to your language of choice
 
 ChangeLog
 ---------
+0.0.2a - Added smartish index selection, simple auth
 0.0.1a - Initial release
