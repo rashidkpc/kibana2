@@ -25,6 +25,7 @@ if( isset($name) || isset($pass) ) {
 
 	if( $name == $auth_username && $pass == $auth_password ) {
 		$_SESSION['auth'] = 1;
+		$_SESSION['username'] = $name;
 		setcookie("username", $name);
 		header('Location: index.php');
 	}

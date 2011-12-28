@@ -7,61 +7,61 @@ $real_timezone = date_default_timezone_get();
 
 if ($_GET['page']) {
 
+	// Use _all by default, unless logic further down tells us otherwise
     $index = "_all";
 
     // Get JSON
     $json = json_decode(base64url_decode($_GET['page']));
 
-    // Seperate
+    // Preparse parameters
     $url_query = ($json->{'search'} == "" ? "*" : $json->{'search'});
     $fields = (isset($json->{'fields'}) ? $json->{'fields'} : '');
     $time = (isset($json->{'time'}) ? $json->{'time'} : '');
     $interval = (isset($json->{'interval'}) ? $json->{'interval'} : 600000);
     $from = (isset($json->{'offset'}) ? $json->{'offset'} : 0);
-
     $interval = (isset($_GET['interval']) ? roundInterval($_GET['interval']) : 600000);
 
-
-    if ($_GET['mode'] == 'graph') {
-        $return->{'mode'} = 'graph';
-    }
-
-    //$query = array("query" => array());
+	// Contruct the query
     $query['from'] = $json->{'offset'};
-    $query['query']['query_string']['query'] = "(" . $url_query . ")";
+    $query['query']['filtered']['query']['query_string']['query'] = "(" . $url_query . ")";
     $query['size'] = 50;
     $query['sort']['@timestamp']['order'] = 'desc';
     $query['fields'] = array('@timestamp', '@fields', '@message', '@tags');
 
 
+	// Check the mode
+	switch($_GET['mode']) {
+		case 'graph':
+			$return->{'mode'} = 'graph';
+			$query['size'] = 0;
+        	$query['facets']['histo1']['date_histogram']["field"] = "@timestamp";
+        	$query['facets']['histo1']['date_histogram']["interval"] = $interval;	
+			break;
+		case 'analyze':
+			$return->{'mode'} = 'analyze';
+			break;
+		default:
+			$query['facets']['stats']['statistical']["field"] = '@timestamp';	
+	}
 
-    // Check the mode
-    if ($_GET['mode'] == 'graph') {
-        $query['size'] = 0;
-        $query['facets']['histo1']['date_histogram']["field"] = "@timestamp";
-        $query['facets']['histo1']['date_histogram']["interval"] = $interval;
-    } else {
-        $query['facets']['stats']['statistical']["field"] = '@timestamp';
-    }
-
-    
+	// Unless the user gives us exact times, compute relative timeframe based on drop down
     if ($json->{'timeframe'} != "custom") {
         $time->{'from'} = date('c', strtotime($json->{'timeframe'} . " ago"));
         $time->{'to'} = date('c');
     }
-    
 
-    // Check if we have a time range, if so filter
+	// Dates in this section are UTC
     date_default_timezone_set('UTC');
+
+	// Check if we have a time range, if so filter
     if ($time != '') {
-        $query['filter']['range']['@timestamp'] = $time;
+		$query['query']['filtered']['filter']['range']['@timestamp'] = $time;
         $facet = ($_GET['mode'] == 'graph' ? "histo1" : "stats");
-        $query['facets'][$facet]['facet_filter']['range']['@timestamp'] = $time;
         // If our timerange only covers 1 index, only use that index instead of _all
-        if (date('Y.m.d',strtotime($time->{'from'})) == date('Y.m.d',strtotime($time->{'to'}))) {
-            $index = 'logstash-' . date('Y.m.d', strtotime($time->{'from'}));
-        }
+		$index = (date('Y.m.d',strtotime($time->{'from'})) == date('Y.m.d',strtotime($time->{'to'})) ? 'logstash-' . date('Y.m.d', strtotime($time->{'from'})) : '_all');
     }
+
+	// After this, dates are in local timezone
     date_default_timezone_set($real_timezone);
     $result = esQuery($query);
 
