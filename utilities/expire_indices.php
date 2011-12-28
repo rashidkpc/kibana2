@@ -1,8 +1,8 @@
 <?php
 // How many days of logs should I keep?
-$days = 4;
+$days = 5;
 
-include '../config.php';
+include dirname(__FILE__).'/../config.php';
 
 //echo 'logstash-'.date('Y.m.d',strtotime($days . " days ago"));
 
@@ -15,9 +15,9 @@ $result = json_decode(curl_exec($ch));
 
 foreach($result->{'indices'} as $index => $nothing) {
 	$parts = explode("-",$index);
-	$date = DateTime::createFromFormat('Y.m.d', $parts[1]);
-	$date = $date->format('U');
-	if($date < $before) {
+	$date = explode('.',$parts[1]);
+	$date = strtotime($date[1].'/'.$date[2].'/'.$date[0]);
+	if($date < $before && $parts[0] == 'logstash') {
 		$to_delete = "logstash-".date('Y.m.d',$date); 
 		echo "Deleting: ".$to_delete."\n"; 
 		$ch = curl_init();

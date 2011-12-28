@@ -103,12 +103,12 @@ if ($_GET['page']) {
 }
 
 function esQuery($query) {
-    global $index, $elasticsearch_server;
+    global $index,$type, $elasticsearch_server;
     $ch = curl_init();
     $data = json_encode($query);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_URL, 'http://' . $elasticsearch_server . '/' . $index . '/_search');
+    curl_setopt($ch, CURLOPT_URL, 'http://' . $elasticsearch_server . '/' . $index . '/'.$type.'/_search');
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     $result = json_decode(curl_exec($ch));
     return $result;
