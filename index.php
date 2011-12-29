@@ -28,8 +28,10 @@ if ($use_auth) include 'auth.php';
 <body>
 <div id="header">
 	<div id=meta></div>
-	<div id=tips><b>Tip:</b> Narrow searches to short time frames for much faster searching</div>
-	<div id=menu></div>
+	<div id=tips><span class="ui-icon ui-icon-lightbulb ui-state-default ui-corner-all" style="display: inline-block; vertical-align: middle;">tip</span> Speed up searches by keeping timeframes short</div>
+	<div id=menu>
+		<?php include 'menu.php';?>	
+	</div>
 </div>
 <div id="top">
 	<div id=searchdiv>
@@ -56,7 +58,7 @@ if ($use_auth) include 'auth.php';
 			<td width="1%"><input type="submit" class=submit value=Search /></td>
 			<td width="1%"><input type="reset" class="submit" id=resetall value="Reset" /></td>
 			</tr><tr><td></td><td><div id=fields></div></td></tr>
-			</tr><tr><td></td><td><div id=suggested_fields></div></td></tr>
+			</tr><tr><td></td><td><div id=analyze></div></td></tr>
 			</table>
                 </form>
 		</center>
@@ -74,7 +76,7 @@ if ($use_auth) include 'auth.php';
 
 <div class=pagelinks></div>
 <div id="logs">
-<h2>Welcome to Kibana.</h2> Give me a minute, I'm fetching some interesting stuff to display here. Might be a minute. I'm working as hard as I can. STOP YELLING AT ME!
+<h2>Welcome to <strong>Kibana</strong>.</h2> Give me a minute, I'm fetching some interesting stuff to display here. Might be a minute. I'm working as hard as I can. STOP YELLING AT ME!
 </div>
 <div class=pagelinks></div>
 

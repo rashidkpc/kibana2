@@ -21,7 +21,6 @@ font-size: 10pt;
 
 a {
 color: #4e595a;
-font-family: 'Verdana', Geneva, sans-serif;
 }
 
 a.button {
@@ -30,7 +29,6 @@ color: #fff;
 padding: 4px 5px 4px 5px;
 margin-top: 30px;
 text-decoration: none;
-font-family: 'Verdana', Geneva, sans-serif;
 }
 
 a.tab {
@@ -40,14 +38,24 @@ padding: 4px 5px 4px 5px;
 margin-top: 30px;
 margin-left: 10px;
 text-decoration: none;
-font-family: 'Verdana', Geneva, sans-serif;
 font-size: 1.2em;
 font-weight: bold;
+}
+
+span {
+vertical-align: middle;
 }
 
 .jlink {
 cursor: pointer;
 }
+.smallest {font-size: 0.4em;}
+.smaller {font-size: 0.6em;}
+.small {font-size: 0.8em;}
+.normal {font-size: 1em;}
+.big {font-size: 1.2em;}
+.bigger {font-size: 1.8em;}
+.biggest {font-size: 2.5em;}
 
 /* Header */
 
@@ -110,7 +118,12 @@ color: #4B5657;
 vertical-align: middle;
 }
 
-#fields a:hover {
+#analyze {
+border-top : 2px dotted #666;
+padding-top: 2px;
+}
+
+#fields a:hover, #analyze a:hover {
 color: #A92C10;
 }
 
@@ -127,10 +140,16 @@ h1,h2,h3 {
 font-family: Georgia, Serif;
 margin-bottom: 5px;
 margin-top: 5px;
+font-weight: normal;
 }
 
 h2 {
-font-size: 3.0em
+font-size: 3.0em;
+}
+
+h2 strong {
+color: #A92C10;
+font-weight: normal;
 }
 
 img
@@ -164,6 +183,10 @@ white-space: nowrap;
 #menu {
 position: absolute;
 bottom: -1px;
+}
+
+#dynamic_menu,#static_menu {
+float:left;
 }
 
 #tips,#menu {

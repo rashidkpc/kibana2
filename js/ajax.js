@@ -38,7 +38,7 @@ $(document).ready(function () {
 
 
 function pageload(hash) {
-    if (getcookie('username') != null) $('#menu').html('<a class="tab jlink" href="auth.php?logout">Logout</a>') 
+    if (getcookie('username') != null) $('#dynamic_menu').html('<a class="tab jlink" href="auth.php?logout">Logout</a>') 
     //if hash value exists, run the ajax
     if (hash) {
         window.hashjson = JSON.parse(base64Decode(hash));
@@ -52,7 +52,12 @@ function pageload(hash) {
             window.hashjson.timeframe = "custom";
         }
         $('#timeinput').val(window.hashjson.timeframe);
-        getPage();
+        if(window.hashjson.mode == 'analyze') {
+            getAnalysis();
+        } else {
+            getPage();
+            
+        }
     } else {
         window.hashjson = JSON.parse('{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
         setHash(window.hashjson);
@@ -96,12 +101,16 @@ function getPage() {
                     for(var index in window.hashjson.fields) {
                         fieldstr += "<a class='jlink logfield_selected' onClick='mFields(\"" + window.hashjson.fields[index] + "\")'>" + window.hashjson.fields[index] + "</a> ";
                     }
+            
+                    var analyzestr = "";
                     for(var index in resultjson.all_fields) {
+                        analyzestr += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='analyzeField(\"" + resultjson.all_fields[index].toString() +"\")'>" + resultjson.all_fields[index].toString() + "</a> ";
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0)
                             fieldstr += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
                     }
-                    $('#fields').html("Fields: " + fieldstr);
-
+                    $('#fields').html("Show: " + fieldstr);
+                    $('#analyze').html("Analyze: " + analyzestr);                   
+ 
                     // Create and populate graph
                     $('#graph').html('<center><br><p><img src=images/barload.gif></center>');
                     getGraph(resultjson.graph.interval);
@@ -153,6 +162,64 @@ function getGraph(interval) {
                 // Create and populate graph
                 logGraph(graphjson.graph.data, window.interval);
 
+            }
+        }
+    });
+}
+
+function analyzeField(field) {
+    window.hashjson.mode = 'analyze';
+    window.hashjson.analyze_field = field;
+    setHash(window.hashjson);
+}
+
+function getAnalysis() {
+    $('#meta').html("<img src=images/ajax-loader.gif>");
+    //generate the parameter for the php script
+    var sendhash = window.location.hash.replace(/^#/, '');
+    var data = 'page=' + sendhash + "&mode=analyze";
+    //Get the data and display it
+    request = $.ajax({
+        url: "loader2.php",
+        type: "GET",
+        data: data,
+        cache: false,
+        success: function (json) {
+            // Make sure we're still on the same page 
+            if (sendhash == window.location.hash.replace(/^#/, '')) {
+
+                //Parse out the returned JSON
+                var resultjson = JSON.parse(json);
+                window.resultjson = resultjson;
+                console.log(resultjson);
+                var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all "+ resultjson.analysis.count +"</strong>" : 'the <strong>'+resultjson.analysis.count+' most recent</strong>';
+                var str = '<h2>Analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smallest jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br><table class=logs><th>Count</th><th>'+window.hashjson.analyze_field+'</th>';
+                var i = 0;
+                var count = 0;
+                for (var obj in resultjson.analysis.results) {
+                    count = resultjson.analysis.results[obj];
+                    str += (i % 2 == 0) ? '<tr><td>'+count+'</td><td>'+obj : '<tr class=alt><td>'+count+'</td><td>'+obj;
+                    str += " <span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink' onClick='mSearch(\""+window.hashjson.analyze_field+"\",\""+obj+"\")'>Search for this</span>";  
+                    str += "</td></tr>";
+                    i++;
+                }
+                str += '</table>'
+                $('#logs').html(str);
+                
+                $("#back_to_logs").click(function () {
+                    window.hashjson.mode = '';
+                    window.hashjson.analyze_field = '';
+                    setHash(window.hashjson);
+                });
+
+                // Create and populate graph
+                $('#graph').html('<center><br><p><img src=images/barload.gif></center>');
+                getGraph(resultjson.graph.interval);
+                
+                $('.pagelinks').html('');
+                $('#fields').html('');
+                $('#meta').html("<tr class=alt><td>Hits</td><td>" + addCommas(resultjson.hits) + "</td></tr>");
+                $('#meta').append("<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>");
             }
         }
     });
@@ -271,12 +338,14 @@ function viewLog(objid) {
         if(!(field.match(/^@cabin_/))) {
             trclass = (i % 2 == 0) ? 'class=alt' : '';
             str += "<tr " + trclass + ">";
-            str += "<td class='logfield firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "' onClick='mFields(\"" + field + "\")'>" + field + "</td>";
+            str += "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "'>" + field + "<span style='display: inline-block;' class='ui-icon ui-icon-gear ui-state-default ui-corner-all jlink' onClick='analyzeField(\"" + field +"\")'></td>";
             str += '<td>';
 		
             str += wbr(value, 3);
-            str += " <img src=images/plus.png class=jlink onClick='mSearch(\"" + field + "\",getField(\""+objid+"\",\""+field+"\"))'> "; 
-            str += " <img src=images/minus.png class=jlink onClick='mSearch(\"NOT " + field + "\",getField(\""+objid+"\",\""+field+"\"))'>";
+            str += " <div style='display: inline-block'>";
+            str += "<span style='display: inline-block' class='ui-icon ui-icon-plus ui-state-default ui-corner-all jlink' onClick='mSearch(\"" + field + "\",getField(\""+objid+"\",\""+field+"\"))'>Search for this</span> "; 
+            str += "<span style='display: inline-block' class='ui-icon ui-icon-minus ui-state-default ui-corner-all jlink' onClick='mSearch(\"NOT " + field + "\",getField(\""+objid+"\",\""+field+"\"))'>Search for NOT this</span> ";
+            str += "</div>";
             str += "</td></tr>";
             i++;
         }
@@ -285,6 +354,13 @@ function viewLog(objid) {
 
     // Populate td with that table
     $('#log_' + objid).html(str);
+
+    $('.ui-state-default').hover(function() {
+        $(this).toggleClass('ui-state-hover');
+    });
+    $('.ui-state-default').click(function() {
+        $(this).toggleClass('ui-state-active');
+    });
 
     // Regular jQuery toggle() doesn't work with table-rows
     $('#logrow_' + objid).toggleClass('showdetails');
@@ -297,6 +373,8 @@ function getField(objid,field) {
 }
 
 function mSearch(field,value) {
+    window.hashjson.mode = '';
+    window.hashjson.analyze_field = '';
     var glue = $('#queryinput').val() != "" ? " AND " : " ";
     window.hashjson.search = $('#queryinput').val() + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
     setHash(window.hashjson);
@@ -320,7 +398,7 @@ function mFields(field) {
         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) 
             str += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
     }
-    $('#fields').html("Fields: " + str);
+    $('#fields').html("Show: " + str);
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
     $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs'));
@@ -347,13 +425,13 @@ $(function () {
             window.hashjson.offset = 0;
             window.hashjson.search = $('#queryinput').val();
         }
+        window.hashjson.stamp = new Date().getTime();
         window.hashjson.fields = $('#fieldsinput').val().split(',');
         window.hashjson.timeframe =  $('#timeinput').val();
 
 
-        // We have to re-trigger get page if someone clicks Search without changing anything
         if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
-            getPage();
+            pageload(window.location.hash);
         } else {
             setHash(window.hashjson);
         }
@@ -570,7 +648,7 @@ function sortObj(arr){
 
 
 function tip(tip) {
-    $('#tips').html('<img src=images/info.png> '+tip);
+    $('#tips').html('<span class="ui-icon ui-icon-lightbulb ui-state-default ui-corner-all" style="display: inline-block;">tip</span> '+tip);
 }
 
 function addslashes(str) {

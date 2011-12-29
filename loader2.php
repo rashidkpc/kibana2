@@ -38,6 +38,8 @@ if ($_GET['page']) {
         	$query['facets']['histo1']['date_histogram']["interval"] = $interval;	
 			break;
 		case 'analyze':
+            $field = $json->{'analyze_field'};
+            $query['facets']['stats']['statistical']["field"] = '@timestamp';
 			$return->{'mode'} = 'analyze';
 			break;
 		default:
@@ -65,41 +67,60 @@ if ($_GET['page']) {
     date_default_timezone_set($real_timezone);
     $result = esQuery($query);
 
-
     // Add some top level statistical and informational data
     $return->{'index'} = $index;
     $return->{'hits'} = $result->{'hits'}->{'total'};
     $return->{'graph'}->{'data'} = $result->{'facets'}->{'histo1'}->{'entries'};
     $return->{'total'} = esTotal();
-    
-    // Compute the interval for 100 bars
     $return->{'graph'}->{'interval'} = ($_GET['mode'] == 'graph' ? $interval : ($result->{'facets'}->{'stats'}->{'max'} - $result->{'facets'}->{'stats'}->{'min'}) / 100);
-    
-    $return->{'fields_requested'} = $fields;
-    $return->{'all_fields'} = array('@message', '@tags');
-    $return->{'elasticsearch_json'} = json_encode($query);
-    
-    // Process the hits
+ 
+    // Some debug work for the analyze function
     $i = 0;
-    foreach ($result->{'hits'}->{'hits'} as $hit) {
-        $i++;
-        $return->{'results'}[$hit->{'_id'}]['@cabin_time'] = date('m/d H:i:s', strtotime($hit->{'fields'}->{'@timestamp'}));
-        $return->{'results'}[$hit->{'_id'}]['@timestamp'] = $hit->{'fields'}->{'@timestamp'};
-        foreach ($hit->{'fields'}->{'@fields'} as $fieldname => $field) {
-            $value = $hit->{'fields'}->{'@fields'}->{$fieldname};
-            $return->{'results'}[$hit->{'_id'}][$fieldname] = $value;
-            if (!in_array($fieldname, $return->{'all_fields'})) array_push($return->{'all_fields'}, $fieldname);
+    if($_GET['mode'] == 'analyze') {
+        $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
+        $query['size'] = $analyze_limit;
+        $query['fields'] = $field;
+        $result = esQuery($query);
+        foreach ($result->{'hits'}->{'hits'} as $hit) {
+            $i++;
+            $analyze[$i] = implode(',',$hit->{'fields'}->{$field});
         }
-        $return->{'results'}[$hit->{'_id'}]['@message'] = $hit->{'fields'}->{'@message'};
-        $return->{'results'}[$hit->{'_id'}]['@tags'] = $hit->{'fields'}->{'@tags'};
+        unset($result);
+        //$return->{'debug'} = $analyze;
+        $analyze = array_count_values($analyze);
+        arsort($analyze);
+        $analyze = array_slice($analyze,0,$analyze_show,true);
+        $return->{'analysis'}->{'results'} = $analyze; 
+        $return->{'analysis'}->{'count'} = $i;
+    } else {
+         // Compute the interval for around 100 bars
+        $return->{'all_fields'} = array('@message', '@tags');
+        foreach ($result->{'hits'}->{'hits'} as $hit) {
+            $i++;
+            $return->{'results'}[$hit->{'_id'}]['@cabin_time'] = date('m/d H:i:s', strtotime($hit->{'fields'}->{'@timestamp'}));
+            $return->{'results'}[$hit->{'_id'}]['@timestamp'] = $hit->{'fields'}->{'@timestamp'};
+            foreach ($hit->{'fields'}->{'@fields'} as $fieldname => $field) {
+                $value = $hit->{'fields'}->{'@fields'}->{$fieldname};
+                $return->{'results'}[$hit->{'_id'}][$fieldname] = $value;
+                if (!in_array($fieldname, $return->{'all_fields'})) array_push($return->{'all_fields'}, $fieldname);
+            }
+            $return->{'results'}[$hit->{'_id'}]['@message'] = $hit->{'fields'}->{'@message'};
+            $return->{'results'}[$hit->{'_id'}]['@tags'] = $hit->{'fields'}->{'@tags'};
+        }
+        sort($return->{'all_fields'});
+        $return->{'page_count'} = $i;
     }
-    sort($return->{'all_fields'});
-    $return->{'page_count'} = $i;
-    $return = json_encode($return);
+    $return->{'fields_requested'} = $fields;
+    $return->{'elasticsearch_json'} = json_encode($query);
 
+    $return->{'debug'} = memory_get_usage();
+    $return = json_encode($return);
     echo $return;
+
 } else {
+
     echo "No Page parameter";
+
 }
 
 function esQuery($query) {
