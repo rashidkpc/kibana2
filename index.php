@@ -8,18 +8,17 @@ if ($use_auth) include 'auth.php';
 
 <html lang="en">
 <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Kibana</title>
-        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-        <script type="text/javascript" src="js/jquery.history.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Kibana</title>
+    <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.history.js"></script>
 	<script type="text/javascript" src="js/jquery.flot.min.js"></script>
 	<script type="text/javascript" src="js/jquery.flot.selection.min.js"></script>
-        <script type="text/javascript" src="js/ajax.js"></script>
+    <script type="text/javascript" src="js/ajax.js"></script>
 	<script type="text/javascript" src="js/base64.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.ui.datepicker.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-
 
 	<LINK REL=StyleSheet HREF="css/style.css" TYPE="text/css" MEDIA=screen>
 	<LINK REL=StyleSheet HREF="css/jquery-ui-1.8.16.custom.css" TYPE="text/css" MEDIA=screen>

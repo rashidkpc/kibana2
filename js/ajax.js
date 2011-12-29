@@ -193,12 +193,13 @@ function getAnalysis() {
                 window.resultjson = resultjson;
                 console.log(resultjson);
                 var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all "+ resultjson.analysis.count +"</strong>" : 'the <strong>'+resultjson.analysis.count+' most recent</strong>';
-                var str = '<h2>Analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smallest jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br><table class=logs><th>Count</th><th>'+window.hashjson.analyze_field+'</th>';
+                var str = '<h2>Analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br><table class=logs>';
+                str += '<th>Count</th><th>Percentage</th><th>'+window.hashjson.analyze_field+'</th>';
                 var i = 0;
                 var count = 0;
                 for (var obj in resultjson.analysis.results) {
                     count = resultjson.analysis.results[obj];
-                    str += (i % 2 == 0) ? '<tr><td>'+count+'</td><td>'+obj : '<tr class=alt><td>'+count+'</td><td>'+obj;
+                    str += (i % 2 == 0) ? '<tr><td>'+count+'</td><td>'+ Math.round(count/resultjson.analysis.count*10000)/100  +'%</td><td>'+obj : '<tr class=alt><td>'+count+'</td><td>'+ Math.round(count/resultjson.analysis.count*10000)/100  +'%</td><td>'+obj;
                     str += " <span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink' onClick='mSearch(\""+window.hashjson.analyze_field+"\",\""+obj+"\")'>Search for this</span>";  
                     str += "</td></tr>";
                     i++;
