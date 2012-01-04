@@ -222,6 +222,10 @@ font-family: 'Verdana', Geneva, sans-serif;
 font-size: 9pt;
 }
 
+.clear {
+clear:both;
+}
+
 #footer {
 clear:both;
 color: #fff;
@@ -272,6 +276,11 @@ div#tables {
 position: relative;
 }
 
+div#leftwrapper {
+float:left;
+width: 100%;
+}
+
 div#left {
 margin-right: 210px;
 }
@@ -280,11 +289,12 @@ div#logs {
 font-family: 'Courier New', Courier, monospace;
 font-size: 9pt;
 border-right: 1px dotted #999;
-padding-right: 15px;
+padding-right: 10px;
 }
 
 div#sidebar {
-position: absolute;
+float:left;
+margin-left: -210px;
 margin-top: 20px;
 padding-left: 10px;
 top: 0;

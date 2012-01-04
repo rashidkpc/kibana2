@@ -1,8 +1,6 @@
 <?
-
 include 'config.php';
 if ($use_auth) include 'auth.php';
-
 $real_timezone = date_default_timezone_get();
 
 if ($_GET['page']) {
@@ -79,54 +77,87 @@ if ($_GET['page']) {
  
     // Are we analyzing data or displaying logs? 
     $i = 0;
-    if($_GET['mode'] == 'analyze') {
-        $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
-        $query['size'] = $analyze_limit;
-        $query['fields'] = $field;
-        $result = esQuery($query);
-        foreach ($result->{'hits'}->{'hits'} as $hit) {
-            $i++;
-            $analyze[$i] = implode(',',$hit->{'fields'}->{$field});
-        }
-        unset($result);
-        
-        $analyze = array_count_values($analyze);
-        arsort($analyze);
-        $analyze = array_slice($analyze,0,$analyze_show,true);
 
-        $query['sort']['@timestamp']['order'] = 'asc';
-        $result = esQuery($query);
-        $i = 0;
-        foreach ($result->{'hits'}->{'hits'} as $hit) {
-            $i++;
-            $analyze2[$i] = implode(',',$hit->{'fields'}->{$field});
-        }
-        $analyze2 = array_count_values($analyze2);
-    
-        foreach ($analyze as $key => $value) {
-            $final[$key]['count'] = $value;
-            $final[$key]['start'] = $analyze2[$key];
-            $final[$key]['trend'] = round(($value-$analyze2[$key])/$analyze2[$key]*100,2);
-        }
-
-        $return->{'analysis'}->{'results'} = $final;
-        $return->{'analysis'}->{'count'} = $i;
-    } else {
-        $return->{'all_fields'} = array('@message', '@tags');
-        foreach ($result->{'hits'}->{'hits'} as $hit) {
-            $i++;
-            $return->{'results'}[$hit->{'_id'}]['@cabin_time'] = date('m/d H:i:s', strtotime($hit->{'fields'}->{'@timestamp'}));
-            $return->{'results'}[$hit->{'_id'}]['@timestamp'] = $hit->{'fields'}->{'@timestamp'};
-            foreach ($hit->{'fields'}->{'@fields'} as $fieldname => $field) {
-                $value = $hit->{'fields'}->{'@fields'}->{$fieldname};
-                $return->{'results'}[$hit->{'_id'}][$fieldname] = $value;
-                if (!in_array($fieldname, $return->{'all_fields'})) array_push($return->{'all_fields'}, $fieldname);
+    switch($_GET['mode']) {
+        case 'analyze':
+            $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
+            $query['size'] = $analyze_limit;
+            $query['fields'] = $field;
+            $result = esQuery($query);
+            foreach ($result->{'hits'}->{'hits'} as $hit) {
+                $i++;
+                $analyze[$i] = implode(',',$hit->{'fields'}->{$field});
             }
-            $return->{'results'}[$hit->{'_id'}]['@message'] = $hit->{'fields'}->{'@message'};
-            $return->{'results'}[$hit->{'_id'}]['@tags'] = $hit->{'fields'}->{'@tags'};
-        }
-        sort($return->{'all_fields'});
-        $return->{'page_count'} = $i;
+            unset($result);
+
+            $analyze = array_count_values($analyze);
+            arsort($analyze);
+            $analyze = array_slice($analyze,0,$analyze_show,true);
+
+            foreach ($analyze as $key => $value) {
+                $final[$key]['count'] = $value;
+            }
+
+            $return->{'analysis'}->{'results'} = $final;
+            $return->{'analysis'}->{'count'} = $i;
+            break;
+        case 'trend':
+            $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
+            $query['size'] = 0;
+            $query['fields'] = $field;
+            $result = esQuery($query);
+            
+            $query['size'] = ($return->{'hits'} < $analyze_limit*2 ? $return->{'hits'}/2 : $analyze_limit);
+            $result = esQuery($query);           
+ 
+            foreach ($result->{'hits'}->{'hits'} as $hit) {
+                $i++;
+                $analyze[$i] = implode(',',$hit->{'fields'}->{$field});
+            }
+            unset($result);
+            
+            $analyze = array_count_values($analyze);
+    
+            $query['sort']['@timestamp']['order'] = 'asc';
+            $query['size'] = ($return->{'hits'} < $analyze_limit*2 ? $return->{'hits'}/2 : $analyze_limit); 
+            
+            $result = esQuery($query);
+            $i = 0;
+            foreach ($result->{'hits'}->{'hits'} as $hit) {
+                $i++;
+                $analyze2[$i] = implode(',',$hit->{'fields'}->{$field});
+            }
+            $analyze2 = array_count_values($analyze2);
+        
+            foreach ($analyze as $key => $value) {
+                $final[$key]['count'] = $value;
+                $final[$key]['start'] = $analyze2[$key];
+                $final[$key]['trend'] = (is_int($analyze2[$key]) ? round(($value-$analyze2[$key])/$analyze2[$key]*100,2) : "new");
+                $final[$key]['abs'] = abs($final[$key]['trend']);
+            }
+
+            aasort($final,"abs");
+ 
+            $final = array_slice($final,0,$analyze_show,true);
+            $return->{'analysis'}->{'results'} = $final;
+            $return->{'analysis'}->{'count'} = $i;
+            break;
+        default:
+            $return->{'all_fields'} = array('@message', '@tags');
+            foreach ($result->{'hits'}->{'hits'} as $hit) {
+                $i++;
+                $return->{'results'}[$hit->{'_id'}]['@cabin_time'] = date('m/d H:i:s', strtotime($hit->{'fields'}->{'@timestamp'}));
+                $return->{'results'}[$hit->{'_id'}]['@timestamp'] = $hit->{'fields'}->{'@timestamp'};
+                foreach ($hit->{'fields'}->{'@fields'} as $fieldname => $field) {
+                    $value = $hit->{'fields'}->{'@fields'}->{$fieldname};
+                    $return->{'results'}[$hit->{'_id'}][$fieldname] = $value;
+                    if (!in_array($fieldname, $return->{'all_fields'})) array_push($return->{'all_fields'}, $fieldname);
+                }
+                $return->{'results'}[$hit->{'_id'}]['@message'] = $hit->{'fields'}->{'@message'};
+                $return->{'results'}[$hit->{'_id'}]['@tags'] = $hit->{'fields'}->{'@tags'};
+            }
+            sort($return->{'all_fields'});
+            $return->{'page_count'} = $i;
     }
     $return->{'fields_requested'} = $fields;
     $return->{'elasticsearch_json'} = json_encode($query);
@@ -197,5 +228,20 @@ function base64url_decode($base64url) {
     $plainText = base64_decode($base64);
     return ($plainText);
 }
+
+function aasort (&$array, $key) {
+    $sorter=array();
+    $ret=array();
+    reset($array);
+    foreach ($array as $ii => $va) {
+        $sorter[$ii]=$va[$key];
+    }
+    arsort($sorter);
+    foreach ($sorter as $ii => $va) {
+        $ret[$ii]=$array[$ii];
+    }
+    $array=$ret;
+}
+
 
 ?>

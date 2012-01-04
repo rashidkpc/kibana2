@@ -20,6 +20,11 @@ $(document).ready(function () {
         delete window.hashjson.time;
     });
 
+    $("div#logs").ajaxError(function(e, xhr, settings, exception) {
+        $('#meta').text("");
+        $(this).html( "<h2><strong>Oops!</strong> Something went terribly wrong.</h2>I'm not totally sure what happened, but maybe logging out, or hitting Reset will help. If that doesn't word, you can try restarting your browser. If all else fails, it possible your configuation has something funky going on. <br><br>If it helps, I received a <strong>" + xhr.status + " " + xhr.statusText +"</strong> from: "+ settings.url );
+    }); 
+
     // Basically, whenever the URL changes, fire this.
     $.history.init(pageload);
 
@@ -52,7 +57,7 @@ function pageload(hash) {
             window.hashjson.timeframe = "custom";
         }
         $('#timeinput').val(window.hashjson.timeframe);
-        if(window.hashjson.mode == 'analyze') {
+        if(window.hashjson.mode == 'analyze' || window.hashjson.mode == 'trend') {
             getAnalysis();
         } else {
             getPage();
@@ -103,10 +108,21 @@ function getPage() {
                     }
             
                     var analyzestr = "";
+                    var afield = '';
                     for(var index in resultjson.all_fields) {
-                        analyzestr += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='analyzeField(\"" + resultjson.all_fields[index].toString() +"\")'>" + resultjson.all_fields[index].toString() + "</a> ";
+                        afield = resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field";
+                        analyzestr += "<span id='analyze_"+afield+"' style='display: inline-block' class='ui-icon ui-icon-gear jlink'>Analyze</span> ";
+                        analyzestr += "<span id='trend_"+afield+"' style='display: inline-block' class='ui-icon ui-icon-image jlink'>Trend</span> ";
+                        analyzestr += "<span>" + resultjson.all_fields[index].toString() + "</span><br>";
+                        $("#main").delegate("span#analyze_"+afield, "click", function() {
+                            console.log($(this).next().text());
+                            analyzeField($(this).next().next().text(),"analyze");
+                        });
+                        $("#main").delegate("span#trend_"+afield, "click", function() {
+                            analyzeField($(this).next().text(),"trend");
+                        });
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0)
-                            fieldstr += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
+                            fieldstr += "<a class='jlink "+ afield + "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
                     }
                     $('#fields').html("<h2><strong>Show</strong> Fields</h2>" + fieldstr);
                     $('#analyze').html("<h2><strong>Analyze</strong> Field</h2>" + analyzestr);                   
@@ -167,8 +183,8 @@ function getGraph(interval) {
     });
 }
 
-function analyzeField(field) {
-    window.hashjson.mode = 'analyze';
+function analyzeField(field,mode) {
+    window.hashjson.mode = mode;
     window.hashjson.analyze_field = field;
     setHash(window.hashjson);
 }
@@ -177,7 +193,7 @@ function getAnalysis() {
     $('#meta').html("<img src=images/ajax-loader.gif>");
     //generate the parameter for the php script
     var sendhash = window.location.hash.replace(/^#/, '');
-    var data = 'page=' + sendhash + "&mode=analyze";
+    var data = 'page=' + sendhash + "&mode="+window.hashjson.mode;
     //Get the data and display it
     request = $.ajax({
         url: "loader2.php",
@@ -193,10 +209,20 @@ function getAnalysis() {
                 var resultjson = JSON.parse(json);
                 window.resultjson = resultjson;
                 console.log(resultjson);
-                var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all "+ resultjson.analysis.count +"</strong>" : 'the <strong>'+resultjson.analysis.count+' most recent</strong>';
-                var str = '<h2>Analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe. Trends are identified by looking at a sample of data from the beginning of your selected range, and comparing it to the end.<br><br>';
-                str += '<table class="logs analysis">';
-                str += '<th></th><th>'+window.hashjson.analyze_field+'</th><th>Count</th><th>Percent</th><th>Trend</th>';
+                switch(window.hashjson.mode) {
+                case 'analyze':
+                    var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all "+ resultjson.analysis.count +"</strong>" : 'the <strong>'+resultjson.analysis.count+' most recent</strong>';
+                    var title = '<h2>Quick analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br>';
+                    break;
+                case 'trend':
+                    var basedon = "<strong>"+ resultjson.analysis.count +"</strong>";
+                    var title = '<h2>Trend analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>These trends are based on '+basedon+' events from beginning and end of the selected timeframe for your query.<br><br>';
+                    break;
+                } 
+                var str = title+'<table class="logs analysis">';
+                str += '<th>Rank</th><th>'+window.hashjson.analyze_field+'</th><th>Count</th><th>Percent</th>';
+                if(window.hashjson.mode == 'trend') str += '<th>Trend</th>';
+                str += '<th></th>';
                 var i = 0;
                 var metric = 0;
                 var isalt = '';
@@ -204,14 +230,14 @@ function getAnalysis() {
                     metric = resultjson.analysis.results[obj];
                     isalt = (i % 2 == 0) ? '' : 'alt';
                     str += '<tr class="'+isalt+'" id="analysisrow_'+i+'">';
-                    str += "<td><span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink'>Search for this</span></td>";
+                    str += '<td><strong>'+(i+1)+'</strong></td>';
                     str += '<td class=analysis_value>'+obj+'</td>';
                     str += '<td>'+metric['count']+'</td><td>'+ Math.round(metric['count']/resultjson.analysis.count*10000)/100  +'%</td>';
-                    str += (metric['trend'] > 0) ? '<td class=positive>+'+metric['trend']+'</td>' : '<td class=negative>'+metric['trend']+'</td>';
+                    if(window.hashjson.mode == 'trend') str += (metric['trend'] > 0) ? '<td class=positive>+'+metric['trend']+'</td>' : '<td class=negative>'+metric['trend']+'</td>';
+                    str += "<td><span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink'>Search for this</span></td>";
                     str += "</tr>";
                     $("#main").delegate(".analysis tr#analysisrow_"+i+" td span", "click", function() {
-                        mSearch(field,$(this).parent().next().text()); 
-                        //$(this).toggleClass("chosen");
+                        mSearch(field,$(this).parent().siblings('.analysis_value').text()); 
                     });
                     i++;
                 }
@@ -350,7 +376,7 @@ function viewLog(objid) {
         if(!(field.match(/^@cabin_/))) {
             trclass = (i % 2 == 0) ? 'class=alt' : '';
             str += "<tr " + trclass + ">";
-            str += "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "'>" + field + "<span style='display: inline-block;' class='ui-icon ui-icon-gear ui-state-default ui-corner-all jlink' onClick='analyzeField(\"" + field +"\")'></td>";
+            str += "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "'>" + field + "<span style='display: inline-block;' class='ui-icon ui-icon-gear ui-state-default ui-corner-all jlink' onClick='analyzeField(\"" + field +"\",\"analyze\")'></td>";
             str += '<td>';
 		
             str += wbr(value, 3);

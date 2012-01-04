@@ -69,17 +69,20 @@ if ($use_auth) include 'auth.php';
         <div id="graph"></div>
 
         <div id=tables>
-            <div id=left>
-                <div class=pagelinks></div>
-                <div id="logs">
-                    <h2>Welcome to <strong>Kibana</strong>.</h2> Give me a minute, I'm fetching some interesting stuff to display here. Might be a minute. I'm working as hard as I can. STOP YELLING AT ME!
+            <div id=leftwrapper>
+                <div id=left>
+                    <div class=pagelinks></div>
+                    <div id="logs">
+                        <h2>Welcome to <strong>Kibana</strong>.</h2> Give me a minute, I'm fetching some interesting stuff to display here. Might be a minute. I'm working as hard as I can. STOP YELLING AT ME!
+                    </div>
+                    <div class=pagelinks></div>
                 </div>
-                <div class=pagelinks></div>
             </div>
             <div id=sidebar>
                 <div id=fields></div>
                 <div id=analyze></div>
             </div>
+            <div class=clear></div>
         </div>
     </div>
 
