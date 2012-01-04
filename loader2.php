@@ -37,6 +37,7 @@ if ($_GET['page']) {
         	$query['facets']['histo1']['date_histogram']["field"] = "@timestamp";
         	$query['facets']['histo1']['date_histogram']["interval"] = $interval;	
 			break;
+        case 'trend':
 		case 'analyze':
             $field = $json->{'analyze_field'};
             $query['facets']['stats']['statistical']["field"] = '@timestamp';
@@ -72,9 +73,11 @@ if ($_GET['page']) {
     $return->{'hits'} = $result->{'hits'}->{'total'};
     $return->{'graph'}->{'data'} = $result->{'facets'}->{'histo1'}->{'entries'};
     $return->{'total'} = esTotal();
+
+    // Compute an interval to give us around 100 bars
     $return->{'graph'}->{'interval'} = ($_GET['mode'] == 'graph' ? $interval : ($result->{'facets'}->{'stats'}->{'max'} - $result->{'facets'}->{'stats'}->{'min'}) / 100);
  
-    // Some debug work for the analyze function
+    // Are we analyzing data or displaying logs? 
     $i = 0;
     if($_GET['mode'] == 'analyze') {
         $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
@@ -86,14 +89,29 @@ if ($_GET['page']) {
             $analyze[$i] = implode(',',$hit->{'fields'}->{$field});
         }
         unset($result);
-        //$return->{'debug'} = $analyze;
+        
         $analyze = array_count_values($analyze);
         arsort($analyze);
         $analyze = array_slice($analyze,0,$analyze_show,true);
-        $return->{'analysis'}->{'results'} = $analyze; 
+
+        $query['sort']['@timestamp']['order'] = 'asc';
+        $result = esQuery($query);
+        $i = 0;
+        foreach ($result->{'hits'}->{'hits'} as $hit) {
+            $i++;
+            $analyze2[$i] = implode(',',$hit->{'fields'}->{$field});
+        }
+        $analyze2 = array_count_values($analyze2);
+    
+        foreach ($analyze as $key => $value) {
+            $final[$key]['count'] = $value;
+            $final[$key]['start'] = $analyze2[$key];
+            $final[$key]['trend'] = round(($value-$analyze2[$key])/$analyze2[$key]*100,2);
+        }
+
+        $return->{'analysis'}->{'results'} = $final;
         $return->{'analysis'}->{'count'} = $i;
     } else {
-         // Compute the interval for around 100 bars
         $return->{'all_fields'} = array('@message', '@tags');
         foreach ($result->{'hits'}->{'hits'} as $hit) {
             $i++;

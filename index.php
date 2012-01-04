@@ -35,7 +35,7 @@ if ($use_auth) include 'auth.php';
 <div id="top">
 	<div id=searchdiv>
 		<center>
-                <form action="" method="post" id=queryform>
+            <form action="" method="post" id=queryform>
 			<table><tr>
 			<th>Timeframe</th><th>Search</th>
 			</tr>
@@ -56,34 +56,37 @@ if ($use_auth) include 'auth.php';
 			<input type="hidden" name="fields" id=fieldsinput /></td>
 			<td width="1%"><input type="submit" class=submit value=Search /></td>
 			<td width="1%"><input type="reset" class="submit" id=resetall value="Reset" /></td>
-			</tr><tr><td></td><td><div id=fields></div></td></tr>
-			</tr><tr><td></td><td><div id=analyze></div></td></tr>
+			</tr>
 			</table>
                 </form>
 		</center>
-        </div>
-
-
+    </div>
 </div>
+
 <div id="content">
+    <div id="main">
+        <div id="graphheader"></div>
+        <div id="graph"></div>
 
-<div id="main">
+        <div id=tables>
+            <div id=left>
+                <div class=pagelinks></div>
+                <div id="logs">
+                    <h2>Welcome to <strong>Kibana</strong>.</h2> Give me a minute, I'm fetching some interesting stuff to display here. Might be a minute. I'm working as hard as I can. STOP YELLING AT ME!
+                </div>
+                <div class=pagelinks></div>
+            </div>
+            <div id=sidebar>
+                <div id=fields></div>
+                <div id=analyze></div>
+            </div>
+        </div>
+    </div>
 
-<div id="graphheader"></div>
-<div id="graph">
-</div>
-
-<div class=pagelinks></div>
-<div id="logs">
-<h2>Welcome to <strong>Kibana</strong>.</h2> Give me a minute, I'm fetching some interesting stuff to display here. Might be a minute. I'm working as hard as I can. STOP YELLING AT ME!
-</div>
-<div class=pagelinks></div>
-
-</div>
 </div>
 
 <div id="footer">
-<center>This is Kibana. Kibana is a log analysis tool. Kibana sits on top of <a href='http://logstash.net'>Logstash</a> and <a href='http://www.elasticsearch.org'>Elastic Search</a></center>
+    <center>This is Kibana. Kibana is a log analysis tool. Kibana sits on top of <a href='http://logstash.net'>Logstash</a> and <a href='http://www.elasticsearch.org'>Elastic Search</a></center>
 </div>
 
 </body>

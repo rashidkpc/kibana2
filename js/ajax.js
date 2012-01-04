@@ -108,8 +108,8 @@ function getPage() {
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0)
                             fieldstr += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
                     }
-                    $('#fields').html("Show: " + fieldstr);
-                    $('#analyze').html("Analyze: " + analyzestr);                   
+                    $('#fields').html("<h2><strong>Show</strong> Fields</h2>" + fieldstr);
+                    $('#analyze').html("<h2><strong>Analyze</strong> Field</h2>" + analyzestr);                   
  
                     // Create and populate graph
                     $('#graph').html('<center><br><p><img src=images/barload.gif></center>');
@@ -189,19 +189,30 @@ function getAnalysis() {
             if (sendhash == window.location.hash.replace(/^#/, '')) {
 
                 //Parse out the returned JSON
+                var field = window.hashjson.analyze_field;
                 var resultjson = JSON.parse(json);
                 window.resultjson = resultjson;
                 console.log(resultjson);
                 var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all "+ resultjson.analysis.count +"</strong>" : 'the <strong>'+resultjson.analysis.count+' most recent</strong>';
-                var str = '<h2>Analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br><table class=logs>';
-                str += '<th>Count</th><th>Percentage</th><th>'+window.hashjson.analyze_field+'</th>';
+                var str = '<h2>Analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe. Trends are identified by looking at a sample of data from the beginning of your selected range, and comparing it to the end.<br><br>';
+                str += '<table class="logs analysis">';
+                str += '<th></th><th>'+window.hashjson.analyze_field+'</th><th>Count</th><th>Percent</th><th>Trend</th>';
                 var i = 0;
-                var count = 0;
+                var metric = 0;
+                var isalt = '';
                 for (var obj in resultjson.analysis.results) {
-                    count = resultjson.analysis.results[obj];
-                    str += (i % 2 == 0) ? '<tr><td>'+count+'</td><td>'+ Math.round(count/resultjson.analysis.count*10000)/100  +'%</td><td>'+obj : '<tr class=alt><td>'+count+'</td><td>'+ Math.round(count/resultjson.analysis.count*10000)/100  +'%</td><td>'+obj;
-                    str += " <span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink' onClick='mSearch(\""+window.hashjson.analyze_field+"\",\""+obj+"\")'>Search for this</span>";  
-                    str += "</td></tr>";
+                    metric = resultjson.analysis.results[obj];
+                    isalt = (i % 2 == 0) ? '' : 'alt';
+                    str += '<tr class="'+isalt+'" id="analysisrow_'+i+'">';
+                    str += "<td><span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink'>Search for this</span></td>";
+                    str += '<td class=analysis_value>'+obj+'</td>';
+                    str += '<td>'+metric['count']+'</td><td>'+ Math.round(metric['count']/resultjson.analysis.count*10000)/100  +'%</td>';
+                    str += (metric['trend'] > 0) ? '<td class=positive>+'+metric['trend']+'</td>' : '<td class=negative>'+metric['trend']+'</td>';
+                    str += "</tr>";
+                    $("#main").delegate(".analysis tr#analysisrow_"+i+" td span", "click", function() {
+                        mSearch(field,$(this).parent().next().text()); 
+                        //$(this).toggleClass("chosen");
+                    });
                     i++;
                 }
                 str += '</table>'
@@ -344,8 +355,8 @@ function viewLog(objid) {
 		
             str += wbr(value, 3);
             str += " <div style='display: inline-block'>";
-            str += "<span style='display: inline-block' class='ui-icon ui-icon-plus ui-state-default ui-corner-all jlink' onClick='mSearch(\"" + field + "\",getField(\""+objid+"\",\""+field+"\"))'>Search for this</span> "; 
-            str += "<span style='display: inline-block' class='ui-icon ui-icon-minus ui-state-default ui-corner-all jlink' onClick='mSearch(\"NOT " + field + "\",getField(\""+objid+"\",\""+field+"\"))'>Search for NOT this</span> ";
+            str += "<span style='display: inline-block' class='ui-icon ui-icon-plus ui-state-default ui-corner-all jlink' onClick='mSearch(\"" + field + "\",getLogField(\""+objid+"\",\""+field+"\"))'>Search for this</span> "; 
+            str += "<span style='display: inline-block' class='ui-icon ui-icon-minus ui-state-default ui-corner-all jlink' onClick='mSearch(\"NOT " + field + "\",getLogField(\""+objid+"\",\""+field+"\"))'>Search for NOT this</span> ";
             str += "</div>";
             str += "</td></tr>";
             i++;
@@ -368,7 +379,7 @@ function viewLog(objid) {
     $('#logrow_' + objid).toggleClass('hidedetails');
 }
 
-function getField(objid,field) {
+function getLogField(objid,field) {
     obj = window.resultjson.results[objid];
     return obj[field];
 }
@@ -399,7 +410,7 @@ function mFields(field) {
         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) 
             str += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
     }
-    $('#fields').html("Show: " + str);
+    $('#fields').html("<h2><strong>Show</strong> Fields</h2> " + str);
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
     $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs'));

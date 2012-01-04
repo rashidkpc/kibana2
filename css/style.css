@@ -49,6 +49,7 @@ vertical-align: middle;
 .jlink {
 cursor: pointer;
 }
+
 .smallest {font-size: 0.4em;}
 .smaller {font-size: 0.6em;}
 .small {font-size: 0.8em;}
@@ -56,6 +57,9 @@ cursor: pointer;
 .big {font-size: 1.2em;}
 .bigger {font-size: 1.8em;}
 .biggest {font-size: 2.5em;}
+
+.positive { font-weight: bold; color: #5c8c5c; }
+.negative { font-weight: bold; color: #873535; }
 
 /* Header */
 
@@ -119,8 +123,7 @@ vertical-align: middle;
 }
 
 #analyze {
-border-top : 2px dotted #666;
-padding-top: 2px;
+padding-top: 10px;
 }
 
 #fields a:hover, #analyze a:hover {
@@ -137,6 +140,7 @@ color: #A92C10;
 
 
 h1,h2,h3 {
+color: #333;
 font-family: Georgia, Serif;
 margin-bottom: 5px;
 margin-top: 5px;
@@ -144,7 +148,7 @@ font-weight: normal;
 }
 
 h2 {
-font-size: 2.0em;
+font-size: 1.8em;
 }
 
 h2 strong {
@@ -159,7 +163,7 @@ vertical-align:middle;
 
 #graph {
 height: 100px;
-width: 95%;
+width: 100%;
 }
 
 #graphheader {
@@ -264,10 +268,35 @@ text-align:right;
 padding-top: 15px;
 }
 
+div#tables {
+position: relative;
+}
+
+div#left {
+margin-right: 210px;
+}
+
 div#logs {
 font-family: 'Courier New', Courier, monospace;
 font-size: 9pt;
+border-right: 1px dotted #999;
+padding-right: 15px;
 }
+
+div#sidebar {
+position: absolute;
+margin-top: 20px;
+padding-left: 10px;
+top: 0;
+right: 0;
+background-color: #fff;
+width: 200px;
+}
+
+div#sidebar h2 {
+text-align: center;
+}
+
 
 table.logs {
 border-collapse: collapse;
@@ -301,7 +330,6 @@ padding: 2px;
 table.logs td {
 border: 0px;
 padding: 5px;
-color: #000;
 }
 
 td.firsttd {
