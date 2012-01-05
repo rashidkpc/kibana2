@@ -39,6 +39,9 @@ $(document).ready(function () {
 <img src=images/login.png>
 <br><br><br>
 <center>
+<?php
+if (isset($_GET['fail'])) echo '<span style="color: #fff;font-weight:bold;">Login Failed</span>';
+?>
 <form action="auth.php" method="post">
 <table id=logintable>
 <tr><td><input type="text" name="username" value="username" /></td></tr>

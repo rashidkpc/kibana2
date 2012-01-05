@@ -14,6 +14,7 @@ if(isset($_GET['logout'])) {
 	exit;        
 }
 
+$badpass = '';
 if( isset($name) || isset($pass) ) {
 	if( empty($name) ) {
 		die ("ERROR: Please enter username!");
@@ -29,11 +30,12 @@ if( isset($name) || isset($pass) ) {
 		setcookie("username", $name);
 		header('Location: index.php');
 	}
+    $badpass = '?fail';
 } 
 
 if($_SESSION['auth'] != 1) {
 	session_destroy();
-        header('Location: login.php');
+        header('Location: login.php'.$badpass);
 	exit;
 }
 

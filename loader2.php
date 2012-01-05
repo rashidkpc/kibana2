@@ -24,7 +24,7 @@ if ($_GET['page']) {
     $query['query']['filtered']['query']['query_string']['query'] = "(" . $url_query . ")";
     $query['size'] = 50;
     $query['sort']['@timestamp']['order'] = 'desc';
-    $query['fields'] = array('@timestamp', '@fields', '@message', '@tags');
+    $query['fields'] = array('@timestamp', '@fields', '@message', '@tags', '@type');
 
 
 	// Check the mode
@@ -146,7 +146,7 @@ if ($_GET['page']) {
             $return->{'analysis'}->{'count'} = $i;
             break;
         default:
-            $return->{'all_fields'} = array('@message', '@tags');
+            $return->{'all_fields'} = array('@message', '@tags', '@type');
             foreach ($result->{'hits'}->{'hits'} as $hit) {
                 $i++;
                 $return->{'results'}[$hit->{'_id'}]['@cabin_time'] = date('m/d H:i:s', strtotime($hit->{'fields'}->{'@timestamp'}));
@@ -158,6 +158,7 @@ if ($_GET['page']) {
                 }
                 $return->{'results'}[$hit->{'_id'}]['@message'] = $hit->{'fields'}->{'@message'};
                 $return->{'results'}[$hit->{'_id'}]['@tags'] = $hit->{'fields'}->{'@tags'};
+                $return->{'results'}[$hit->{'_id'}]['@type'] = $hit->{'fields'}->{'@type'};
             }
             sort($return->{'all_fields'});
             $return->{'page_count'} = $i;
