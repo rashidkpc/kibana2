@@ -102,37 +102,40 @@ if ($_GET['page']) {
             $return->{'analysis'}->{'count'} = $i;
             break;
         case 'trend':
+            // See how many hits we'd get
             $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
             $query['size'] = 0;
             $query['fields'] = $field;
             $result = esQuery($query);
             
+            // Scale samples. If analyze_limit is more than 50% of the results, then change size to 50%
+            // of the results to avoid overlap
             $query['size'] = ($return->{'hits'} < $analyze_limit*2 ? $return->{'hits'}/2 : $analyze_limit);
             $result = esQuery($query);           
  
+            $i = 0;
             foreach ($result->{'hits'}->{'hits'} as $hit) {
                 $i++;
                 $analyze[$i] = implode(',',$hit->{'fields'}->{$field});
             }
-            unset($result);
-            
+            unset($result);         
             $analyze = array_count_values($analyze);
-    
+   
             $query['sort']['@timestamp']['order'] = 'asc';
-            $query['size'] = ($return->{'hits'} < $analyze_limit*2 ? $return->{'hits'}/2 : $analyze_limit); 
-            
             $result = esQuery($query);
+
             $i = 0;
             foreach ($result->{'hits'}->{'hits'} as $hit) {
                 $i++;
                 $analyze2[$i] = implode(',',$hit->{'fields'}->{$field});
             }
+            unset($result);
             $analyze2 = array_count_values($analyze2);
         
             foreach ($analyze as $key => $value) {
                 $final[$key]['count'] = $value;
                 $final[$key]['start'] = $analyze2[$key];
-                $final[$key]['trend'] = (is_int($analyze2[$key]) ? round(($value-$analyze2[$key])/$analyze2[$key]*100,2) : "new");
+                $final[$key]['trend'] = round((($value/$query['size'])-($analyze2[$key]/$query['size']))*100,2);
                 $final[$key]['abs'] = abs($final[$key]['trend']);
             }
 
@@ -243,5 +246,46 @@ function aasort (&$array, $key) {
     $array=$ret;
 }
 
+function ratingAverage($positive, $total, $power = '0.05')
+{
+    if ($total == 0)
+      return 0;
+ 
+    $z = pnormaldist(1-$power/2,0,1);
+    $p = 1.0 * $positive / $total;
+    $s = ($p + $z*$z/(2*$total) - $z * sqrt(($p*(1-$p)+$z*$z/(4*$total))/$total))/(1+$z*$z/$total);
+    return $s;
+} 
+ 
+function pnormaldist($qn)
+{
+    $b = array(
+      1.570796288, 0.03706987906, -0.8364353589e-3,
+      -0.2250947176e-3, 0.6841218299e-5, 0.5824238515e-5,
+      -0.104527497e-5, 0.8360937017e-7, -0.3231081277e-8,
+      0.3657763036e-10, 0.6936233982e-12);
+ 
+    if ($qn < 0.0 || 1.0 < $qn)
+      return 0.0;
+ 
+    if ($qn == 0.5)
+      return 0.0;
+ 
+    $w1 = $qn;
+ 
+    if ($qn > 0.5)
+      $w1 = 1.0 - $w1;
+ 
+    $w3 = - log(4.0 * $w1 * (1.0 - $w1));
+    $w1 = $b[0];
+ 
+    for ($i = 1;$i <= 10; $i++)
+      $w1 += $b[$i] * pow($w3,$i);
+ 
+    if ($qn > 0.5)
+      return sqrt($w1 * $w3);
+ 
+    return - sqrt($w1 * $w3);
+}
 
 ?>
