@@ -16,13 +16,9 @@ if(isset($_GET['logout'])) {
 
 $badpass = '';
 if( isset($name) || isset($pass) ) {
-	if( empty($name) ) {
-		die ("ERROR: Please enter username!");
+	if( empty($name) || empty($pass)) {
+	   $badpass = '?fail';
 	}
-	if( empty($pass) ) {
-		die ("ERROR: Please enter password!");
-	}
-
 
 	if( $name == $auth_username && $pass == $auth_password ) {
 		$_SESSION['auth'] = 1;

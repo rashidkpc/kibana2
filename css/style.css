@@ -290,6 +290,7 @@ font-family: 'Courier New', Courier, monospace;
 font-size: 9pt;
 border-right: 1px dotted #999;
 padding-right: 10px;
+overflow: auto;
 }
 
 div#sidebar {

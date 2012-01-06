@@ -451,7 +451,7 @@ function mFields(field) {
 
 function wbr(str, num) {
     return str.replace(RegExp("(\\w{" + num + "})(\\w)", "g"), function (all, text, char) {
-        return text + "<wbr>" + char;
+        return text + "<wbr>&#8203;" + char;
     });
 }
 
