@@ -253,14 +253,14 @@ function aasort (&$array, $key) {
 function getIndicesByTime($strDateFrom,$strDateTo) {
     global $smart_index_limit;
     $aryRange=array();
-    $iDateFrom=strtotime($strDateFrom);
-    $iDateTo=strtotime($strDateTo);
+    $iDateFrom=strtotime(date("F j, Y",strtotime($strDateFrom)));
+    $iDateTo=strtotime(date("F j, Y",strtotime($strDateTo)));
+
 
     if ($iDateTo>=$iDateFrom) {
-        array_push($aryRange,'logstash-' . date('Y.m.d',$iDateFrom)); // first entry
-
+        array_push($aryRange,'logstash-' . date('Y.m.d',$iDateFrom));
         while ($iDateFrom<$iDateTo) {
-            $iDateFrom+=86400; // add 24 hours
+            $iDateFrom+=86400;
             if ($iDateTo>=$iDateFrom) array_push($aryRange,'logstash-' . date('Y.m.d',$iDateFrom));
         }
     }
