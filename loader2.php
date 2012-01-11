@@ -1,6 +1,5 @@
 <?
 include 'config.php';
-if ($use_auth) include 'auth.php';
 $real_timezone = date_default_timezone_get();
 
 if ($_GET['page']) {
