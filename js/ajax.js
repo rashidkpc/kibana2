@@ -115,11 +115,11 @@ function getPage() {
                         analyzestr += "<button id='trend_"+afield+"' style='display: inline-block' class='btn tiny success'>Trend</button> ";
                         analyzestr += resultjson.all_fields[index].toString() + "</p>";
                         $("#sidebar").delegate("button#analyze_"+afield, "click", function() {
-                            console.log($(this).next().text());
-                            analyzeField($(this).next().next().text(),"analyze");
+                            console.log($(this).parent().clone().children().remove().end().text());
+                            analyzeField($(this).parent().clone().children().remove().end().text().trim(),"analyze");
                         });
                         $("#sidebar").delegate("button#trend_"+afield, "click", function() {
-                            analyzeField($(this).next().text(),"trend");
+                            analyzeField($(this).parent().clone().children().remove().end().text().trim(),"trend");
                         });
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0)
                             fieldstr += "<a class='jlink "+ afield + "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
@@ -216,11 +216,11 @@ function getAnalysis() {
                 switch(window.hashjson.mode) {
                 case 'analyze':
                     var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all "+ resultjson.analysis.count +"</strong>" : 'the <strong>'+resultjson.analysis.count+' most recent</strong>';
-                    var title = '<h2>Quick analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br>';
+                    var title = '<h2>Quick analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button></h2>This analysis is based on '+basedon+' events for your query in your selected timeframe.<br><br>';
                     break;
                 case 'trend':
                     var basedon = "<strong>"+ resultjson.analysis.count +"</strong>";
-                    var title = '<h2>Trend analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <a class="smaller jlink" id="back_to_logs"><span style="display: inline-block" class="ui-icon ui-icon-triangle-1-w">back</span>back to logs</a></h2>These trends are based on '+basedon+' events from beginning and end of the selected timeframe for your query.<br><br>';
+                    var title = '<h2>Trend analysis of <strong>'+window.hashjson.analyze_field+'</strong> field <button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button></h2>These trends are based on '+basedon+' events from beginning and end of the selected timeframe for your query.<br><br>';
                     break;
                 } 
                 var str = title+'<table class="logs analysis">';
@@ -238,9 +238,10 @@ function getAnalysis() {
                     str += '<td class=analysis_value>'+obj+'</td>';
                     str += '<td>'+metric['count']+'</td><td>'+ Math.round(metric['count']/resultjson.analysis.count*10000)/100  +'%</td>';
                     if(window.hashjson.mode == 'trend') str += (metric['trend'] > 0) ? '<td class=positive>+'+metric['trend']+'</td>' : '<td class=negative>'+metric['trend']+'</td>';
-                    str += "<td><span style='display: inline-block' class='ui-icon ui-icon-search ui-state-default ui-corner-all jlink'>Search for this</span></td>";
+                    str += "<td><button style='display: inline-block' class='btn tiny default'>Search this</button></td>";
                     str += "</tr>";
-                    $("#main").delegate(".analysis tr#analysisrow_"+i+" td span", "click", function() {
+                    $(".content").delegate("tr#analysisrow_"+i+" td button", "click", function() {
+                        //console.log($(this).parent().siblings('.analysis_value').text());
                         mSearch(field,$(this).parent().siblings('.analysis_value').text()); 
                     });
                     i++;
@@ -274,14 +275,13 @@ function pageLinks() {
     // Pagination
     var str = "<center>";
     if (window.hashjson.offset - 50 >= 0) {
-        str += "<a class='jlink firstpage'>First</a> ";
-        str += "<a class='jlink prevpage'>Prev</a> ";
+        str += "<a class='firstpage jlink'>First</a> ";
+        str += "<a class='prevpage jlink'>Prev</a> ";
     }
     var end = window.hashjson.offset + window.resultjson.page_count;
-    str += " <strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
+    str += "<strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
     if (window.hashjson.offset + 50 < window.resultjson.hits) {
-        str += "<a class='jlink nextpage'>Next</a> ";
-    //str += "<a class='jlink lastpage'>Last</a> ";
+        str += "<a class='nextpage jlink'>Next</a> ";
     }
     str += "</center>";
    

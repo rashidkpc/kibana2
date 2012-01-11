@@ -54,7 +54,7 @@ if ($use_auth) include 'auth.php';
               </select>
               </td>
               <td width='85%'><input type="text" placeholder="Search" id=queryinput><input type="hidden" id=fieldsinput></td>
-              <td width='1%'><button class="btn info" type=submit>Search</button></td>
+              <td width='1%'><button class="btn primary" type=submit>Search</button></td>
               <td width='1%'><button class="btn danger" type="reset" id=resetall>Reset</button></td>
               <td id=meta width='15%'></td>
             </tr></table>
@@ -82,7 +82,10 @@ if ($use_auth) include 'auth.php';
             </div>
             <div id=legend></div>
         </div>
+        <br>
+        <div class='pagelinks'></div>
         <div id=logs class=zebra-stripped></div>
+        <div class='pagelinks'></div>
       </div>
     </div>
 

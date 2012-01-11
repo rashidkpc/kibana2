@@ -10,7 +10,6 @@
   font-size: 10px;
 }
 
-
 .jlink {
 cursor: pointer;
 }
@@ -25,7 +24,6 @@ color: #fff;
 input#queryinput:focus {
 color: #000;
 }
-
 
 #logs td{
 word-wrap: break-word;
@@ -57,7 +55,6 @@ padding: 0px;
 div.legend table td.legendColorBox, div.legend table td.legendLabel {
 padding-left: 3px;
 }
-
 
 table.formatting, table.formatting td {
 margin: 0;
@@ -146,6 +143,10 @@ display: none;
 td.logopts {
 background-color: #fff;
 white-space: nowrap;
+}
+
+.no_hover a:hover {
+background: #fff;
 }
 
 #ui-datepicker-div {
