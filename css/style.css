@@ -18,6 +18,20 @@ cursor: pointer;
 .positive { font-weight: bold; color: #5c8c5c; }
 .negative { font-weight: bold; color: #873535; }
 
+input#queryinput {
+color: #fff;
+}
+
+input#queryinput:focus {
+color: #000;
+}
+
+
+#logs td{
+word-wrap: break-word;
+font-size: 11px;
+}
+
 td#meta {
 text-align: right;
 }
@@ -61,6 +75,8 @@ width: 100%;
 width: 98%;
 }
 
+
+
 #analyze {
 padding-top: 10px;
 }
@@ -91,17 +107,19 @@ table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
 cursor: pointer;
 }
 
-table.logdetails th {
-border-top: 0;
-border-bottom: 0;
-}
-
 
 table.logdetails {
 margin-left: 10px;
-border-left: 1px solid #DDDDDD;
 border-top: 0;
-border-bottom: 0;
+border: 1px dashed #ccc;
+}
+
+tr.logrow:hover {
+background-color: #e8f7f7;
+}
+
+tr.showdetails td {
+border-top: 0px;
 }
 
 table.logdetails td{
@@ -115,7 +133,10 @@ background-color: #F5F5F5;
 table.logdetails th {
 font-size: 7pt;
 font-weight: normal;
-background-color: #fff;
+background-color: #F5F5F5;
+border-top: 0;
+border-bottom: 0;
+
 }
 
 tr.hidedetails {

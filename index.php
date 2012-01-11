@@ -19,7 +19,7 @@ if ($use_auth) include 'auth.php';
 	<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.ui.datepicker.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <LINK REL=StyleSheet HREF="css/style.css" TYPE="text/css" MEDIA=screen>
 	<LINK REL=StyleSheet HREF="css/jquery-ui-1.8.16.custom.css" TYPE="text/css" MEDIA=screen>
 	<LINK REL=StyleSheet HREF="css/jquery.ui.datepicker.css" TYPE="text/css" MEDIA=screen>
@@ -75,18 +75,12 @@ if ($use_auth) include 'auth.php';
         </div>
       </div>
       <div class="content">
-        <!-- Main hero unit for a primary marketing message or call to action -->
         <div>
             <p id=graphheader></p>
             <div id=graph style='height: 100px;'></div>
             <div id=legend></div>
         </div>
         <div id=logs class=zebra-stripped></div>
-
-        <footer>
-          <p>This is Kibana. Kibana is a log analysis tool. Kibana sits on top of <a href='http://logstash.net'>Logstash</a> and <a href='http://www.elasticsearch.org'>Elastic Search</a></p>
-
-        </footer>
       </div>
     </div>
 
