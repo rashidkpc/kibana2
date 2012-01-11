@@ -102,7 +102,7 @@ function getPage() {
                 // Make sure we get some result before doing anything
                 if (resultjson.hits > 0) {
 		
-                    var fieldstr = "";
+                    var fieldstr = "<p class=small>";
                     for(var index in window.hashjson.fields) {
                         fieldstr += "<a class='jlink logfield_selected' onClick='mFields(\"" + window.hashjson.fields[index] + "\")'>" + window.hashjson.fields[index] + "</a> ";
                     }
@@ -111,28 +111,29 @@ function getPage() {
                     var afield = '';
                     for(var index in resultjson.all_fields) {
                         afield = resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field";
-                        analyzestr += "<span id='analyze_"+afield+"' style='display: inline-block' class='ui-icon ui-icon-gear jlink'>Analyze</span> ";
-                        analyzestr += "<span id='trend_"+afield+"' style='display: inline-block' class='ui-icon ui-icon-image jlink'>Trend</span> ";
-                        analyzestr += "<span>" + resultjson.all_fields[index].toString() + "</span><br>";
-                        $("#main").delegate("span#analyze_"+afield, "click", function() {
+                        analyzestr += "<p><button id='analyze_"+afield+"' style='display: inline-block' class='btn tiny info'>Score</button> ";
+                        analyzestr += "<button id='trend_"+afield+"' style='display: inline-block' class='btn tiny success'>Trend</button> ";
+                        analyzestr += resultjson.all_fields[index].toString() + "</p>";
+                        $("#sidebar").delegate("button#analyze_"+afield, "click", function() {
                             console.log($(this).next().text());
                             analyzeField($(this).next().next().text(),"analyze");
                         });
-                        $("#main").delegate("span#trend_"+afield, "click", function() {
+                        $("#sidebar").delegate("button#trend_"+afield, "click", function() {
                             analyzeField($(this).next().text(),"trend");
                         });
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0)
                             fieldstr += "<a class='jlink "+ afield + "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
                     }
-                    $('#fields').html("<h2><strong>Show</strong> Fields</h2>" + fieldstr);
-                    $('#analyze').html("<h2><strong>Analyze</strong> Field</h2>" + analyzestr);                   
+                    fieldstr += '</p>';
+                    $('#fields').html("<h3><strong>Show</strong> Fields</h3>" + fieldstr);
+                    $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>" + analyzestr);                   
  
                     // Create and populate graph
                     $('#graph').html('<center><br><p><img src=images/barload.gif></center>');
                     getGraph(resultjson.graph.interval);
 
                     // Create and populate #logs table
-                    $('#logs').html(CreateTableView(window.resultjson.results, resultjson.fields_requested, 'logs'));
+                    $('#logs').html(CreateTableView(window.resultjson.results, resultjson.fields_requested, 'logs condensed-table'));
                     pageLinks();
 
                 } else {
@@ -140,8 +141,11 @@ function getPage() {
                 }
 
                 // Populate meta data
-                $('#meta').html("<tr class=alt><td>Hits</td><td>" + addCommas(window.resultjson.hits) + "</td></tr>");
-                $('#meta').append("<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>");
+                var metastr = '<table class=formatting>';
+                metastr += "<tr><td>Hits</td><td>" + addCommas(window.resultjson.hits) + "</td></tr>";
+                metastr += "<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>";
+                metastr += "</table>";
+                $('#meta').html(metastr);
 
                 console.log("QUERY: " + window.resultjson.elasticsearch_json);
 
@@ -256,8 +260,11 @@ function getAnalysis() {
                 
                 $('.pagelinks').html('');
                 $('#fields').html('');
-                $('#meta').html("<tr class=alt><td>Hits</td><td>" + addCommas(resultjson.hits) + "</td></tr>");
-                $('#meta').append("<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>");
+                var metastr = '<table class=formatting>';
+                metastr += "<tr><td>Hits</td><td>" + addCommas(resultjson.hits) + "</td></tr>";
+                metastr += "<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>";
+                metastr += "</table>";
+                $('#meta').html(metastr);
             }
         }
     });
@@ -376,13 +383,13 @@ function viewLog(objid) {
         if(!(field.match(/^@cabin_/))) {
             trclass = (i % 2 == 0) ? 'class=alt' : '';
             str += "<tr " + trclass + ">";
-            str += "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "'>" + field + "<span style='display: inline-block;' class='ui-icon ui-icon-gear ui-state-default ui-corner-all jlink' onClick='analyzeField(\"" + field +"\",\"analyze\")'></td>";
+            str += "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "'>" + field + "</td>";
             str += '<td>';
 		
             str += wbr(value, 3);
             str += " <div style='display: inline-block'>";
-            str += "<span style='display: inline-block' class='ui-icon ui-icon-plus ui-state-default ui-corner-all jlink' onClick='mSearch(\"" + field + "\",getLogField(\""+objid+"\",\""+field+"\"))'>Search for this</span> "; 
-            str += "<span style='display: inline-block' class='ui-icon ui-icon-minus ui-state-default ui-corner-all jlink' onClick='mSearch(\"NOT " + field + "\",getLogField(\""+objid+"\",\""+field+"\"))'>Search for NOT this</span> ";
+            str += "<button style='display: inline-block' class='btn tiny' onClick='mSearch(\"" + field + "\",getLogField(\""+objid+"\",\""+field+"\"))'>Find this</button> "; 
+            str += "<button style='display: inline-block' class='btn tiny' onClick='mSearch(\"NOT " + field + "\",getLogField(\""+objid+"\",\""+field+"\"))'>NOT this</button> ";
             str += "</div>";
             str += "</td></tr>";
             i++;
@@ -436,10 +443,10 @@ function mFields(field) {
         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) 
             str += "<a class='jlink "+ resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
     }
-    $('#fields').html("<h2><strong>Show</strong> Fields</h2> " + str);
+    $('#fields').html("<h3><strong>Show</strong> Fields</h3> " + str);
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
-    $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs'));
+    $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs condensed-table'));
     pageLinks();   
  
 }
@@ -516,7 +523,7 @@ function logGraph(data, interval) {
     if (!(typeof data[0] === undefined)) {
         var from = data[0].time + parseInt(tOffset);
         var to = data[data.length - 1].time + parseInt(tOffset);
-        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + ISODateString(to) + "'> <a class=jlink style='visibility:hidden;' id=timechange><img src=images/search_red.png></a></center>");
+        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
 
         $('#timefrom,#timeto').datetimepicker({
             showSecond: true,
@@ -597,13 +604,13 @@ function logGraph(data, interval) {
                 },
                 bars: {
                     show: true,
-                    fill: true,
-                    barWidth: interval,
+                    fill: 1,
+                    barWidth: interval/1.7,
                 },
                 points: {
                     show: false
                 },
-                color: "#5d6a6b",
+                color: "#5aba65",
                 shadowSize: 0,
             },
             xaxis: {
@@ -617,14 +624,17 @@ function logGraph(data, interval) {
                 color: "#000",
             },
             selection: {
-                mode: "x"
+                mode: "x",
+                color: '#000',
             },
             grid: {
-                backgroundColor: "#fff",
-                color: "#5d6a6b",
+                backgroundColor: '#fff', 
+                borderWidth: 0,
+                borderColor: '#000',
+                color: "#ddd",
                 hoverable: true,
                 clickable: true,
-            }
+            },
         });
 
 }
@@ -634,13 +644,13 @@ function showTooltip(x, y, contents) {
     $('<div id="tooltip">' + contents + '</div>').css({
         position: 'absolute',
         display: 'none',
-        top: y + 5,
-        left: x + 15,
-        color: '#000',
+        top: y - 20,
+        left: x - 230,
+        color: '#eee',
         border: '1px solid #fff',
         padding: '3px',
         'font-size': '8pt',
-        'background-color': '#fff',
+        'background-color': '#000',
         border: '1px solid #000',
         'font-family': '"Verdana", Geneva, sans-serif'
     }).appendTo("body").fadeIn(200);
