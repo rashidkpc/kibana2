@@ -107,26 +107,42 @@ function getPage() {
                         fieldstr += "<a class='jlink logfield_selected' onClick='mFields(\"" + window.hashjson.fields[index] + "\")'>" + window.hashjson.fields[index] + "</a> ";
                     }
             
-                    var analyzestr = "";
+                    var analyzestr = '<div id=analyze_list class="ui-accordian">';
                     var afield = '';
                     for(var index in resultjson.all_fields) {
                         afield = resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field";
-                        analyzestr += "<p><button id='analyze_"+afield+"' style='display: inline-block' class='btn tiny info'>Score</button> ";
+
+                        analyzestr += '<div class="title">'+resultjson.all_fields[index].toString()+'</div><div class=analyze_buttons style="display: none;">';
+
+                        analyzestr += "<button id='analyze_"+afield+"' style='display: inline-block' class='btn tiny info'>Score</button> ";
                         analyzestr += "<button id='trend_"+afield+"' style='display: inline-block' class='btn tiny success'>Trend</button> ";
-                        analyzestr += resultjson.all_fields[index].toString() + "</p>";
+                        analyzestr += "</div>"
+                        //analyzestr += resultjson.all_fields[index].toString() + "</p>";
+
+
+
                         $("#sidebar").delegate("button#analyze_"+afield, "click", function() {
-                            console.log($(this).parent().clone().children().remove().end().text());
-                            analyzeField($(this).parent().clone().children().remove().end().text().trim(),"analyze");
+                            console.log($(this).parent().prev().text());
+                            analyzeField($(this).parent().prev().text(),"analyze");
                         });
                         $("#sidebar").delegate("button#trend_"+afield, "click", function() {
-                            analyzeField($(this).parent().clone().children().remove().end().text().trim(),"trend");
+                            analyzeField($(this).parent().prev().text(),"trend");
                         });
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0)
                             fieldstr += "<a class='jlink "+ afield + "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
                     }
+                    analyzestr += '</div>';
                     fieldstr += '</p>';
                     $('#fields').html("<h3><strong>Show</strong> Fields</h3>" + fieldstr);
                     $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>" + analyzestr);                   
+
+                    $('#analyze_list').accordion({ 
+                        header: 'div.title', 
+                        active: false, 
+                        alwaysOpen: false, 
+                        animated: false, 
+                        autoHeight: true 
+                    });
  
                     // Create and populate graph
                     $('#graph').html('<center><br><p><img src=images/barload.gif></center>');
@@ -235,10 +251,10 @@ function getAnalysis() {
                     isalt = (i % 2 == 0) ? '' : 'alt';
                     str += '<tr class="'+isalt+'" id="analysisrow_'+i+'">';
                     str += '<td><strong>'+(i+1)+'</strong></td>';
-                    str += '<td class=analysis_value>'+obj+'</td>';
+                    str += '<td>'+wbr(obj,10)+'</td><td style="display: none" class=analysis_value>'+obj+'</td>';
                     str += '<td>'+metric['count']+'</td><td>'+ Math.round(metric['count']/resultjson.analysis.count*10000)/100  +'%</td>';
                     if(window.hashjson.mode == 'trend') str += (metric['trend'] > 0) ? '<td class=positive>+'+metric['trend']+'</td>' : '<td class=negative>'+metric['trend']+'</td>';
-                    str += "<td><button style='display: inline-block' class='btn tiny default'>Search this</button></td>";
+                    str += "<td><button style='display: inline-block' class='btn tiny default'>Search</button></td>";
                     str += "</tr>";
                     $(".content").delegate("tr#analysisrow_"+i+" td button", "click", function() {
                         //console.log($(this).parent().siblings('.analysis_value').text());

@@ -57,15 +57,26 @@ if ($_GET['page']) {
     if ($time != '') {
 		$query['query']['filtered']['filter']['range']['@timestamp'] = $time;
         $facet = ($_GET['mode'] == 'graph' ? "histo1" : "stats");
-        // If our timerange only covers 1 index, only use that index instead of _all
+        // Figure out which indices to search 
         if ($smart_index) {
-            $index = implode(',',getIndicesByTime($time->{'from'},$time->{'to'}));
-		    //$index = (date('Y.m.d',strtotime($time->{'from'})) == date('Y.m.d',strtotime($time->{'to'})) ? 'logstash-' . date('Y.m.d', strtotime($time->{'from'})) : '_all');
+            $index_array = getIndicesByTime($time->{'from'},$time->{'to'});
+            // Ignore all the cursor stuff for now. Its for eventual segmented loading
+            $cursor = (isset($json->{'cursor'}) ? $json->{'cursor'} : sizeof($index_array));
+            $return->{'cursor'} = $cursor;
+            if ($_GET['mode'] == 'graph') {
+                //$index = $index_array[$cursor-1];    
+                $index = implode(',',$index_array);
+            } else {
+                $index = implode(',',$index_array);
+            }
         }
     }
 
 	// After this, dates are in local timezone
     date_default_timezone_set($real_timezone);
+
+
+    // Run the query
     $result = esQuery($query);
 
     // Add some top level statistical and informational data
@@ -77,7 +88,6 @@ if ($_GET['page']) {
     // Compute an interval to give us around 100 bars
     $return->{'graph'}->{'interval'} = ($_GET['mode'] == 'graph' ? $interval : ($result->{'facets'}->{'stats'}->{'max'} - $result->{'facets'}->{'stats'}->{'min'}) / 100);
  
-    // Are we analyzing data or displaying logs? 
     $i = 0;
 
     switch($_GET['mode']) {
@@ -266,6 +276,7 @@ function getIndicesByTime($strDateFrom,$strDateTo) {
 
     $aryRange = array_intersect($aryRange,getAllIndices());
     if (count($aryRange) > $smart_index_limit) $aryRange = array('_all'); 
+    sort($aryRange);
     return $aryRange;
 }
 

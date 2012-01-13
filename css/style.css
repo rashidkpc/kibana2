@@ -152,3 +152,27 @@ background: #fff;
 #ui-datepicker-div {
 font-size: 11px;
 }
+
+#analyze_list div {
+    background-color: #F5F5F5;
+    background-image: none;
+    cursor: pointer;
+    width: auto;
+    padding: 0px 0 0px 18px;
+    font-weight: normal;
+    border: 0;
+    box-shadow: none;
+}
+
+#analyze .ui-accordion {
+width: auto;
+}
+
+#analyze_list .title span {
+    left: 0;
+}
+
+#analyze_list div.analyze_buttons {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
