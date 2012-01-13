@@ -1,4 +1,4 @@
-<?
+<?php
 
 // Your elastic search server
 $elasticsearch_server = "elasticsearch1:9200";

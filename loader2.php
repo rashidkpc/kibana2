@@ -1,4 +1,4 @@
-<?
+<?php
 include 'config.php';
 $real_timezone = date_default_timezone_get();
 
