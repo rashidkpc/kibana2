@@ -300,11 +300,12 @@ class LogstashLoader {
 
         $final = array();
         foreach ($analyze as $key => $value) {
+            $first = isset($analyze2[$key]) ? $analyze2[$key] : 0;
             $final[$key] = array();
             $final[$key]['count'] = $value;
-            $final[$key]['start'] = $analyze2[$key];
+            $final[$key]['start'] = $first;
             $final[$key]['trend'] = round((($value / $query->size) -
-                    ($analyze2[$key] / $query->size)) * 100, 2);
+                    ($first / $query->size)) * 100, 2);
             $final[$key]['abs'] = abs($final[$key]['trend']);
         }
 
@@ -462,11 +463,13 @@ class LogstashLoader {
     public static function collectFieldValues ($documents, $field) {
         $values = array();
         foreach ($documents as $doc) {
-            $value = $doc->fields->{$field};
-            if (is_array($value)) {
-                $value = implode(',', $value);
+            if (isset($doc->fields)) {
+                $value = $doc->fields->{$field};
+                if (is_array($value)) {
+                    $value = implode(',', $value);
+                }
+                $values[] = $value;
             }
-            $values[] = $value;
         }
         return $values;
     } //end collectFieldValues
