@@ -215,7 +215,7 @@ function esQuery ($query) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_URL,
-            "http://{$elasticsearch_server}/{$index}/{$type.}/_search");
+            "http://{$elasticsearch_server}/{$index}/{$type}/_search");
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     $result = json_decode(curl_exec($ch));
     return $result;
