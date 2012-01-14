@@ -1,319 +1,494 @@
 <?php
 include 'config.php';
-$real_timezone = date_default_timezone_get();
 
-if ($_GET['page']) {
+/**
+ * Handle requests for Logstash data via JSON requests.
+ *
+ * @author Rashid Khan <flipwork #logstash irc.freenode.net>
+ * @copyright Copyright 2011 Rashid Khan
+ * @license ?? Good question. ??
+ */
+class LogstashLoader {
 
-    // Use _all by default, unless logic further down tells us otherwise
-    $index = "_all";
+    /**
+     * Configuration data.
+     * @var array
+     */
+    protected $config;
 
-    // Get JSON
-    $json = json_decode(base64url_decode($_GET['page']));
-
-    // Preparse parameters
-    $url_query = ($json->{'search'} == "" ? "*" : $json->{'search'});
-    $fields = (isset($json->{'fields'}) ? $json->{'fields'} : '');
-    $time = (isset($json->{'time'}) ? $json->{'time'} : '');
-    $interval = (isset($json->{'interval'}) ? $json->{'interval'} : 600000);
-    $from = (isset($json->{'offset'}) ? $json->{'offset'} : 0);
-    $interval = (isset($_GET['interval']) ?
-            roundInterval($_GET['interval']) : 600000);
-
-    // Contruct the query
-    $query['from'] = $json->{'offset'};
-    $query['query']['filtered']['query']['query_string']['query'] =
-            "(" . $url_query . ")";
-    $query['size'] = 50;
-    $query['sort']['@timestamp']['order'] = 'desc';
-    $query['fields'] = array(
-            '@timestamp', '@fields', '@message', '@tags', '@type');
+    /**
+     * Index(es) to select from.
+     * _all is used by default.
+     * @var string
+     */
+    protected $index = '_all';
 
 
-    // Check the mode
-    switch($_GET['mode']) {
-        case 'graph':
-            $return->{'mode'} = 'graph';
-            $query['size'] = 0;
-            $query['facets']['histo1']['date_histogram']["field"] =
-                    "@timestamp";
-            $query['facets']['histo1']['date_histogram']["interval"] =
-                    $interval;
-            break;
-        case 'trend':
-        case 'analyze':
-            $field = $json->{'analyze_field'};
-            $query['facets']['stats']['statistical']["field"] = '@timestamp';
-            $return->{'mode'} = 'analyze';
-            break;
-        default:
-            $query['facets']['stats']['statistical']["field"] = '@timestamp';
+    /**
+     * Constructor.
+     * @param array $config Configuration data
+     */
+    public function __construct ($config = array()) {
+        $this->config = $config;
     }
 
-    // Unless the user gives us exact times, compute relative timeframe based
-    // on drop down
-    if ($json->{'timeframe'} != "custom") {
-        $time->{'from'} = date('c', strtotime($json->{'timeframe'} . " ago"));
-        $time->{'to'} = date('c');
-    }
 
-    // Dates in this section are UTC
-    date_default_timezone_set('UTC');
+    /**
+     * Handle a request.
+     * @return void
+     */
+    public function handleRequest () {
+        $req = $this->collectInput();
+        if ($req) {
+            $query = $this->buildQuery($req);
+            $return = $this->processQuery($req, $query);
+            echo  json_encode($return);
 
-    // Check if we have a time range, if so filter
-    if ($time != '') {
-        $query['query']['filtered']['filter']['range']['@timestamp'] = $time;
-        $facet = ($_GET['mode'] == 'graph' ? "histo1" : "stats");
-        // Figure out which indices to search
-        if ($smart_index) {
-            $index_array = getIndicesByTime($time->{'from'},$time->{'to'});
-            // Ignore all the cursor stuff for now. Its for eventual segmented loading
-            $cursor = (isset($json->{'cursor'}) ? $json->{'cursor'} : sizeof($index_array));
-            $return->{'cursor'} = $cursor;
-            if ($_GET['mode'] == 'graph') {
-                //$index = $index_array[$cursor-1];
-                $index = implode(',',$index_array);
-            } else {
-                $index = implode(',',$index_array);
+        } else {
+            echo "No Page parameter";
+        }
+    } //end handleRequest
+
+
+    /**
+     * Get the request data.
+     * @return object Request or false if none available
+     */
+    protected function collectInput () {
+        $req = false;
+        if ($_GET['page']) {
+            // XXX: validation and/or error trapping?
+            $base64 = strtr($_GET['page'], '-_', '+/');
+            $req = json_decode(base64_decode($base64));
+
+            // make sure default keys are populated
+            foreach ($this->config['default_search'] as $key => $default) {
+                if (!isset($req->{$key})) {
+                    $req->{$key} = $default;
+                }
+            }
+
+            $req->mode = isset($_GET['mode'])? $_GET['mode']: '';
+            $req->interval = (isset($_GET['interval']))?
+                    self::roundInterval($_GET['interval']): 600000;
+
+        }
+        return $req;
+    } //end collectInput
+
+
+    /**
+     * Build an Elastic Search query for the given request.
+     *
+     * @param object $req Request data
+     * @return object ES query
+     */
+    protected function buildQuery ($req) {
+        // Preparse parameters
+        $time = $req->time;
+
+        // Contruct the query
+        $query = new stdClass;
+        $query->from = $req->offset;
+        $query->query->filtered->query->query_string->query =
+                ($req->search == "")? "*": $req->search;
+        $query->size = 50;
+        $query->sort->{'@timestamp'}->order = 'desc';
+        $query->fields = array(
+                '@timestamp', '@fields', '@message', '@tags', '@type');
+
+        // Check the mode
+        switch ($req->mode) {
+            case 'graph':
+                $query->size = 0;
+                $query->facets->histo1->date_histogram->field =
+                        "@timestamp";
+                $query->facets->histo1->date_histogram->interval =
+                        $req->interval;
+                break;
+
+            case 'trend':
+            case 'analyze':
+                $query->facets->stats->statistical->field = '@timestamp';
+                break;
+
+            default:
+                $query->facets->stats->statistical->field = '@timestamp';
+        }
+
+        // Unless the user gives us exact times, compute relative 
+        // timeframe based on drop down
+        if ($req->timeframe != "custom") {
+            $time = new stdClass;
+            $time->from = date('c', strtotime("{$req->timeframe} ago"));
+            $time->to = date('c');
+        }
+
+        // Check if we have a time range, if so filter
+        if ($time != '') {
+            $query->query->filtered->filter->range->{'@timestamp'} = $time;
+            $facet = ($req->mode == 'graph') ? "histo1" : "stats";
+
+            // Figure out which indices to search
+            if ($this->config['smart_index']) {
+                $index_array = $this->getIndicesByTime(
+                        $time->from, $time->to);
+                $this->index = implode(',', $index_array);
+
+                // Ignore all the cursor stuff for now. Its for eventual 
+                // segmented loading
+                $cursor = isset($req->cursor) ?
+                        $req->cursor : sizeof($index_array);
+                // FIXME: obviously won't work from here now.
+                //$return->cursor = $cursor;
             }
         }
-    }
 
-    // After this, dates are in local timezone
-    date_default_timezone_set($real_timezone);
+        return $query;
+    } //end buildQuery
 
 
-    // Run the query
-    $result = esQuery($query);
+    /**
+     * Process a query.
+     *
+     * @param object $req Request data
+     * @param object $query ES query
+     * @return object Response to request
+     */
+    protected function processQuery ($req, $query) {
+        // After this, dates are in local timezone
+        date_default_timezone_set($this->config['local_timezone']);
 
-    // Add some top level statistical and informational data
-    $return->{'index'} = $index;
-    $return->{'hits'} = $result->{'hits'}->{'total'};
-    $return->{'graph'}->{'data'} =
-            $result->{'facets'}->{'histo1'}->{'entries'};
-    $return->{'total'} = esTotal();
+        // Run the query
+        $result = $this->esQuery($query);
 
-    // Compute an interval to give us around 100 bars
-    $return->{'graph'}->{'interval'} = ($_GET['mode'] == 'graph' ? $interval :
-            ($result->{'facets'}->{'stats'}->{'max'} -
-                $result->{'facets'}->{'stats'}->{'min'}) / 100);
+        // build the response
+        $return = new stdClass;
 
-    $i = 0;
+        // Add some top level statistical and informational data
+        $return->index = $this->index;
+        $return->hits = $result->hits->total;
+        if (isset($result->facets->histo1)) {
+            $return->graph->data = $result->facets->histo1->entries;
+        }
+        $return->total = $this->esTotalDocumentCount();
 
-    switch($_GET['mode']) {
-        case 'analyze':
-            $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
-            $query['size'] = $analyze_limit;
-            $query['fields'] = $field;
-            $result = esQuery($query);
-            foreach ($result->{'hits'}->{'hits'} as $hit) {
-                $i++;
-                $analyze[$i] = implode(',', $hit->{'fields'}->{$field});
-            }
-            unset($result);
+        if ($req->mode == 'graph') {
+            $return->graph->interval = $req->interval;
 
-            $analyze = array_count_values($analyze);
-            arsort($analyze);
-            $analyze = array_slice($analyze, 0, $analyze_show, true);
+        } else {
+            // Compute an interval to give us around 100 bars
+            $return->graph->interval = ($result->facets->stats->max -
+                    $result->facets->stats->min) / 100;
+        }
 
-            foreach ($analyze as $key => $value) {
-                $final[$key]['count'] = $value;
-            }
+        switch ($req->mode) {
+            case 'analyze':
+                $return = $this->analyzeField($req, $query, $return);
+                break;
 
-            $return->{'analysis'}->{'results'} = $final;
-            $return->{'analysis'}->{'count'} = $i;
-            break;
-        case 'trend':
-            // See how many hits we'd get
-            $field = (substr($field,0,1) != '@' ? '@fields.'.$field : $field);
-            $query['size'] = 0;
-            $query['fields'] = $field;
-            $result = esQuery($query);
+            case 'trend':
+                $return = $this->trendField($req, $query, $return);
+                break;
 
-            // Scale samples. If analyze_limit is more than 50% of the
-            // results, then change size to 50% of the results to avoid
-            // overlap
-            $query['size'] = ($return->{'hits'} < $analyze_limit*2 ?
-                    $return->{'hits'}/2 : $analyze_limit);
-            $result = esQuery($query);
+            default:
+                $base_fields = array('@message', '@tags', '@type');
+                $return->all_fields = array('@message', '@tags', '@type');
+                foreach ($result->hits->hits as $hit) {
+                    $hit_id = $hit->{'_id'};
+                    $return->results[$hit_id]['@cabin_time'] =
+                            date('m/d H:i:s', strtotime(
+                                    $hit->fields->{'@timestamp'}));
+                    $return->results[$hit_id]['@timestamp'] =
+                            $hit->fields->{'@timestamp'};
+                    foreach ($hit->fields->{'@fields'} as $name => $value) {
+                        $return->results[$hit_id][$name] = $value;
+                        if (!in_array($name, $return->all_fields)) {
+                            $return->all_fields[] = $name;
+                        }
+                    }
 
-            $i = 0;
-            foreach ($result->{'hits'}->{'hits'} as $hit) {
-                $i++;
-                $analyze[$i] = implode(',', $hit->{'fields'}->{$field});
-            }
-            unset($result);
-            $analyze = array_count_values($analyze);
-
-            $query['sort']['@timestamp']['order'] = 'asc';
-            $result = esQuery($query);
-
-            $i = 0;
-            foreach ($result->{'hits'}->{'hits'} as $hit) {
-                $i++;
-                $analyze2[$i] = implode(',', $hit->{'fields'}->{$field});
-            }
-            unset($result);
-            $analyze2 = array_count_values($analyze2);
-
-            foreach ($analyze as $key => $value) {
-                $final[$key]['count'] = $value;
-                $final[$key]['start'] = $analyze2[$key];
-                $final[$key]['trend'] = round((($value / $query['size']) -
-                        ($analyze2[$key] / $query['size'])) * 100, 2);
-                $final[$key]['abs'] = abs($final[$key]['trend']);
-            }
-
-            aasort($final, "abs");
-
-            $final = array_slice($final, 0, $analyze_show, true);
-            $return->{'analysis'}->{'results'} = $final;
-            $return->{'analysis'}->{'count'} = $i;
-            break;
-        default:
-            $return->{'all_fields'} = array('@message', '@tags', '@type');
-            foreach ($result->{'hits'}->{'hits'} as $hit) {
-                $i++;
-                $return->{'results'}[$hit->{'_id'}]['@cabin_time'] =
-                        date('m/d H:i:s',
-                                strtotime($hit->{'fields'}->{'@timestamp'}));
-                $return->{'results'}[$hit->{'_id'}]['@timestamp'] =
-                        $hit->{'fields'}->{'@timestamp'};
-                foreach ($hit->{'fields'}->{'@fields'} as $name => $field) {
-                    $value = $hit->{'fields'}->{'@fields'}->{$name};
-                    $return->{'results'}[$hit->{'_id'}][$name] = $value;
-                    if (!in_array($name, $return->{'all_fields'})) {
-                        array_push($return->{'all_fields'}, $name);
+                    foreach ($base_fields as $field) {
+                        $return->results[$hit_id][$field] =
+                                $hit->fields->{$field};
                     }
                 }
-                $return->{'results'}[$hit->{'_id'}]['@message'] =
-                        $hit->{'fields'}->{'@message'};
-                $return->{'results'}[$hit->{'_id'}]['@tags'] =
-                        $hit->{'fields'}->{'@tags'};
-                $return->{'results'}[$hit->{'_id'}]['@type'] =
-                        $hit->{'fields'}->{'@type'};
+                sort($return->all_fields);
+                $return->page_count = count($result->hits->hits);
+        }
+
+        $return->fields_requested = $req->fields;
+        $return->elasticsearch_json = json_encode($query);
+
+        //$return->debug = memory_get_usage();
+
+        return $return;
+    } //end processQuery
+
+
+    /**
+     * Analyze a field from a set of results.
+     *
+     * @param object $req Request data
+     * @param object $query ES query
+     * @param object $return Partial response
+     * @return object Response to request
+     */
+    protected function analyzeField ($req, $query, $return) {
+        $field = self::canonicalFieldName($req->analyze_field);
+        $query->size = $this->config['analyze_limit'];
+        $query->fields = $field;
+
+        $result = $this->esQuery($query);
+
+        $return->analysis->count = count($result->hits->hits);
+
+        $analyze = self::collectFieldValues($result->hits->hits, $field);
+        unset($result);
+
+        $analyze = array_count_values($analyze);
+        arsort($analyze);
+        $analyze = array_slice(
+                $analyze, 0, $this->config['analyze_show'], true);
+
+        $final = array();
+        foreach ($analyze as $key => $value) {
+            $final[$key] = array();
+            $final[$key]['count'] = $value;
+        }
+
+        $return->analysis->results = $final;
+
+        return $return;
+    } //end analyzeField
+
+
+    /**
+     * Compute trends in the values of a field.
+     *
+     * @param object $req Request data
+     * @param object $query ES query
+     * @param object $return Partial response
+     * @return object Response to request
+     */
+    protected function trendField ($req, $query, $return) {
+        $field = self::canonicalFieldName($req->analyze_field);
+        $query->size = 0;
+        $query->fields = $field;
+        $result = $this->esQuery($query);
+
+        // Scale samples. If analyze_limit is more than 50% of the
+        // results, then change size to 50% of the results to avoid
+        // overlap
+        $analyze_limit = $this->config['analyze_limit'];
+        $query->size = $analyze_limit;
+        if ($return->hits < $analyze_limit * 2) {
+            $query->size = $return->hits / 2;
+        }
+
+        $result = $this->esQuery($query);
+        $analyze = self::collectFieldValues($result->hits->hits, $field);
+        unset($result);
+        $analyze = array_count_values($analyze);
+
+        $query->sort->{'@timestamp'}->order = 'asc';
+        $result = $this->esQuery($query);
+        $return->analysis->count = count($result->hits->hits);
+        $analyze2 = self::collectFieldValues($result->hits->hits, $field);
+        unset($result);
+        $analyze2 = array_count_values($analyze2);
+
+        $final = array();
+        foreach ($analyze as $key => $value) {
+            $final[$key] = array();
+            $final[$key]['count'] = $value;
+            $final[$key]['start'] = $analyze2[$key];
+            $final[$key]['trend'] = round((($value / $query->size) -
+                    ($analyze2[$key] / $query->size)) * 100, 2);
+            $final[$key]['abs'] = abs($final[$key]['trend']);
+        }
+
+        aasort($final, "abs");
+
+        $final = array_slice($final, 0, $this->config['analyze_show'], true);
+        $return->analysis->results = $final;
+
+        return $return;
+    } //end trendField
+
+
+    /**
+     * Query Elastic Search.
+     *
+     * @param object $query Search API query
+     * @return object ES response
+     */
+    function esQuery ($query) {
+        $ch = curl_init();
+        $data = json_encode($query);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_URL, "http://" .
+            $this->config['elasticsearch_server'] .
+            "/{$this->index}/{$this->config['type']}/_search");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $response = curl_exec($ch);
+        return json_decode($response);
+    } //end esQuery
+
+
+    /**
+     * Query Elastic Search for the total number of documents indexed.
+     * @return int Total document count
+     */
+    function esTotalDocumentCount () {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL,
+                "http://{$this->config['elasticsearch_server']}/_status");
+        $result = json_decode(curl_exec($ch));
+
+        $indices = $result->indices;
+        $totaldocs = 0;
+        foreach ($indices as $index) {
+            $totaldocs += $index->docs->num_docs;
+        }
+        return $totaldocs;
+    } //end esTotalDocumentCount
+
+
+    /**
+     * Get a list of all indices that fall within the given time range.
+     *
+     * @param string $strDateFrom Range start date
+     * @param string $strDateTo Range end date
+     * @return array List of index names that should be queried
+     */
+    protected function getIndicesByTime ($strDateFrom, $strDateTo) {
+        // Dates in this section are UTC
+        $save_tz = date_default_timezone_get();
+        date_default_timezone_set('UTC');
+
+        $aryRange = array();
+        $iDateFrom = strtotime(date("F j, Y", strtotime($strDateFrom)));
+        $iDateTo = strtotime(date("F j, Y", strtotime($strDateTo)));
+
+        if ($iDateTo >= $iDateFrom) {
+            $aryRange[] = 'logstash-' . date('Y.m.d', $iDateFrom);
+            while ($iDateFrom < $iDateTo) {
+                $iDateFrom += 86400;
+                if ($iDateTo >= $iDateFrom) {
+                    $aryRange[] = 'logstash-' . date('Y.m.d',$iDateFrom);
+                }
             }
-            sort($return->{'all_fields'});
-            $return->{'page_count'} = $i;
+        }
+
+        $aryRange = array_intersect($aryRange, $this->getAllIndices());
+        if (count($aryRange) > $this->config['smart_index_limit']) {
+            $aryRange = array('_all');
+        }
+        sort($aryRange);
+
+        // back to default timezone
+        date_default_timezone_set($save_tz);
+        return $aryRange;
+    } //end getIndicesByTime
+
+
+    /**
+     * Query ElastciSearch server to get a list of all indexes available for 
+     * searching.
+     *
+     * @return array List of index names
+     */
+    protected function getAllIndices () {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL,
+                "http://{$this->config['elasticsearch_server']}/_status");
+        $result = json_decode(curl_exec($ch));
+
+        $indices = array();
+        foreach ($result->indices as $indexname => $index) {
+            $indices[] = $indexname;
+        }
+        return $indices;
+    } //end getAllIndices
+
+
+    /**
+     * Round an interval value.
+     *
+     * @param int $int Interval
+     * @return int Rounded interval
+     */
+    public static function roundInterval ($int) {
+        switch ($int) {
+            case ($int <= 500):     return 100;
+            case ($int <= 5000):    return 1000;
+            case ($int <= 7500):    return 5000;
+            case ($int <= 15000):   return 10000;
+            case ($int <= 45000):   return 30000;
+            case ($int <= 180000):  return 60000;
+            case ($int <= 450000):  return 300000;
+            case ($int <= 1200000): return 600000;
+            case ($int <= 2700000): return 1800000;
+            default:                return 3600000;
+        }
+    } //end roundInterval
+
+
+    /**
+     * Construct the canonical name of a given field.
+     *
+     * Fields that don't start with '@' are actually subfields of the 
+     * '@fields' collection.
+     *
+     * @param string $name Field name
+     * @return string Canonical field name
+     */
+    public static function canonicalFieldName ($name) {
+        return ('@' == $name[0]) ? $name : "@fields.{$name}";
     }
-    $return->{'fields_requested'} = $fields;
-    $return->{'elasticsearch_json'} = json_encode($query);
 
-    //$return->{'debug'} = memory_get_usage();
-    $return = json_encode($return);
-    echo $return;
 
-} else {
+    /**
+     * Collect all values of a given field from a collection of documents.
+     *
+     * @param array $documents ES documents
+     * @param string $field Field to extract
+     * @return array List of field values
+     */
+    public static function collectFieldValues ($documents, $field) {
+        $values = array();
+        foreach ($documents as $doc) {
+            $value = $doc->fields->{$field};
+            if (is_array($value)) {
+                $value = implode(',', $value);
+            }
+            $values[] = $value;
+        }
+        return $values;
+    } //end collectFieldValues
 
-    echo "No Page parameter";
 
-}
-
-function esQuery ($query) {
-    global $index, $type, $elasticsearch_server;
-    $ch = curl_init();
-    $data = json_encode($query);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_URL,
-            "http://{$elasticsearch_server}/{$index}/{$type}/_search");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    $result = json_decode(curl_exec($ch));
-    return $result;
-}
-
-function esTotal () {
-    global $elasticsearch_server;
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_URL, "http://{$elasticsearch_server}/_status");
-    $result = json_decode(curl_exec($ch));
-
-    $indices = $result->{'indices'};
-    $totaldocs = 0;
-    foreach ($indices as $index) {
-        $totaldocs += $index->{'docs'}->{'num_docs'};
-    }
-    return $totaldocs;
-}
-
-function roundInterval ($int) {
-    switch ($int) {
-        case ($int <= 500):
-            return 100;
-        case ($int <= 5000):
-            return 1000;
-        case ($int <= 7500):
-            return 5000;
-        case ($int <= 15000):
-            return 10000;
-        case ($int <= 45000):
-            return 30000;
-        case ($int <= 180000):
-            return 60000;
-        case ($int <= 450000):
-            return 300000;
-        case ($int <= 1200000):
-            return 600000;
-        case ($int <= 2700000):
-            return 1800000;
-    }
-    return 3600000;
-}
-
-function base64url_decode ($base64url) {
-    $base64 = strtr($base64url, '-_', '+/');
-    $plainText = base64_decode($base64);
-    return $plainText;
-}
+} //end LogstashLoader
 
 function aasort (&$array, $key) {
-    $sorter=array();
-    $ret=array();
+    $sorter = array();
+    $ret = array();
     reset($array);
     foreach ($array as $ii => $va) {
-        $sorter[$ii]=$va[$key];
+        $sorter[$ii] = $va[$key];
     }
     arsort($sorter);
     foreach ($sorter as $ii => $va) {
-        $ret[$ii]=$array[$ii];
+        $ret[$ii] = $array[$ii];
     }
-    $array=$ret;
+    $array = $ret;
 }
 
-function getIndicesByTime ($strDateFrom, $strDateTo) {
-    global $smart_index_limit;
-    $aryRange=array();
-    $iDateFrom=strtotime(date("F j, Y", strtotime($strDateFrom)));
-    $iDateTo=strtotime(date("F j, Y", strtotime($strDateTo)));
+$handler = new LogstashLoader($KIBANA_CONFIG);
+$handler->handleRequest();
 
-    if ($iDateTo >= $iDateFrom) {
-        array_push($aryRange,'logstash-' . date('Y.m.d',$iDateFrom));
-        while ($iDateFrom < $iDateTo) {
-            $iDateFrom += 86400;
-            if ($iDateTo >= $iDateFrom) {
-                array_push($aryRange,'logstash-' . date('Y.m.d',$iDateFrom));
-            }
-        }
-    }
-
-    $aryRange = array_intersect($aryRange,getAllIndices());
-    if (count($aryRange) > $smart_index_limit) {
-        $aryRange = array('_all');
-    }
-    sort($aryRange);
-    return $aryRange;
-}
-
-function getAllIndices () {
-    global $elasticsearch_server;
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_URL, "http://{$elasticsearch_server}/_status");
-    $result = json_decode(curl_exec($ch));
-
-    $indices = array();
-    foreach ($result->{'indices'} as $indexname => $index) {
-        array_push($indices,$indexname);
-    }
-    return $indices;
-}
+// vim:sw=4 ts=4 sts=4 et :

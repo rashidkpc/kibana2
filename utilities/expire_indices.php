@@ -3,6 +3,7 @@
 $days = 5;
 
 include dirname(__FILE__).'/../config.php';
+$elasticsearch_server = $KIBANA_CONFIG['elasticsearch_server'];
 
 //echo 'logstash-'.date('Y.m.d',strtotime($days . " days ago"));
 

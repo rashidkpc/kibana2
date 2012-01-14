@@ -9,6 +9,7 @@ $days = 1;
 $max_num_segments = 2;
 
 include dirname(__FILE__).'/../config.php';
+$elasticsearch_server = $KIBANA_CONFIG['elasticsearch_server'];
 
 $before = strtotime($days . " days ago");
 
