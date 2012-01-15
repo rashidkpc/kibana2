@@ -25,6 +25,26 @@ $(document).ready(function () {
         $(this).html( "<h2><strong>Oops!</strong> Something went terribly wrong.</h2>I'm not totally sure what happened, but maybe logging out, or hitting Reset will help. If that doesn't word, you can try restarting your browser. If all else fails, it possible your configuation has something funky going on. <br><br>If it helps, I received a <strong>" + xhr.status + " " + xhr.statusText +"</strong> from: "+ settings.url );
     }); 
 
+    $('#sbctl').click(function () {
+        var sb = $('#sidebar'),
+            main = $('#main'),
+            lnk = $('#sbctl a'),
+            win = $(window);
+        if (sb.is(':visible')) {
+          // collapse
+          sb.hide();
+          main.addClass('sidebar-collapsed');
+          lnk.html("&#8811;");
+          win.resize();
+        } else {
+          // expand
+          sb.show();
+          main.removeClass('sidebar-collapsed');
+          lnk.html("&#8810;");
+          win.resize();
+        }
+    });
+
     // Basically, whenever the URL changes, fire this.
     $.history.init(pageload);
 

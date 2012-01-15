@@ -176,3 +176,20 @@ width: auto;
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
+#sbctl {
+  position:absolute;
+  top:3px;
+  left:223px;
+}
+#sbctl a, #sbctl a:hover {
+  font-weight:bold;
+  color:#F5F5F5;
+  text-decoration:none;
+}
+div.container-fluid > div.sidebar-collapsed {
+  margin-left:0px;
+}
+div.sidebar-collapsed #sbctl {
+  left:3px;
+}
