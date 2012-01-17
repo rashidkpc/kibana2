@@ -6,7 +6,7 @@ include 'config.php';
  *
  * @author Rashid Khan <flipwork #logstash irc.freenode.net>
  * @copyright Copyright 2011 Rashid Khan
- * @license ?? Good question. ??
+ * @license BSD 2 Clause <http://www.opensource.org/licenses/BSD-2-Clause> 
  */
 class LogstashLoader {
 
