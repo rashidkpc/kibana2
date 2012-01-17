@@ -28,19 +28,21 @@ $(document).ready(function () {
     $('#sbctl').click(function () {
         var sb = $('#sidebar'),
             main = $('#main'),
-            lnk = $('#sbctl a'),
+            lnk = $('#sbctl'),
             win = $(window);
         if (sb.is(':visible')) {
           // collapse
           sb.hide();
+          lnk.removeClass('ui-icon-triangle-1-w');
+          lnk.addClass('ui-icon-triangle-1-e');
           main.addClass('sidebar-collapsed');
-          lnk.html("&#8811;");
           win.resize();
         } else {
           // expand
           sb.show();
+          lnk.removeClass('ui-icon-triangle-1-e');
+          lnk.addClass('ui-icon-triangle-1-w');
           main.removeClass('sidebar-collapsed');
-          lnk.html("&#8810;");
           win.resize();
         }
     });

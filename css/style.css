@@ -177,16 +177,13 @@ width: auto;
     padding-bottom: 5px;
 }
 
+
 #sbctl {
   position:absolute;
-  top:3px;
-  left:223px;
+  top: 5px;
+  left: 218px;
 }
-#sbctl a, #sbctl a:hover {
-  font-weight:bold;
-  color:#F5F5F5;
-  text-decoration:none;
-}
+
 div.container-fluid > div.sidebar-collapsed {
   margin-left:0px;
 }

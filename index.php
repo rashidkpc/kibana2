@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="content" id=main>
-        <span id=sbctl class="label"><a href="javascript:void(0)">&#8810;</a></span>
+        <span id=sbctl class="ui-icon ui-icon-triangle-1-w ui-state-default jlink"></span>
         <div>
             <p id=graphheader></p>
             <div id=graph style='height: 100px;'>
