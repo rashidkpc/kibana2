@@ -26,10 +26,20 @@ $KIBANA_CONFIG = array(
     // Show this many results in analyze/ mode
     'analyze_show' => 25,
 
-    // Authentication
-    'use_auth' => false,
-    'auth_username' => "admin",
-    'auth_password' => "password",
+    // By default, Kibana will look for grok/filter defined fields
+    // in your results. Logstash has some default fields that it also
+    // supplies. You might want to enable or disable some of those.
+    'default_fields' => array(
+        '@type',
+        '@tags',
+        '@source_host',
+        '@source_path',
+        '@timestamp',
+        '@source',
+    ),
+
+    // You probably don't want to touch anything below this line 
+    // unless you really know what you're doing
 
     // default search settings
     'default_search' => array(

@@ -94,9 +94,9 @@ class LogstashLoader {
                 ($req->search == "")? "*": $req->search;
         $query->size = 50;
         $query->sort->{'@timestamp'}->order = 'desc';
-        $query->fields = array(
-                '@timestamp', '@fields', '@message', '@tags', '@type','@source_host','@source_path');
-
+        $query->fields = array_values(array_unique(array_merge(
+                    array('@timestamp', '@fields', '@message'),
+                    $this->config['default_fields'])));
         // Check the mode
         switch ($req->mode) {
             case 'graph':
@@ -192,8 +192,12 @@ class LogstashLoader {
                 break;
 
             default:
-                $base_fields = array('@message', '@tags', '@type','@source_host','@source_path');
-                $return->all_fields = array('@message', '@tags', '@type','@source_host','@source_path');
+                $base_fields = array_values(array_unique(array_merge(
+                        array('@message'),
+                        $this->config['default_fields'])));
+                $return->all_fields = array_values(array_unique(array_merge(
+                        array('@message'),
+                        $this->config['default_fields'])));
                 foreach ($result->hits->hits as $hit) {
                     $hit_id = $hit->{'_id'};
                     $return->results[$hit_id]['@cabin_time'] =
