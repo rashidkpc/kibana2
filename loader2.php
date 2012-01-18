@@ -95,7 +95,7 @@ class LogstashLoader {
         $query->size = 50;
         $query->sort->{'@timestamp'}->order = 'desc';
         $query->fields = array(
-                '@timestamp', '@fields', '@message', '@tags', '@type');
+                '@timestamp', '@fields', '@message', '@tags', '@type','@source_host','@source_path');
 
         // Check the mode
         switch ($req->mode) {
@@ -192,8 +192,8 @@ class LogstashLoader {
                 break;
 
             default:
-                $base_fields = array('@message', '@tags', '@type');
-                $return->all_fields = array('@message', '@tags', '@type');
+                $base_fields = array('@message', '@tags', '@type','@source_host','@source_path');
+                $return->all_fields = array('@message', '@tags', '@type','@source_host','@source_path');
                 foreach ($result->hits->hits as $hit) {
                     $hit_id = $hit->{'_id'};
                     $return->results[$hit_id]['@cabin_time'] =

@@ -6,7 +6,7 @@ $KIBANA_CONFIG = array(
 
     // The record type as defined in your logstash configuration.
     // Seperate multiple types with a comma, no spaces.
-    'type' => 'syslog',
+    'type' => '',
 
     // When searching, Kibana will attempt to only search indices
     // that match your timeframe, to make searches faster. You can
