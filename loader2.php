@@ -40,10 +40,16 @@ class LogstashLoader {
     public function handleRequest () {
         $req = $this->collectInput();
         if ($req) {
+            $req->fields = array_filter($req->fields);
+
             $query = $this->buildQuery($req);
             $return = $this->processQuery($req, $query);
-            echo  json_encode($return);
 
+            if ($req->mode == 'rss') {
+                echo  $this->rssFeed($req, $query, $return);
+            } else { 
+                echo  json_encode($return);
+            }
         } else {
             echo "No Page parameter";
         }
@@ -97,24 +103,6 @@ class LogstashLoader {
         $query->fields = array_values(array_unique(array_merge(
                     array('@timestamp', '@fields', '@message'),
                     $this->config['default_fields'])));
-        // Check the mode
-        switch ($req->mode) {
-            case 'graph':
-                $query->size = 0;
-                $query->facets->histo1->date_histogram->field =
-                        "@timestamp";
-                $query->facets->histo1->date_histogram->interval =
-                        $req->interval;
-                break;
-
-            case 'trend':
-            case 'analyze':
-                $query->facets->stats->statistical->field = '@timestamp';
-                break;
-
-            default:
-                $query->facets->stats->statistical->field = '@timestamp';
-        }
 
         // Unless the user gives us exact times, compute relative 
         // timeframe based on drop down
@@ -134,14 +122,32 @@ class LogstashLoader {
                 $index_array = $this->getIndicesByTime(
                         $time->from, $time->to);
                 $this->index = implode(',', $index_array);
-
-                // Ignore all the cursor stuff for now. Its for eventual 
-                // segmented loading
-                $cursor = isset($req->cursor) ?
-                        $req->cursor : sizeof($index_array);
-                // FIXME: obviously won't work from here now.
-                //$return->cursor = $cursor;
             }
+        }
+
+        // Check the mode
+        switch ($req->mode) {
+            case 'graph':
+                $query->size = 0;
+                $query->facets->histo1->date_histogram->field =
+                        "@timestamp";
+                $query->facets->histo1->date_histogram->interval =
+                        $req->interval;
+                break;
+
+            case 'trend':
+            case 'analyze':
+                $query->facets->stats->statistical->field = '@timestamp';
+                break;
+
+            case 'rss':
+                $query->size = 20;
+                $query->query = $query->query->filtered->query;
+                unset($query->facets);
+                break;
+
+            default:
+                $query->facets->stats->statistical->field = '@timestamp';
         }
 
         return $query;
@@ -178,6 +184,7 @@ class LogstashLoader {
 
         } else {
             // Compute an interval to give us around 100 bars
+            if(isset($result->facets))
             $return->graph->interval = ($result->facets->stats->max -
                     $result->facets->stats->min) / 100;
         }
@@ -229,6 +236,89 @@ class LogstashLoader {
         return $return;
     } //end processQuery
 
+    
+    /**
+     * Create an RSS feed from a set of results.
+     *
+     * @param object $req Request data
+     * @param object $query ES query
+     * @param object $return Partial response
+     * @return object Response to request
+     */
+    protected function rssFeed ($req, $query, $return) {
+
+        if (sizeof($req->fields) < 1) 
+            $req->fields = array('@message');
+
+        $pDom = new DOMDocument();
+        
+        $pRSS = $pDom->createElement('rss');
+
+        $pRSS->setAttribute('version', 0.91);
+        $pDom->appendChild($pRSS);
+
+        $pChannel = $pDom->createElement('channel');
+        $pRSS->appendChild($pChannel);
+
+        $e_query = $query->query->query_string->query;
+   
+        $pTitle = $pDom->createElement('title');
+        $pLink = $pDom->createElement('link');
+        $pDesc = $pDom->createElement('description');
+        $pLang = $pDom->createElement('language');
+ 
+        $pTitleText = $pDom->createTextNode( 
+            'Kibana: '.$e_query);
+        $pLinkText  = $pDom->createTextNode( 
+            'http://' . $_SERVER['HTTP_HOST']  . dirname($_SERVER['REQUEST_URI']));
+        $pDescText = $pDom->createTextNode( 
+            'An event search for: '.$e_query.
+            '. Showing fields '.
+            implode(', ',array_filter($req->fields)) . " in the title.");
+        $pLangText = $pDom->createTextNode('en');
+
+        $pTitle->appendChild($pTitleText);
+        $pLink->appendChild($pLinkText);
+        $pDesc->appendChild($pDescText);
+        $pLang->appendChild($pLangText);
+
+        $pChannel->appendChild($pTitle);
+        $pChannel->appendChild($pLink);
+        $pChannel->appendChild($pDesc);
+        $pChannel->appendChild($pLang);
+
+        foreach ($return->results as $result) {
+            $pItem  = $pDom->createElement('item');
+            $a_pTitle = array();
+            foreach ($req->fields as $field) {
+                if (is_array($result[$field])) {
+                    $a_pTitle[] .= implode(',',$result[$field]);
+                } else {
+                    $a_pTitle[] .= $result[$field];
+                }
+            }
+
+            $pTitle = $pDom->createElement('title');
+            $pLink  = $pDom->createElement('pubDate',
+                date('r',strtotime($result['@timestamp'])));
+            $pDesc  = $pDom->createElement('description');
+   
+            $pTitleText = $pDom->createTextNode(implode(', ',$a_pTitle));
+            $pDescText  = $pDom->createTextNode($result['@message']);
+
+            $pTitle->appendChild($pTitleText);
+            $pDesc->appendChild($pDescText);
+    
+            $pItem->appendChild($pTitle);
+            $pItem->appendChild($pLink);
+            $pItem->appendChild($pDesc);
+    
+            $pChannel->appendChild($pItem);
+        }
+
+        return $pDom->saveXML();
+    } //end rssFeed
+    
 
     /**
      * Analyze a field from a set of results.

@@ -22,7 +22,7 @@ $(document).ready(function () {
 
     $("div#logs").ajaxError(function(e, xhr, settings, exception) {
         $('#meta').text("");
-        $(this).html( "<h2><strong>Oops!</strong> Something went terribly wrong.</h2>I'm not totally sure what happened, but maybe logging out, or hitting Reset will help. If that doesn't word, you can try restarting your browser. If all else fails, it possible your configuation has something funky going on. <br><br>If it helps, I received a <strong>" + xhr.status + " " + xhr.statusText +"</strong> from: "+ settings.url );
+        $('#graph').html( "<h2><strong>Oops!</strong> Something went terribly wrong.</h2>I'm not totally sure what happened, but maybe logging out, or hitting Reset will help. If that doesn't word, you can try restarting your browser. If all else fails, it possible your configuation has something funky going on. <br><br>If it helps, I received a <strong>" + xhr.status + " " + xhr.statusText +"</strong> from: "+ settings.url );
     }); 
 
     $('#sbctl').click(function () {
@@ -75,16 +75,18 @@ function pageload(hash) {
         // Take the hash data and populate the search fields
         $('#queryinput').val(window.hashjson.search);
         $('#fieldsinput').val(window.hashjson.fields);
+
         if(typeof window.hashjson.time !== 'undefined') {
             window.hashjson.timeframe = "custom";
         }
         $('#timeinput').val(window.hashjson.timeframe);
+
         if(window.hashjson.mode == 'analyze' || window.hashjson.mode == 'trend') {
             getAnalysis();
         } else {
             getPage();
-            
         }
+
     } else {
         window.hashjson = JSON.parse('{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
         setHash(window.hashjson);
@@ -155,6 +157,7 @@ function getPage() {
                     }
                     analyzestr += '</div>';
                     fieldstr += '</p>';
+                    $('#feedlinks').html("<a href=loader2.php?mode=rss&page="+base64Encode(JSON.stringify(window.hashjson))+">rss <img src=images/feed.png></a>");
                     $('#fields').html("<h3><strong>Show</strong> Fields</h3>" + fieldstr);
                     $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>" + analyzestr);                   
 
@@ -485,6 +488,9 @@ function mFields(field) {
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
     $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs condensed-table'));
+
+    $('#feedlinks').html("<a href=loader2.php?mode=rss&page="+base64Encode(JSON.stringify(window.hashjson))+">rss <img src=images/feed.png></a>");
+
     pageLinks();   
  
 }
