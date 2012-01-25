@@ -44,7 +44,7 @@
                 <option value="4 hours">Last 4h</option>
                 <option value="12 hours">Last 12h</option>
                 <option value="24 hours">Last 24h</option>
-                <option value="24 hours">Last 48h</option>
+                <option value="48 hours">Last 48h</option>
                 <option value="7 days">Last 7d</option>
                 <option value="100 years">All Time</option>
                 <option value="custom">Custom</option>
