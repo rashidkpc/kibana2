@@ -3,15 +3,8 @@ $(document).ready(function () {
     var d = new Date()
     window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
 
-
-    // Some click bindings
-    $("#showAdvanced").click(function () {
-        $('#header').height(200);
-    });
-
     $("#resetall").click(function () {
         delete window.hashjson;
-        tip("The reset button resets searches, fields and timeframes");
         window.location.hash = '#';
     });
 
@@ -98,6 +91,7 @@ function pageload(hash) {
 }
 
 function getPage() {
+
     if (window.inprogress) {
         return false;
     }
@@ -140,13 +134,13 @@ function getPage() {
                     for (var index in resultjson.all_fields) {
                         afield = resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field";
 
-                        analyzestr += '<div class="title">' + resultjson.all_fields[index].toString() + '</div><div class=analyze_buttons style="display: none;">';
+                        analyzestr += '<div class="title">' + 
+                            resultjson.all_fields[index].toString() + 
+                            '</div><div class=analyze_buttons style="display: none;">';
 
                         analyzestr += "<button id='analyze_" + afield + "' style='display: inline-block' class='btn tiny info'>Score</button> ";
                         analyzestr += "<button id='trend_" + afield + "' style='display: inline-block' class='btn tiny success'>Trend</button> ";
                         analyzestr += "</div>"
-                        //analyzestr += resultjson.all_fields[index].toString() + "</p>";
-
 
                         $("#sidebar").delegate("button#analyze_" + afield, "click", function () {
                             console.log($(this).parent().prev().text());
@@ -156,7 +150,9 @@ function getPage() {
                             analyzeField($(this).parent().prev().text(), "trend");
                         });
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) 
-                            fieldstr += "<a class='jlink " + afield + "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
+                            fieldstr += "<a class='jlink " + afield + 
+                                "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + 
+                                resultjson.all_fields[index].toString() + "</a> ";
                     }
                     analyzestr += '</div>';
                     fieldstr += '</p>';
@@ -193,8 +189,7 @@ function getPage() {
 
                 console.log("QUERY: " + window.resultjson.elasticsearch_json);
 
-                //$('#meta').append("<tr class=alt><td>Fields</td><td>"+window.resultjson.fields_requested+"</td></tr>");
-                //display the body with fadeIn transition
+                // display the body with fadeIn transition
                 $('#logs').fadeIn('slow');
             }
         }
@@ -205,8 +200,8 @@ function getPage() {
 function getGraph(interval) {
     //generate the parameter for the php script
     var sendhash = window.location.hash.replace(/^#/, '');
-    //var data = 'page=' + encodeURIComponent(sendhash) + "&mode=graph&interval=" + interval;
     var data = 'page=' + sendhash + "&mode=graph&interval=" + interval;
+    
     //Get the data and display it
     request = $.ajax({
         url: "loader2.php",
@@ -214,6 +209,7 @@ function getGraph(interval) {
         data: data,
         cache: false,
         success: function (json) {
+
             // Make sure we're still on the same page 
             if (sendhash == window.location.hash.replace(/^#/, '')) {
 
@@ -259,12 +255,20 @@ function getAnalysis() {
                 console.log(resultjson);
                 switch (window.hashjson.mode) {
                 case 'analyze':
-                    var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all " + resultjson.analysis.count + "</strong>" : 'the <strong>' + resultjson.analysis.count + ' most recent</strong>';
-                    var title = '<h2>Quick analysis of <strong>' + window.hashjson.analyze_field + '</strong> field <button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button></h2>This analysis is based on ' + basedon + ' events for your query in your selected timeframe.<br><br>';
+                    var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all " + 
+                        resultjson.analysis.count + "</strong>" : 'the <strong>' + 
+                        resultjson.analysis.count + ' most recent</strong>';
+                    var title = '<h2>Quick analysis of <strong>' + window.hashjson.analyze_field + 
+                        '</strong> field <button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button>'+
+                        '</h2>This analysis is based on ' + basedon + ' events for your query in your selected timeframe.<br><br>';
                     break;
                 case 'trend':
                     var basedon = "<strong>" + resultjson.analysis.count + "</strong>";
-                    var title = '<h2>Trend analysis of <strong>' + window.hashjson.analyze_field + '</strong> field <button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button></h2>These trends are based on ' + basedon + ' events from beginning and end of the selected timeframe for your query.<br><br>';
+                    var title = '<h2>Trend analysis of <strong>' + 
+                        window.hashjson.analyze_field + '</strong> field ' + 
+                        '<button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button>'+
+                        '</h2>These trends are based on ' + basedon + 
+                        ' events from beginning and end of the selected timeframe for your query.<br><br>';
                     break;
                 }
                 var str = title + '<table class="logs analysis">';
@@ -279,9 +283,13 @@ function getAnalysis() {
                     isalt = (i % 2 == 0) ? '' : 'alt';
                     str += '<tr class="' + isalt + '" id="analysisrow_' + i + '">';
                     str += '<td><strong>' + (i + 1) + '</strong></td>';
-                    str += '<td>' + wbr(obj, 10) + '</td><td style="display: none" class=analysis_value>' + obj + '</td>';
-                    str += '<td>' + metric['count'] + '</td><td>' + Math.round(metric['count'] / resultjson.analysis.count * 10000) / 100 + '%</td>';
-                    if (window.hashjson.mode == 'trend') str += (metric['trend'] > 0) ? '<td class=positive>+' + metric['trend'] + '</td>' : '<td class=negative>' + metric['trend'] + '</td>';
+                    str += '<td>' + wbr(obj, 10) + '</td><td style="display: none" class=analysis_value>' + 
+                        obj + '</td>';
+                    str += '<td>' + metric['count'] + '</td><td>' + 
+                        Math.round(metric['count'] / resultjson.analysis.count * 10000) / 100 + 
+                        '%</td>';
+                    if (window.hashjson.mode == 'trend') 
+                        str += (metric['trend'] > 0) ? '<td class=positive>+' + metric['trend'] + '</td>' : '<td class=negative>' + metric['trend'] + '</td>';
                     str += "<td><button style='display: inline-block' class='btn tiny default'>Search</button></td>";
                     str += "</tr>";
                     $(".content").delegate("tr#analysisrow_" + i + " td button", "click", function () {
@@ -431,8 +439,10 @@ function viewLog(objid) {
 
             str += wbr(value, 3);
             str += " <div style='display: inline-block'>";
-            str += "<button style='display: inline-block' class='btn tiny' onClick='mSearch(\"" + field + "\",getLogField(\"" + objid + "\",\"" + field + "\"))'>Find this</button> ";
-            str += "<button style='display: inline-block' class='btn tiny' onClick='mSearch(\"NOT " + field + "\",getLogField(\"" + objid + "\",\"" + field + "\"))'>NOT this</button> ";
+            str += "<button style='display: inline-block' class='btn tiny' "+
+                "onClick='mSearch(\"" + field + "\",getLogField(\"" + objid + "\",\"" + field + "\"))'>Find this</button> ";
+            str += "<button style='display: inline-block' class='btn tiny' "+
+                "onClick='mSearch(\"NOT " + field + "\",getLogField(\"" + objid + "\",\"" + field + "\"))'>NOT this</button> ";
             str += "</div>";
             str += "</td></tr>";
             i++;
@@ -488,14 +498,18 @@ function mFields(field) {
         str += "<a class='jlink logfield_selected' onClick='mFields(\"" + window.hashjson.fields[index] + "\")'>" + window.hashjson.fields[index] + "</a> ";
     }
     for (var index in resultjson.all_fields) {
-        if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) str += "<a class='jlink " + resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + resultjson.all_fields[index].toString() + "</a> ";
+        if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) 
+            str += "<a class='jlink " + resultjson.all_fields[index].toString().replace('@', 'ATSYM') + 
+                "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + 
+                resultjson.all_fields[index].toString() + "</a> ";
     }
     $('#fields').html("<h3><strong>Show</strong> Fields</h3> " + str);
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
     $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs condensed-table'));
 
-    $('#feedlinks').html("<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a>");
+    $('#feedlinks').html("<a href=loader2.php?mode=rss&page=" + 
+        base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a>");
 
     pageLinks();
 
@@ -513,7 +527,6 @@ function wbr(str, num) {
 
 $(function () {
     $('form').submit(function () {
-        $('#tips').text("");
         if (window.hashjson.search != $('#queryinput').val()) {
             //delete window.hashjson.time;
             window.hashjson.offset = 0;
@@ -529,7 +542,6 @@ $(function () {
         } else {
             setHash(window.hashjson);
         }
-        tip("Change fields in real time by selecting from the list under the search box.");
         return false;
     });
 });
@@ -572,7 +584,9 @@ function logGraph(data, interval) {
     if (!(typeof data[0] === undefined)) {
         var from = data[0].time + parseInt(tOffset);
         var to = data[data.length - 1].time + parseInt(tOffset);
-        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
+        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + 
+            ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + 
+            ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
 
         $('#timefrom,#timeto').datetimepicker({
             showSecond: true,
@@ -595,7 +609,6 @@ function logGraph(data, interval) {
             window.hashjson.offset = 0;
             window.hashjson.time = time;
             window.hashjson.timeframe = "custom";
-            tip("When you're done with your custom timeframe,<br>use the drop down to search up-to-the-minute results");
             setHash(window.hashjson);
         });
 
@@ -612,7 +625,6 @@ function logGraph(data, interval) {
                 window.hashjson.offset = 0;
                 window.hashjson.time = time;
                 window.hashjson.timeframe = "custom";
-                tip("When you're done with your custom timeframe,<br>use the drop down to search up-to-the-minute results");
                 setHash(window.hashjson);
             }
         });
@@ -712,7 +724,12 @@ function ISODateString(unixtime) {
     function pad(n) {
         return n < 10 ? '0' + n : n
     }
-    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds())
+    return d.getUTCFullYear() + '-' + 
+        pad(d.getUTCMonth() + 1) + '-' + 
+        pad(d.getUTCDate()) + 'T' + 
+        pad(d.getUTCHours()) + ':' + 
+        pad(d.getUTCMinutes()) + ':' + 
+        pad(d.getUTCSeconds())
 }
 
 
@@ -742,10 +759,6 @@ function sortObj(arr) {
     return sortedObj;
 }
 
-
-function tip(tip) {
-    $('#tips').html('<span class="ui-icon ui-icon-lightbulb ui-state-default ui-corner-all" style="display: inline-block;">tip</span> ' + tip);
-}
 
 function addslashes(str) {
     str = str.replace(/\\/g, '\\\\');
