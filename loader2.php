@@ -145,7 +145,9 @@ class LogstashLoader {
                 $query->query = $query->query->filtered->query;
                 unset($query->facets);
                 break;
-
+            case 'stream':
+                 
+                break;
             default:
                 $query->facets->stats->statistical->field = '@timestamp';
         }
@@ -270,7 +272,8 @@ class LogstashLoader {
         $pTitleText = $pDom->createTextNode( 
             'Kibana: '.$e_query);
         $pLinkText  = $pDom->createTextNode( 
-            'http://' . $_SERVER['HTTP_HOST']  . dirname($_SERVER['REQUEST_URI']));
+            'http://' . $_SERVER['HTTP_HOST'] . 
+            dirname($_SERVER['REQUEST_URI']) . '/#'. base64_encode(json_encode($req)));
         $pDescText = $pDom->createTextNode( 
             'An event search for: '.$e_query.
             '. Showing fields '.
