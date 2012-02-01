@@ -10,6 +10,10 @@
   font-size: 10px;
 }
 
+.topbar-inner {
+height: 51px;
+}
+
 .jlink {
 cursor: pointer;
 }

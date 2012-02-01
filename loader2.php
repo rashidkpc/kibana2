@@ -146,7 +146,8 @@ class LogstashLoader {
                 unset($query->facets);
                 break;
             case 'stream':
-                 
+                $query->size = 15;
+                unset($query->facets);
                 break;
             default:
                 $query->facets->stats->statistical->field = '@timestamp';
@@ -229,11 +230,9 @@ class LogstashLoader {
                 sort($return->all_fields);
                 $return->page_count = count($result->hits->hits);
         }
-
+        if (sizeof($req->fields) == 0) $req->fields = array('@message');
         $return->fields_requested = $req->fields;
         $return->elasticsearch_json = json_encode($query);
-
-        //$return->debug = memory_get_usage();
 
         return $return;
     } //end processQuery
