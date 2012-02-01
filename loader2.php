@@ -98,6 +98,7 @@ class LogstashLoader {
         $query->from = $req->offset;
         $query->query->filtered->query->query_string->query =
                 ($req->search == "")? "*": $req->search;
+        $query->query->filtered->query->query_string->default_field = $this->config['primary_field'];
         $query->size = 50;
         $query->sort->{'@timestamp'}->order = 'desc';
         $query->fields = array_values(array_unique(array_merge(
