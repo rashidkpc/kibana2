@@ -96,8 +96,13 @@ class LogstashLoader {
         // Contruct the query
         $query = new stdClass;
         $query->from = $req->offset;
+
+        $filter_string = ($this->config['filter_string'] == "")? 
+                "":" AND ".$this->config['filter_string'];
+
         $query->query->filtered->query->query_string->query =
-                ($req->search == "")? "*": $req->search;
+                ($req->search == "")? "*" . $filter_string: 
+                "(".$req->search.")" . $filter_string;
         $query->query->filtered->query->query_string->default_field = $this->config['primary_field'];
         $query->size = $this->config['results_per_page'];
         $query->sort->{'@timestamp'}->order = 'desc';

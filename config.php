@@ -11,6 +11,11 @@ $KIBANA_CONFIG = array(
     // Results to show per page
     'results_per_page' => 100,
 
+    // You may wish to insert a default search which all user searches
+    // must match. For example @source_host:www1 might only show results
+    // from www1. 
+    'filter_string' => '',
+
     // When searching, Kibana will attempt to only search indices
     // that match your timeframe, to make searches faster. You can
     // turn this behavior off if you use something other than daily
