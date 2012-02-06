@@ -326,14 +326,15 @@ function getAnalysis() {
 
 function pageLinks() {
     // Pagination
+    var perpage = window.resultjson.meta.per_page
     var str = "<center>";
-    if (window.hashjson.offset - 50 >= 0) {
+    if (window.hashjson.offset - perpage >= 0) {
         str += "<a class='firstpage jlink'>First</a> ";
         str += "<a class='prevpage jlink'>Prev</a> ";
     }
     var end = window.hashjson.offset + window.resultjson.page_count;
     str += "<strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
-    if (window.hashjson.offset + 50 < window.resultjson.hits) {
+    if (window.hashjson.offset + perpage < window.resultjson.hits) {
         str += "<a class='nextpage jlink'>Next</a> ";
     }
     str += "</center>";
@@ -341,12 +342,12 @@ function pageLinks() {
     $('.pagelinks').html(str);
 
     $(".nextpage").click(function () {
-        window.hashjson.offset = window.hashjson.offset + 50;
+        window.hashjson.offset = window.hashjson.offset + perpage;
         setHash(window.hashjson);
     });
 
     $(".prevpage").click(function () {
-        window.hashjson.offset = window.hashjson.offset - 50;
+        window.hashjson.offset = window.hashjson.offset - perpage;
         setHash(window.hashjson);
     });
 

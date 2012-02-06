@@ -99,7 +99,7 @@ class LogstashLoader {
         $query->query->filtered->query->query_string->query =
                 ($req->search == "")? "*": $req->search;
         $query->query->filtered->query->query_string->default_field = $this->config['primary_field'];
-        $query->size = 50;
+        $query->size = $this->config['results_per_page'];
         $query->sort->{'@timestamp'}->order = 'desc';
         $query->fields = array_values(array_unique(array_merge(
                     array('@timestamp', '@fields', '@message'),
@@ -234,6 +234,9 @@ class LogstashLoader {
         if (sizeof($req->fields) == 0) $req->fields = array('@message');
         $return->fields_requested = $req->fields;
         $return->elasticsearch_json = json_encode($query);
+        
+        // Insert meta data for javascript
+        $return->meta->per_page = $this->config['results_per_page'];
 
         return $return;
     } //end processQuery
