@@ -181,7 +181,7 @@ class LogstashLoader {
         $return = new stdClass;
 
         // Add some top level statistical and informational data
-        $return->index = $this->index;
+        $return->indices = $this->index;
         $return->hits = $result->hits->total;
         if (isset($result->facets->histo1)) {
             $return->graph->data = $result->facets->histo1->entries;

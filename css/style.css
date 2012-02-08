@@ -5,13 +5,22 @@
 // Light Blue: #00b0af
 */
 
+.content {
+padding-left: 0px;
+padding-right: 0px;
+}
+
 .btn.tiny {
   padding: 3px 5px 3px;
   font-size: 10px;
 }
 
-.topbar-inner {
-height: 51px;
+.navbar-inner {
+height: 57px;
+}
+
+.topbar {
+padding: 7px;
 }
 
 .jlink {
@@ -21,21 +30,25 @@ cursor: pointer;
 .positive { font-weight: bold; color: #5c8c5c; }
 .negative { font-weight: bold; color: #873535; }
 
-input#queryinput {
-color: #fff;
-}
-
-input#queryinput:focus {
-color: #000;
-}
 
 #logs td{
 word-wrap: break-word;
 font-size: 11px;
 }
 
-td#meta {
+#logs td.firsttd {
+white-space: nowrap;
+}
+
+#logs th {
+text-align: left;
+}
+
+#meta {
 text-align: right;
+width: 120px;
+color: #fff;
+vertical-align: middle;
 }
 
 #meta td {
@@ -60,16 +73,23 @@ div.legend table td.legendColorBox, div.legend table td.legendLabel {
 padding-left: 3px;
 }
 
-table.formatting, table.formatting td {
-margin: 0;
-padding: 0 3px 0 3px;
-font-size: 10px;
-border: 0;
+
+table.formatting {
 vertical-align: middle;
+}
+
+table.formatting td {
+margin-top: 0px;
+padding-left: 5px;
+}
+
+.navbar table.formatting .btn {
+margin-top: 0px;
 }
 
 #searchform {
 width: 100%;
+margin: 5px;
 }
 
 #queryinput {
@@ -78,7 +98,7 @@ width: 98%;
 
 #feedlinks {
 position: absolute;
-top: 5px;
+top: 65px;
 right: 20px;
 }
 
@@ -93,7 +113,7 @@ vertical-align: middle;
 padding-top: 10px;
 }
 
-#fields a:hover, #analyze a:hover {
+#fields a:hover {
 color: #A92C10;
 }
 
@@ -112,7 +132,6 @@ width: 100%;
 
 #graphheader {
 font-size: 8pt;
-padding-bottom: 3px;
 }
 
 table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
@@ -122,8 +141,6 @@ cursor: pointer;
 
 table.logdetails {
 margin-left: 10px;
-border-top: 0;
-border: 1px dashed #ccc;
 }
 
 tr.logrow:hover {
@@ -168,40 +185,16 @@ background: #fff;
 font-size: 11px;
 }
 
-#analyze_list div {
-    background-color: #F5F5F5;
-    background-image: none;
-    cursor: pointer;
-    width: auto;
-    padding: 0px 0 0px 18px;
-    font-weight: normal;
-    border: 0;
-    box-shadow: none;
-}
-
-#analyze .ui-accordion {
-width: auto;
-}
-
-#analyze_list .title span {
-    left: 0;
-}
-
-#analyze_list div.analyze_buttons {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-
-
-#sbctl {
-  position:absolute;
-  top: 5px;
-  left: 218px;
-}
-
-div.container-fluid > div.sidebar-collapsed {
+div.row-fluid > div.sidebar-collapsed {
   margin-left:0px;
 }
+
 div.sidebar-collapsed #sbctl {
   left:3px;
+}
+
+ul#analyze_list > li > a {
+padding-top: 2px;
+padding-bottom: 2px;
+padding-left: 3px;
 }

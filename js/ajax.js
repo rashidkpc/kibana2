@@ -33,6 +33,8 @@ $(document).ready(function () {
         if (sb.is(':visible')) {
             // collapse
             sb.hide();
+            main.removeClass('span10');
+            main.addClass('span12');
             lnk.removeClass('ui-icon-triangle-1-w');
             lnk.addClass('ui-icon-triangle-1-e');
             main.addClass('sidebar-collapsed');
@@ -40,6 +42,8 @@ $(document).ready(function () {
         } else {
             // expand
             sb.show();
+            main.removeClass('span12');
+            main.addClass('span10');
             lnk.removeClass('ui-icon-triangle-1-e');
             lnk.addClass('ui-icon-triangle-1-w');
             main.removeClass('sidebar-collapsed');
@@ -98,7 +102,7 @@ function getPage() {
     window.inprogress = true;
 
     // Show the user an animated loading thingy
-    $('#meta').html("<img src=images/ajax-loader.gif>");
+    setMeta('','','loading');
 
     sendhash = window.location.hash.replace(/^#/, '');;
 
@@ -129,52 +133,50 @@ function getPage() {
                         fieldstr += "<a class='jlink logfield_selected' onClick='mFields(\"" + window.hashjson.fields[index] + "\")'>" + window.hashjson.fields[index] + "</a> ";
                     }
 
-                    var analyzestr = '<div id=analyze_list class="ui-accordian">';
+                    var analyzestr = '<ul id=analyze_list class="nav nav-pills nav-stacked">';
                     var afield = '';
                     for (var index in resultjson.all_fields) {
                         afield = resultjson.all_fields[index].toString().replace('@', 'ATSYM') + "_field";
 
-                        analyzestr += '<div class="title">' + 
+                        analyzestr += '<li class="dropdown"><a class="dropdown-toggle jlink" data-toggle="dropdown">' + 
                             resultjson.all_fields[index].toString() + 
-                            '</div><div class=analyze_buttons style="display: none;">';
+                            '<b class=caret></b></a>';
 
-                        analyzestr += "<button id='analyze_" + afield + "' style='display: inline-block' class='btn tiny info'>Score</button> ";
-                        analyzestr += "<button id='trend_" + afield + "' style='display: inline-block' class='btn tiny success'>Trend</button> ";
-                        analyzestr += "</div>"
+                        analyzestr += '<ul class="dropdown-menu">';
 
-                        $("#sidebar").delegate("button#analyze_" + afield, "click", function () {
-                            console.log($(this).parent().prev().text());
-                            analyzeField($(this).parent().prev().text(), "analyze");
+                        analyzestr += "<li id='analyze_" + afield + "'><a class=jlink>Score</a></li> ";
+                        analyzestr += "<li id='trend_" + afield + "'><a class=jlink>Trend</a></li> ";
+                        analyzestr += "</ul>"
+
+                        analyzestr += "</li>";
+
+                        $("#sidebar").delegate("li#analyze_" + afield + " a", "click", function () {
+                            console.log($(this).parent().parent().parent().children('a').text());
+                            analyzeField($(this).parent().parent().parent().children('a').text(), "analyze");
                         });
-                        $("#sidebar").delegate("button#trend_" + afield, "click", function () {
-                            analyzeField($(this).parent().prev().text(), "trend");
+                        $("#sidebar").delegate("li#trend_" + afield + " a", "click", function () {
+                            analyzeField($(this).parent().parent().parent().children('a').text(), "trend");
                         });
                         if ($.inArray(resultjson.all_fields[index].toString(), window.hashjson.fields) < 0) 
                             fieldstr += "<a class='jlink " + afield + 
                                 "' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + 
                                 resultjson.all_fields[index].toString() + "</a> ";
                     }
-                    analyzestr += '</div>';
+                    analyzestr += '</ul>';
                     fieldstr += '</p>';
                     $('#feedlinks').html("<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
                                         "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + ">stream <img src=images/stream.png></a>");
                     $('#fields').html("<h3><strong>Show</strong> Fields</h3>" + fieldstr);
                     $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>" + analyzestr);
 
-                    $('#analyze_list').accordion({
-                        header: 'div.title',
-                        active: false,
-                        alwaysOpen: false,
-                        animated: false,
-                        autoHeight: true
-                    });
+                    $('.dropdown-toggle').dropdown();
 
                     // Create and populate graph
                     $('#graph').html('<center><br><p><img src=images/barload.gif></center>');
                     getGraph(resultjson.graph.interval);
 
                     // Create and populate #logs table
-                    $('#logs').html(CreateTableView(window.resultjson.results, resultjson.fields_requested, 'logs condensed-table'));
+                    $('#logs').html(CreateTableView(window.resultjson.results, resultjson.fields_requested, 'logs table-condensed'));
                     pageLinks();
 
                 } else {
@@ -182,11 +184,7 @@ function getPage() {
                 }
 
                 // Populate meta data
-                var metastr = '<table class=formatting>';
-                metastr += "<tr><td>Hits</td><td>" + addCommas(window.resultjson.hits) + "</td></tr>";
-                metastr += "<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>";
-                metastr += "</table>";
-                $('#meta').html(metastr);
+                setMeta(window.resultjson.hits,window.resultjson.total,false);
 
                 console.log("QUERY: " + window.resultjson.elasticsearch_json);
 
@@ -235,7 +233,7 @@ function analyzeField(field, mode) {
 }
 
 function getAnalysis() {
-    $('#meta').html("<img src=images/ajax-loader.gif>");
+    setMeta('','','loading'); 
     //generate the parameter for the php script
     var sendhash = window.location.hash.replace(/^#/, '');
     var data = 'page=' + sendhash + "&mode=" + window.hashjson.mode;
@@ -314,14 +312,23 @@ function getAnalysis() {
 
                 $('.pagelinks').html('');
                 $('#fields').html('');
-                var metastr = '<table class=formatting>';
-                metastr += "<tr><td>Hits</td><td>" + addCommas(resultjson.hits) + "</td></tr>";
-                metastr += "<tr><td>Indexed</td><td>" + addCommas(resultjson.total) + "</td></tr>";
-                metastr += "</table>";
-                $('#meta').html(metastr);
+                setMeta(resultjson.hits,resultjson.total,false);
             }
         }
     });
+}
+
+function setMeta(hits, indexed, mode) {
+    var metastr = "";
+    if ( mode == 'loading' ) {
+        metastr += '<img src=images/ajax-loader.gif>';
+    } else {
+        metastr = '<table class=formatting>';
+        metastr += "<tr><td>Hits</td><td>" + addCommas(hits) + "</td></tr>";
+        metastr += "<tr><td>Indexed</td><td>" + addCommas(indexed) + "</td></tr>";
+        metastr += "</table>";
+    }
+    $('#meta').html(metastr);
 }
 
 function pageLinks() {
@@ -424,7 +431,7 @@ function viewLog(objid) {
     obj = sortObj(window.resultjson.results[objid]);
 
     // Create a table of information about the log
-    var str = "<table class=logdetails><tr><th>Field</th><th>Value</th></tr>";
+    var str = "<table class='logdetails table-bordered'><tr><th>Field</th><th>Value</th></tr>";
     var i = 1;
     var selected = ""
     for (field in obj) {
@@ -508,7 +515,7 @@ function mFields(field) {
     $('#fields').html("<h3><strong>Show</strong> Fields</h3> " + str);
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
-    $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs condensed-table'));
+    $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs table-condensed'));
 
     $('#feedlinks').html("<a href=loader2.php?mode=rss&page=" + 
         base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+

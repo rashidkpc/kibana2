@@ -58,7 +58,7 @@ function getStream() {
        
             }
             $(str).prependTo('#tweets');
-            $('#meta').html('<h3>'+data.hits+' in '+window.hashjson.timeframe+'</h3>');
+            $('#meta').html(data.hits+' in '+window.hashjson.timeframe);
             $( 'tr:gt(' + ( maxEvents ) + ')' ).fadeOut("normal", function() { $(this).remove(); } );
         }
     });

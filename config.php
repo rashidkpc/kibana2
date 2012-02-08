@@ -9,7 +9,7 @@ $KIBANA_CONFIG = array(
     'type' => '',
 
     // Results to show per page
-    'results_per_page' => 100,
+    'results_per_page' => 50,
 
     // You may wish to insert a default search which all user searches
     // must match. For example @source_host:www1 might only show results

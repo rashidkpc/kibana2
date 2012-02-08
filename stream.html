@@ -1,29 +1,39 @@
 <html>
 <head><title>Kibana Stream</title>
-<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/base64.js"></script>
 <script type="text/javascript" src="js/jquery.history.js"></script>
 <script type="text/javascript" src="js/stream.js"></script>
-<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.min.css">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/stream.css">
+    <style type="text/css">
+      body {
+        padding-top: 20px;
+        padding-bottom: 40px;
+      }
+
+    </style>
 
 </head>
 
 <body>
 
-    <div class="topbar">
-      <div class="topbar-inner">
-        <div class="container-fluid" id='status'>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid topbar">
               <img src='images/logo.png' class=pull-left>
               <span id=query class=pull-left></span>
-              <span id=meta class=pull-right></span>
+              <span id=meta class=pull-right> </span>
         </div>
       </div>
     </div>
 
     <div class="container-fluid">
-        <table id=tweets></table>
+        <div class=row-fluid>
+        <table id=tweets class='table table-condensed'></table>
+        </div>
     </div>
 
   </body>
