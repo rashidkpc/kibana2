@@ -30,6 +30,10 @@ cursor: pointer;
 .positive { font-weight: bold; color: #5c8c5c; }
 .negative { font-weight: bold; color: #873535; }
 
+table.logs {
+width: 100%;
+}
+
 #logs td {
 word-wrap: break-word;
 font-size: 11px;

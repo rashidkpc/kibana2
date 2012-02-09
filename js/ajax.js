@@ -258,14 +258,14 @@ function getAnalysis() {
                         resultjson.analysis.count + "</strong>" : 'the <strong>' + 
                         resultjson.analysis.count + ' most recent</strong>';
                     var title = '<h2>Quick analysis of <strong>' + window.hashjson.analyze_field + 
-                        '</strong> field <button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button>'+
+                        '</strong> field <button class="btn tiny btn-info" style="display: inline-block" id="back_to_logs">back to logs</button>'+
                         '</h2>This analysis is based on ' + basedon + ' events for your query in your selected timeframe.<br><br>';
                     break;
                 case 'trend':
                     var basedon = "<strong>" + resultjson.analysis.count + "</strong>";
                     var title = '<h2>Trend analysis of <strong>' + 
                         window.hashjson.analyze_field + '</strong> field ' + 
-                        '<button class="btn tiny info" style="display: inline-block" id="back_to_logs">back to logs</button>'+
+                        '<button class="btn tiny btn-info" style="display: inline-block" id="back_to_logs">back to logs</button>'+
                         '</h2>These trends are based on ' + basedon + 
                         ' events from beginning and end of the selected timeframe for your query.<br><br>';
                     break;
