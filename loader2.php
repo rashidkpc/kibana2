@@ -103,7 +103,14 @@ class LogstashLoader {
         $query->query->filtered->query->query_string->query =
                 ($req->search == "")? "*" . $filter_string: 
                 "(".$req->search.")" . $filter_string;
-        $query->query->filtered->query->query_string->default_field = $this->config['primary_field'];
+        $query->query->filtered->query->query_string->default_field = 
+                $this->config['primary_field'];
+
+        if ($query->query->filtered->query->query_string->query == "*") {
+            unset($query->query->filtered->query);
+            $query->query->filtered->query->match_all = new StdClass;
+        }
+        
         $query->size = $this->config['results_per_page'];
         $query->sort->{'@timestamp'}->order = 'desc';
         $query->fields = array_values(array_unique(array_merge(
@@ -270,7 +277,8 @@ class LogstashLoader {
         $pChannel = $pDom->createElement('channel');
         $pRSS->appendChild($pChannel);
 
-        $e_query = $query->query->query_string->query;
+
+        $e_query = $req->search;
    
         $pTitle = $pDom->createElement('title');
         $pLink = $pDom->createElement('link');
@@ -281,7 +289,8 @@ class LogstashLoader {
             'Kibana: '.$e_query);
         $pLinkText  = $pDom->createTextNode( 
             'http://' . $_SERVER['HTTP_HOST'] . 
-            dirname($_SERVER['REQUEST_URI']) . '/#'. base64_encode(json_encode($req)));
+            dirname($_SERVER['REQUEST_URI']) . '/#'. 
+            base64_encode(json_encode($req)));
         $pDescText = $pDom->createTextNode( 
             'An event search for: '.$e_query.
             '. Showing fields '.
