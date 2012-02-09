@@ -30,8 +30,7 @@ cursor: pointer;
 .positive { font-weight: bold; color: #5c8c5c; }
 .negative { font-weight: bold; color: #873535; }
 
-
-#logs td{
+#logs td {
 word-wrap: break-word;
 font-size: 11px;
 }
@@ -197,4 +196,15 @@ ul#analyze_list > li > a {
 padding-top: 2px;
 padding-bottom: 2px;
 padding-left: 3px;
+}
+
+del {
+visibility: hidden;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+-o-user-select: none;
+user-select: none;
 }
