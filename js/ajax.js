@@ -531,7 +531,8 @@ function mFields(field) {
 
 function wbr(str, num) {
     return str.replace(RegExp("(\\w{" + num + "}|[:;,])([\\w\"'])", "g"), function (all, text, char) {
-        return text + "<wbr>&#8203;" + char;
+        return text + "<del>&#8203;</del>" + char;
+        //return text + "<del><wbr>&amp;#8203;</del>" + char;
     });
 }
 
