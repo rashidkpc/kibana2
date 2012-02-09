@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Kibana. Search it, score it, prove it.</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.responsive.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 100px;
+        padding-bottom: 40px;
+      }
+    </style>
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href=index.html>Kibana</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li class=active><a href="intro.html">Installation</a></li>
+              <li><a href="contact.html">Support</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+    <header id="overview" class="jumbotron subhead">
+        <h1>Installation</h1>
+        <p class="lead">No templates to apply, no SQL files to import.</p>
+        <p>We tried to keep this simple. You've already setup and tuned Logstash and Elasticsearch, this is the easy part. Kibana really only requires a browser, a webserver, PHP and one very common PHP module. </p>
+    </header>
+
+    <section id="intro">
+        <div class="row">
+        <div class="span4">
+            <h2>1. Download <small> from github</small></h2>
+            <p>
+                <a href=http://github.com/rashidkpc/Kibana/zipball/master><img src=http://github.com/images/modules/download/zip.png></a>
+                <a href=http://github.com/rashidkpc/Kibana/tarball/master><img src=http://github.com/images/modules/download/tar.png></a>
+            </p>
+            <div class=span5>
+                <p><strong>Or head over to the Github project page</strong></p><a class='btn btn-info btn-large' href=https://github.com/rashidkpc/Kibana>Github Project Page &raquo;</a>
+            </div>
+        </div>
+        <div class="span4">
+            <h2>2. Install </h2>
+            <p>You've made it this far. I'm going to bet you know how to ...</p>
+            <ol>
+                <li>Install the PHP5 curl module (php5-curl) on your webserver
+                <li>Upload the zip or tarball to your webserver</li>
+                <li>Extract it</li>
+                <li>Rename the extracted directory to something useful, for example 'kibana'</li>
+                <li>Copy that directory into your webserver's DocumentRoot</li>
+            </ol>
+            <div class='alert alert-error'><strong>Whooaa!</strong> Read the configuration section to the right before pointing your web browser at your shiney new installation</div>
+        </div>
+        <div class="span4">
+            <h2>3. Configure <small>one thing</small></h2>
+            <p>Almost there, just one required thing in <strong>config.php</strong></p>
+                <p>Change <code>elasticsearch1</code> to point at the host with your elasticsearch installation.</p>
+                <p><code>'elasticsearch_server' => "elasticsearch1:9200",</code></p>
+                <div class='alert alert-info'><strong>Heads up!</strong> Note the , (comma) at the end of the line, that's important.</div>
+                <h3>And you're done!</h3>
+                <p>Point your web browser over to where ever you installed Kibana and poke around. For more information, including a short introduction to Lucene search syntax, check out the about section of this page.</p> <a href=about.html class='btn btn-success'>About Kibana &raquo;</a></p>
+        </div>
+        </div>
+    </section>
+    <section id="morehelp">
+        <div class="row">
+        <div class="span12">
+            <h3>Still have questions? <a href=contact.html class='btn btn-small btn-danger'>Support &raquo;</a> </h3>
+        </div>
+        </div>
+    </section>
+
+
+
+      <hr>
+
+      <footer>
+        <p>&copy; Rashid Khan 2012. Visual style provided by <a href=http://twitter.github.com/bootstrap>Twitter Bootstrap</a>. Icons provided by <a href=http://www.glyphicons.com>Glyphicons</a>. </p>
+
+      </footer>
+
+    </div> 
+
+  </body>
+
+</html>
+

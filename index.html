@@ -1,88 +1,107 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset='utf-8'>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Kibana. Search it, score it, prove it.</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-  <title>rashidkpc/Kibana @ GitHub!</title>
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #f5f5f5;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #0a0a0a; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #0a0a0a; }
-    h3 { text-align: center; color: #0a0a0a; }
-    a { color: #0a0a0a; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
-</head>
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.responsive.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 25px;
+        padding-bottom: 40px;
+      }
+    </style>
 
-<body>
-  <a href="https://github.com/rashidkpc/Kibana"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 
-  <div id="container">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  </head>
 
-    <div class="download">
-      <a href="https://github.com/rashidkpc/Kibana/zipball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-      <a href="https://github.com/rashidkpc/Kibana/tarball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="index.html">Kibana</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="index.html">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="intro.html">Installation</a></li>
+              <li><a href="contact.html">Support</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
     </div>
 
-    <h1><a href="https://github.com/rashidkpc/Kibana">Kibana</a>
-      <span class="small">by <a href="https://github.com/rashidkpc">rashidkpc</a></span></h1>
+    <div class="container">
 
-    <div class="description">
-      A log analyzing web interface for logstash and elasticsearch
-    </div>
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <img src=images/kibana_banner.png style='padding-bottom: 20px;'>
+        <p>You have logs. Billions of lines of data. You shipped, dated it, parsed it and stored it. Now what do you do with it? <strong>Now you make sense of it.</strong> Kibana helps you do that. Kibana is an alternative browser based interface for <a href=http://logstash.net>Logstash</a> and <a href=http://www.elasticsearch.org>ElasticSearch</a> that allows you to efficiently search, graph, analyze and otherwise make sense of a mountain of logs. </p>
+        <p><a class="btn btn-success btn-large" href=intro.html>Getting Started &raquo;</a> </p>
+      </div>
 
-    
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span3">
+          <h2>Search <img src=images/icons/glyphicons_027_search.png></h2>
+           <img src=images/search.png class=thumbnail>
+           <p>Find one event, or one million. Kibana uses the same flexible <a href='https://lucene.apache.org/java/3_0_0/queryparsersyntax.html'>Lucene</a> search syntax as Elasticsearch. Toss out a simple keyword to search globally or pick out certain fields to drill down into exactly what you want. See an entire event, or columnize your results to see only the stuff you really need.</p>
+           <p><a class="btn" href="about.html#search">Learn more &raquo;</a></p>
+        </div>
 
-    
-      <h2>Dependencies</h2>
-      <p>php5-curl</p>
-    
+        <div class="span3">
+          <h2>Graph <img src=images/icons/glyphicons_041_charts.png></h2>
+          <img src=images/graph.png class=thumbnail>
+           <p>Visually analyze trends in log volume to find peaks and valleys. Mouse over bars for exact counts. Drag to select date ranges to narrow your search.</p>
+           <p><a class="btn" href="about.html#graph">Learn more &raquo;</a></p>
+       </div>
+        <div class="span3">
+          <h2>Score <img src=images/icons/glyphicons_289_podium.png></h2>
+          <img src=images/score.png class=thumbnail>
+          <p>Score, count and trend fields to find patterns. Find the most common values and see how they've changed over time.</p>
+          <p><a class="btn" href="about.html#analyze">Learn more &raquo;</a></p>
+        </div>
+        <div class="span3">
+          <h2>Stream <img src=images/icons/glyphicons_008_film.png></h2>
+          <img src=images/stream.png class=thumbnail>
+          <p>Create dashboards from searches to view events in real time, as they happen. Or create an RSS feed and get updates at any interval.</p>
+          <p><a class="btn" href="about.html#andmore">Learn more &raquo;</a></p>
+        </div>
+      </div>
 
-    
+      <hr>
 
-    
+      <footer>
+        <p>&copy; Rashid Khan 2012. Visual style provided by <a href=http://twitter.github.com/bootstrap>Twitter Bootstrap</a>. Icons provided by <a href=http://www.glyphicons.com>Glyphicons</a>. </p>
 
-    
+      </footer>
 
-    
-      <h2>Contact</h2>
-      <p>flipwork in #logstash on FreeNode</p>
-    
+    </div> <!-- /container -->
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="https://github.com/rashidkpc/Kibana/zipball/master">zip</a> or
-      <a href="https://github.com/rashidkpc/Kibana/tarball/master">tar formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/rashidkpc/Kibana</pre>
-    </p>
+  </body>
 
-    <div class="footer">
-      get the source code on GitHub : <a href="https://github.com/rashidkpc/Kibana">rashidkpc/Kibana</a>
-    </div>
-
-  </div>
-
-</body>
 </html>
+

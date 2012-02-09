@@ -1,0 +1,15 @@
+.hero-unit h2 {
+font-size: 30px;
+}
+
+.jumbotron h1{
+font-size: 54px;
+}
+
+div.hero-unit {
+padding-bottom: 20px;
+}
+
+.thumbnail {
+margin-bottom: 10px;
+}
