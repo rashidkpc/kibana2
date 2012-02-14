@@ -13,7 +13,7 @@ $KIBANA_CONFIG = array(
 
     // You may wish to insert a default search which all user searches
     // must match. For example @source_host:www1 might only show results
-    // from www1. 
+    // from www1.
     'filter_string' => '',
 
     // When searching, Kibana will attempt to only search indices
@@ -46,7 +46,7 @@ $KIBANA_CONFIG = array(
         '@source',
     ),
 
-    // You probably don't want to touch anything below this line 
+    // You probably don't want to touch anything below this line
     // unless you really know what you're doing
 
     // Primary field. By default Elastic Search has a special
@@ -54,6 +54,9 @@ $KIBANA_CONFIG = array(
     // Dropping _all can reduce index size significantly. If you do that
     // you'll need to change primary_field to be '@message'
     'primary_field' => '_all',
+
+    // Default Elastic Search index to query
+    'default_index' => '_all',
 
     // default search settings
     'default_search' => array(
