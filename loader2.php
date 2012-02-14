@@ -18,10 +18,15 @@ class LogstashLoader {
 
     /**
      * Index(es) to select from.
-     * _all is used by default.
+     *
+     * When config['smart_index'] is true we will try to guess the exact index
+     * paritions to search. If this list turns out to be longer than
+     * config['smart_index_limit'] or if smart index is disabled we will
+     * search using config['default_index'] instead.
+     *
      * @var string
      */
-    protected $index = '_all';
+    protected $index;
 
 
     /**
@@ -30,6 +35,7 @@ class LogstashLoader {
      */
     public function __construct ($config = array()) {
         $this->config = $config;
+        $this->index = $this->config['default_index'];
     }
 
 
