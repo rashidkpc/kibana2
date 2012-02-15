@@ -1,12 +1,27 @@
 <?php
-include 'config.php';
+
+if (!defined('KIBANA_CONFIG_FILE')) {
+    // KIBANA_CONFIG_FILE is the path to the file that defines the
+    // $KIBANA_CONFIG configuration array.
+    // The default value will look for the file in the same directory as this
+    // script.
+
+    // allow overriding the config file via an environment variable.
+    $config_path = getenv('KIBANA_CONFIG_FILE');
+    if (empty($config_path)) {
+        $config_path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.php';
+    }
+
+    define('KIBANA_CONFIG_FILE', $config_path);
+}
+require_once KIBANA_CONFIG_FILE;
 
 /**
  * Handle requests for Logstash data via JSON requests.
  *
  * @author Rashid Khan <flipwork #logstash irc.freenode.net>
  * @copyright Copyright 2011 Rashid Khan
- * @license BSD 2 Clause <http://www.opensource.org/licenses/BSD-2-Clause> 
+ * @license BSD 2 Clause <http://www.opensource.org/licenses/BSD-2-Clause>
  */
 class LogstashLoader {
 
