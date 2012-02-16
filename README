@@ -7,7 +7,9 @@ This assumes you already have a functioning logstash/elasticsearch
 infrastructure, perhaps with some filters to define fields. Config
 of logstash and/or elasticsearch is outside of the scope of this file
 
-Required PHP modules:
+Requirements:
+elasticsearch >= 0.18.0
+php >= 5.2
 php5-curl
 
 Other than that, it works just like any other PHP application. Untar 
