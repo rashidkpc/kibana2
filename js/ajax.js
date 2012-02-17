@@ -417,7 +417,7 @@ function CreateTableView(objArray, fields, theme, enableHeader) {
         str += '<td class=firsttd>' + array[objid]['@cabin_time'] + '</td>';
         for (var index in fields) {
             tdvalue = array[objid][fields[index]] === undefined ? "-" : array[objid][fields[index]].toString();
-            str += '<td>' + wbr(xmlEnt(tdvalue), 10) + '</td>';
+            str += '<td>' + xmlEnt(wbr(tdvalue, 10)) + '</td>';
         }
         str += '</tr><tr id=logrow_' + objid + ' class=hidedetails><td id=log_' + objid + ' colspan=100></td></tr>';
         i++;
@@ -446,7 +446,7 @@ function viewLog(objid) {
             str += "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field " + selected + "'>" + field + "</td>";
             str += '<td>';
 
-            str += wbr(xmlEnt(value), 10);
+            str += xmlEnt(wbr(value, 10));
             str += " <div style='display: inline-block'>";
             str += "<button style='display: inline-block' class='btn tiny' "+
                 "onClick='mSearch(\"" + field + "\",getLogField(\"" + objid + "\",\"" + field + "\"))'>Find this</button> ";
