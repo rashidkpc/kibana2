@@ -11,6 +11,11 @@ $(document).ready(function () {
     $('#timeinput').change(function () {
         window.hashjson.timeframe = $(this).val();
         delete window.hashjson.time;
+        if (window.hashjson.timeframe == "custom") {
+            //Initialize the date picker with a 15 minute window into the past
+            startDate = new Date(d - (15 * 60 * 1000));
+            renderDateTimePicker((startDate.getTime() + parseInt(window.tOffset)), (d.getTime() + parseInt(window.tOffset)));
+        }
     });
 
     $("div#logs").ajaxError(function (e, xhr, settings, exception) {
@@ -181,6 +186,7 @@ function getPage() {
 
                 } else {
                     $('#logs').html("No results match your query, give it another shot there champ.");
+                    $('#timeinput').change(); // Fire the timeinput change event to draw custom time selection pickers if necessary
                 }
 
                 // Populate meta data
@@ -292,7 +298,7 @@ function getAnalysis() {
                     str += "<td><button style='display: inline-block' class='btn tiny default'>Search</button></td>";
                     str += "</tr>";
                     $(".content").delegate("tr#analysisrow_" + i + " td button", "click", function () {
-                        // console.log($(this).parent().siblings('.analysis_value').text());
+                        //console.log($(this).parent().siblings('.analysis_value').text());
                         mSearch(field, $(this).parent().siblings('.analysis_value').text());
                     });
                     i++;
@@ -545,7 +551,11 @@ $(function () {
         }
         window.hashjson.stamp = new Date().getTime();
         window.hashjson.fields = $('#fieldsinput').val().split(',');
-        window.hashjson.timeframe = $('#timeinput').val();
+        
+        if (window.hashjson.timeframe == "custom")
+            $('#timechange').click();
+        else
+            window.hashjson.timeframe = $('#timeinput').val();
 
 
         if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
@@ -577,6 +587,47 @@ function addCommas(nStr) {
     return x1 + x2;
 }
 
+// Render the date/time picker
+function renderDateTimePicker(from, to) {
+    if (!$('#timechange').length) {
+        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + 
+            ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + 
+            ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
+
+        $('#timefrom,#timeto').datetimepicker({
+            showSecond: true,
+            timeFormat: 'hh:mm:ss',
+            dateFormat: 'yy-mm-dd',
+            separator: 'T',
+            onSelect: function (dateText, inst) {
+                $('#timechange').css('visibility', 'visible');
+                $('#timeinput').val('custom');
+                $('#timeinput').change();
+            }
+        });
+    	
+        $('#timefrom,#timeto').change(function () {
+            $('#timechange').css('visibility', 'visible');
+            $('#timeinput').val('custom');
+            $('#timeinput').change();
+        });
+
+        // Give user a nice interface for selecting time ranges
+        $("#timechange").click(function () {
+            var f = new Date($('#timefrom').val());
+            var t = new Date($('#timeto').val());
+            var time = {
+                "from": ISODateString(f.getTime()),
+                "to": ISODateString(t.getTime())
+            };
+            window.hashjson.offset = 0;
+            window.hashjson.time = time;
+            window.hashjson.timeframe = "custom";
+            setHash(window.hashjson);
+        });
+    }
+}
+
 
 // Big horrible function for creating graphs
 function logGraph(data, interval) {
@@ -595,34 +646,7 @@ function logGraph(data, interval) {
     if (!(typeof data[0] === undefined)) {
         var from = data[0].time + parseInt(tOffset);
         var to = data[data.length - 1].time + parseInt(tOffset);
-        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + 
-            ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + 
-            ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
-
-        $('#timefrom,#timeto').datetimepicker({
-            showSecond: true,
-            timeFormat: 'hh:mm:ss',
-            dateFormat: 'yy-mm-dd',
-            separator: 'T',
-            onSelect: function (dateText, inst) {
-                $('#timechange').css('visibility', 'visible');
-            }
-        });
-
-        // Give user a nice interface for selecting time ranges
-        $("#timechange").click(function () {
-            var f = new Date($('#timefrom').val());
-            var t = new Date($('#timeto').val());
-            var time = {
-                "from": ISODateString(f.getTime()),
-                "to": ISODateString(t.getTime())
-            };
-            window.hashjson.offset = 0;
-            window.hashjson.time = time;
-            window.hashjson.timeframe = "custom";
-            setHash(window.hashjson);
-        });
-
+		renderDateTimePicker(from, to);
 
         // Allow user to select ranges on graph. Its this OR click, not both it seems.
         var intset = false;
