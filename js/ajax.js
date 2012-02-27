@@ -54,7 +54,7 @@ $(document).ready(function () {
     // Whenever the URL changes, fire this.
     $.history.init(pageload);
 
-    console.log(window.location.hash);
+    // console.log(window.location.hash);
     // Resize flot graph with window
     $(window).resize(function () {
         logGraph(window.graphdata, window.interval);
@@ -71,7 +71,7 @@ function pageload(hash) {
     if (hash) {
         window.hashjson = JSON.parse(base64Decode(hash));
 
-        console.log("Sending: " + JSON.stringify(window.hashjson));
+        // console.log("Sending: " + JSON.stringify(window.hashjson));
 
         // Take the hash data and populate the search fields
         $('#queryinput').val(window.hashjson.search);
@@ -122,8 +122,8 @@ function getPage() {
                 window.resultjson = JSON.parse(json);
 
                 $('#graphheader,#graph').text("");
-                console.log(resultjson);
-                console.log("DEBUG:" + resultjson.debug);
+                // console.log(resultjson);
+                // console.log("DEBUG:" + resultjson.debug);
 
                 // Make sure we get some result before doing anything
                 if (resultjson.hits > 0) {
@@ -151,7 +151,7 @@ function getPage() {
                         analyzestr += "</li>";
 
                         $("#sidebar").delegate("li#analyze_" + afield + " a", "click", function () {
-                            console.log($(this).parent().parent().parent().children('a').text());
+                            // console.log($(this).parent().parent().parent().children('a').text());
                             analyzeField($(this).parent().parent().parent().children('a').text(), "analyze");
                         });
                         $("#sidebar").delegate("li#trend_" + afield + " a", "click", function () {
@@ -186,7 +186,7 @@ function getPage() {
                 // Populate meta data
                 setMeta(window.resultjson.hits,window.resultjson.total,false);
 
-                console.log("QUERY: " + window.resultjson.elasticsearch_json);
+                // console.log("QUERY: " + window.resultjson.elasticsearch_json);
 
                 // display the body with fadeIn transition
                 $('#logs').fadeIn('slow');
@@ -251,7 +251,7 @@ function getAnalysis() {
                 var field = window.hashjson.analyze_field;
                 var resultjson = JSON.parse(json);
                 window.resultjson = resultjson;
-                console.log(resultjson);
+                // console.log(resultjson);
                 switch (window.hashjson.mode) {
                 case 'analyze':
                     var basedon = (resultjson.analysis.count == resultjson.hits) ? "<strong>all " + 
@@ -292,7 +292,7 @@ function getAnalysis() {
                     str += "<td><button style='display: inline-block' class='btn tiny default'>Search</button></td>";
                     str += "</tr>";
                     $(".content").delegate("tr#analysisrow_" + i + " td button", "click", function () {
-                        //console.log($(this).parent().siblings('.analysis_value').text());
+                        // console.log($(this).parent().siblings('.analysis_value').text());
                         mSearch(field, $(this).parent().siblings('.analysis_value').text());
                     });
                     i++;

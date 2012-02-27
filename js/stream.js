@@ -7,10 +7,10 @@ function pageload(hash) {
     if (hash) {
         window.hasHead = false;
         clearInterval(window.intervalID);
-        console.log(base64Decode(hash));
+        // console.log(base64Decode(hash));
         window.hashjson = JSON.parse(base64Decode(hash));
         $('#query').html('<h3>'+window.hashjson.search+'</h3>');
-        console.log("Sending: " + JSON.stringify(window.hashjson));
+        // console.log("Sending: " + JSON.stringify(window.hashjson));
         getStream();
         window.intervalID = setInterval("getStream()", 10000);
      }
@@ -28,7 +28,7 @@ function getStream() {
         if (data != null) {
             //$('.new').removeClass('new');
             window.i++;
-            console.log(data);
+            // console.log(data);
             var hasTime = false;
             var str = "";
             var i = 0;
