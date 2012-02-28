@@ -701,27 +701,27 @@ function logGraph(data, interval) {
             bars: {
                 show: true,
                 fill: 1,
-                barWidth: interval / 1.7,
+                barWidth: interval / 1.7
             },
             points: {
                 show: false
             },
             color: "#5aba65",
-            shadowSize: 0,
+            shadowSize: 0
         },
         xaxis: {
             mode: "time",
             timeformat: "%H:%M:%S<br>%m/%d",
             label: "Datetime",
-            color: "#000",
+            color: "#000"
         },
         yaxis: {
             min: 0,
-            color: "#000",
+            color: "#000"
         },
         selection: {
             mode: "x",
-            color: '#000',
+            color: '#000'
         },
         grid: {
             backgroundColor: '#fff',
@@ -729,8 +729,8 @@ function logGraph(data, interval) {
             borderColor: '#000',
             color: "#ddd",
             hoverable: true,
-            clickable: true,
-        },
+            clickable: true
+        }
     });
 
 }
