@@ -5,6 +5,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Kibana</title>
+    <script type="text/javascript" src="js/excanvas.min.js"></script>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.history.js"></script>
 	<script type="text/javascript" src="js/jquery.flot.min.js"></script>
@@ -17,6 +18,7 @@
     <script type="text/javascript" src="js/jquery.ui.accordion.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="js/json2.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.min.css">
     <LINK REL=StyleSheet HREF="css/style.css" TYPE="text/css" MEDIA=screen>
