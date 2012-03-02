@@ -95,6 +95,10 @@ width: 100%;
 margin: 5px;
 }
 
+#searchform img {
+max-width: none;
+}
+
 #queryinput {
 width: 98%;
 }
