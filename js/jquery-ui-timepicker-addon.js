@@ -1,10 +1,10 @@
 /*
 * jQuery timepicker addon
 * By: Trent Richardson [http://trentrichardson.com]
-* Version 0.9.8
-* Last Modified: 12/03/2011
+* Version 0.9.9
+* Last Modified: 02/05/2012
 * 
-* Copyright 2011 Trent Richardson
+* Copyright 2012 Trent Richardson
 * Dual licensed under the MIT and GPL licenses.
 * http://trentrichardson.com/Impromptu/GPL-LICENSE.txt
 * http://trentrichardson.com/Impromptu/MIT-LICENSE.txt
@@ -20,7 +20,7 @@
 
 (function($) {
 
-$.extend($.ui, { timepicker: { version: "0.9.8" } });
+$.extend($.ui, { timepicker: { version: "0.9.9" } });
 
 /* Time picker manager.
    Use the singleton instance of this class, $.timepicker, to interact with the time picker.
@@ -88,7 +88,7 @@ function Timepicker() {
 		sliderAccessArgs: null
 	};
 	$.extend(this._defaults, this.regional['']);
-}
+};
 
 $.extend(Timepicker.prototype, {
 	$input: null,
@@ -147,7 +147,7 @@ $.extend(Timepicker.prototype, {
 		tp_inst._defaults = $.extend({}, this._defaults, inlineSettings, o, {
 			beforeShow: function(input, dp_inst) {
 				if ($.isFunction(o.beforeShow))
-					o.beforeShow(input, dp_inst, tp_inst);
+					return o.beforeShow(input, dp_inst, tp_inst);
 			},
 			onChangeMonthYear: function(year, month, dp_inst) {
 				// Update the time as well : this prevents the time from disappearing from the $input field.
@@ -247,7 +247,7 @@ $.extend(Timepicker.prototype, {
 			var dp_dateFormat = $.datepicker._get(this.inst, 'dateFormat');
 			// escape special regex characters in the seperator
 			var specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g");
-			regstr = '.{' + dp_dateFormat.length + ',}' + this._defaults.separator.replace(specials, "\\$&") + regstr;
+			regstr = '^.{' + dp_dateFormat.length + ',}?' + this._defaults.separator.replace(specials, "\\$&") + regstr;
 		}
 		
 		treg = timeString.match(new RegExp(regstr, 'i'));
@@ -818,7 +818,8 @@ $.extend(Timepicker.prototype, {
 		}
 		if (o.ampm) this.ampm = ampm;
 		
-		this._formatTime();
+		//this._formatTime();
+		this.formattedTime = $.datepicker.formatTime(this._defaults.timeFormat, this, this._defaults);
 		if (this.$timeObj) this.$timeObj.text(this.formattedTime + o.timeSuffix);
 		this.timeDefined = true;
 		if (hasChanged) this._updateDateTime();
@@ -837,41 +838,14 @@ $.extend(Timepicker.prototype, {
 	},
 
 	//########################################################################
-	// format the time all pretty...
+	// left for any backwards compatibility
 	//########################################################################
-	_formatTime: function(time, format, ampm) {
-		if (ampm == undefined) ampm = this._defaults.ampm;
+	_formatTime: function(time, format) {
 		time = time || { hour: this.hour, minute: this.minute, second: this.second, millisec: this.millisec, ampm: this.ampm, timezone: this.timezone };
 		var tmptime = (format || this._defaults.timeFormat).toString();
 
-		var hour = parseInt(time.hour, 10);
-		if (ampm) {
-			if (!$.inArray(time.ampm.toUpperCase(), this.amNames) !== -1)
-				hour = hour % 12;
-			if (hour === 0)
-				hour = 12;
-		}
-		tmptime = tmptime.replace(/(?:hh?|mm?|ss?|[tT]{1,2}|[lz])/g, function(match) {
-			switch (match.toLowerCase()) {
-				case 'hh': return ('0' + hour).slice(-2);
-				case 'h':  return hour;
-				case 'mm': return ('0' + time.minute).slice(-2);
-				case 'm':  return time.minute;
-				case 'ss': return ('0' + time.second).slice(-2);
-				case 's':  return time.second;
-				case 'l':  return ('00' + time.millisec).slice(-3);
-				case 'z':  return time.timezone;
-				case 't': case 'tt':
-					if (ampm) {
-						var _ampm = time.ampm;
-						if (match.length == 1)
-							_ampm = _ampm.charAt(0);
-						return match.charAt(0) == 'T' ? _ampm.toUpperCase() : _ampm.toLowerCase();
-					}
-					return '';
-			}
-		});
-
+		tmptime = $.datepicker.formatTime(tmptime, time, this._defaults);
+		
 		if (arguments.length) return tmptime;
 		else this.formattedTime = tmptime;
 	},
@@ -954,6 +928,54 @@ $.fn.extend({
 			});
 	}
 });
+
+//########################################################################
+// format the time all pretty... 
+// format = string format of the time
+// time = a {}, not a Date() for timezones
+// options = essentially the regional[].. amNames, pmNames, ampm
+//########################################################################
+$.datepicker.formatTime = function(format, time, options) {
+	options = options || {};
+	options = $.extend($.timepicker._defaults, options);
+	time = $.extend({hour:0, minute:0, second:0, millisec:0, timezone:'+0000'}, time);
+	
+	var tmptime = format;
+	var ampmName = options['amNames'][0];
+
+	var hour = parseInt(time.hour, 10);
+	if (options.ampm) {
+		if (hour > 11){
+			ampmName = options['pmNames'][0];
+			if(hour > 12)
+				hour = hour % 12;
+		}
+		if (hour === 0)
+			hour = 12;
+	}
+	tmptime = tmptime.replace(/(?:hh?|mm?|ss?|[tT]{1,2}|[lz])/g, function(match) {
+		switch (match.toLowerCase()) {
+			case 'hh': return ('0' + hour).slice(-2);
+			case 'h':  return hour;
+			case 'mm': return ('0' + time.minute).slice(-2);
+			case 'm':  return time.minute;
+			case 'ss': return ('0' + time.second).slice(-2);
+			case 's':  return time.second;
+			case 'l':  return ('00' + time.millisec).slice(-3);
+			case 'z':  return time.timezone;
+			case 't': case 'tt':
+				if (options.ampm) {
+					if (match.length == 1)
+						ampmName = ampmName.charAt(0);
+					return match.charAt(0) == 'T' ? ampmName.toUpperCase() : ampmName.toLowerCase();
+				}
+				return '';
+		}
+	});
+
+	tmptime = $.trim(tmptime);
+	return tmptime;
+}
 
 //########################################################################
 // the bad hack :/ override datepicker so it doesnt close on select
@@ -1069,11 +1091,11 @@ $.datepicker._gotoToday = function(id) {
 	this._base_gotoToday(id);
 	var now = new Date();
 	var tp_inst = this._get(inst, 'timepicker');
-	if (tp_inst._defaults.showTimezone && tp_inst.timezone_select) {
+	if (tp_inst && tp_inst._defaults.showTimezone && tp_inst.timezone_select) {
 		var tzoffset = now.getTimezoneOffset(); // If +0100, returns -60
 		var tzsign = tzoffset > 0 ? '-' : '+';
 		tzoffset = Math.abs(tzoffset);
-		var tzmin = tzoffset % 60
+		var tzmin = tzoffset % 60;
 		tzoffset = tzsign + ('0' + (tzoffset - tzmin) / 60).slice(-2) + ('0' + tzmin).slice(-2);
 		if (tp_inst._defaults.timezoneIso8609)
 			tzoffset = tzoffset.substring(0, 3) + ':' + tzoffset.substring(3);
@@ -1207,10 +1229,15 @@ $.datepicker.parseDate = function(format, value, settings) {
 	try {
 		date = this._base_parseDate(format, value, settings);
 	} catch (err) {
-		// Hack!  The error message ends with a colon, a space, and
-		// the "extra" characters.  We rely on that instead of
-		// attempting to perfectly reproduce the parsing algorithm.
-		date = this._base_parseDate(format, value.substring(0,value.length-(err.length-err.indexOf(':')-2)), settings);
+		if (err.indexOf(":") >= 0) {
+			// Hack!  The error message ends with a colon, a space, and
+			// the "extra" characters.  We rely on that instead of
+			// attempting to perfectly reproduce the parsing algorithm.
+			date = this._base_parseDate(format, value.substring(0,value.length-(err.length-err.indexOf(':')-2)), settings);
+		} else {
+			// The underlying error was not related to the time
+			throw err;
+		}
 	}
 	return date;
 };
@@ -1229,7 +1256,7 @@ $.datepicker._formatDate = function(inst, day, month, year){
 		return tp_inst.$input.val();
 	}
 	return this._base_formatDate(inst);
-}
+};
 
 //#######################################################################################
 // override options setter to add time to maxDate(Time) and minDate(Time). MaxDate
@@ -1290,10 +1317,10 @@ function extendRemove(target, props) {
 		if (props[name] === null || props[name] === undefined)
 			target[name] = props[name];
 	return target;
-}
+};
 
 $.timepicker = new Timepicker(); // singleton instance
-$.timepicker.version = "0.9.8";
+$.timepicker.version = "0.9.9";
 
 })(jQuery);
 
