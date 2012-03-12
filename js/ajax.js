@@ -4,17 +4,17 @@ $(document).ready(function () {
     window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
 
     $("#resetall").click(function () {
-        delete window.hashjson;
+        window.hashjson = JSON.parse('{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
         window.location.hash = '#';
     });
 
     $('#timeinput').change(function () {
         window.hashjson.timeframe = $(this).val();
-        delete window.hashjson.time;
         if (window.hashjson.timeframe == "custom") {
             //Initialize the date picker with a 15 minute window into the past
-            startDate = new Date(d - (15 * 60 * 1000));
-            renderDateTimePicker((startDate.getTime() + parseInt(window.tOffset)), (d.getTime() + parseInt(window.tOffset)));
+            var d = new Date()
+            var startDate = new Date(d - (15 * 60 * 1000));
+            renderDateTimePicker((startDate.getTime() + window.tOffset), (d.getTime() + window.tOffset));
         }
     });
 
@@ -43,7 +43,7 @@ $(document).ready(function () {
             lnk.removeClass('ui-icon-triangle-1-w');
             lnk.addClass('ui-icon-triangle-1-e');
             main.addClass('sidebar-collapsed');
-            win.resize();
+            win.smartresize();
         } else {
             // expand
             sb.show();
@@ -52,7 +52,7 @@ $(document).ready(function () {
             lnk.removeClass('ui-icon-triangle-1-e');
             lnk.addClass('ui-icon-triangle-1-w');
             main.removeClass('sidebar-collapsed');
-            win.resize();
+            win.smartresize();
         }
     });
 
@@ -61,7 +61,7 @@ $(document).ready(function () {
 
     // console.log(window.location.hash);
     // Resize flot graph with window
-    $(window).resize(function () {
+    $(window).smartresize(function () {
         logGraph(window.graphdata, window.interval);
     });
 });
@@ -109,7 +109,7 @@ function getPage() {
     // Show the user an animated loading thingy
     setMeta('','','loading');
 
-    sendhash = window.location.hash.replace(/^#/, '');;
+    var sendhash = window.location.hash.replace(/^#/, '');;
 
     var data = 'page=' + sendhash;
 
@@ -185,8 +185,22 @@ function getPage() {
                     pageLinks();
 
                 } else {
-                    $('#logs').html("No results match your query, give it another shot there champ.");
-                    $('#timeinput').change(); // Fire the timeinput change event to draw custom time selection pickers if necessary
+                    // blank out the graph
+                    getGraph(resultjson.graph.interval);
+                    // blank out Fields
+                    $('#fields').html("<h3><strong>Show</strong> Fields</h3>");
+                    //blank out Analyze Field
+                    $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>");
+                    // Error message in place of graph
+                    $('#graph').html("No results match your query, give it another shot there champ.");
+                    pageLinks();
+                    // blank out pagelinks
+                    $('.pagelinks').html("");
+                    // blank out logs
+                    $('#logs').html("");
+                    // Draw custom time selection pickers
+                    renderDateTimePicker(Date.parse(window.hashjson.time.from) + window.tOffset, 
+                        Date.parse(window.hashjson.time.to) + window.tOffset);
                 }
 
                 // Populate meta data
@@ -552,10 +566,12 @@ $(function () {
         window.hashjson.stamp = new Date().getTime();
         window.hashjson.fields = $('#fieldsinput').val().split(',');
         
-        if (window.hashjson.timeframe == "custom")
+        if (window.hashjson.timeframe == "custom") {
             $('#timechange').click();
-        else
+        }
+        else {
             window.hashjson.timeframe = $('#timeinput').val();
+        }
 
 
         if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
@@ -590,22 +606,72 @@ function addCommas(nStr) {
 // Render the date/time picker
 function renderDateTimePicker(from, to) {
     if (!$('#timechange').length) {
+        var maxDateTime = new Date();
+        // set to midnight of current day
+        maxDateTime.setHours(23,59,59,999);
         $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + 
             ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + 
             ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
 
-        $('#timefrom,#timeto').datetimepicker({
+        $('#timefrom').datetimepicker({
             showSecond: true,
             timeFormat: 'hh:mm:ss',
             dateFormat: 'yy-mm-dd',
             separator: 'T',
+            maxDate: maxDateTime,
+            maxDateTime: maxDateTime,
             onSelect: function (dateText, inst) {
+                // Work arround bug: /jQuery-Timepicker-Addon/issues/302
+                if ($('#timeto').val() != '') {
+                    $('#timeto').datetimepicker('setDate',
+                        $('#timeto').val());
+                }
+                var tFrom = $(this).datetimepicker('getDate').getTime();
+                var tTo = $('#timeto').datetimepicker('getDate').getTime();
+                var now = new Date().getTime();
+                if (tFrom > now-(1000*60)) {
+                    // set timeto to now and timefrom to now - 1 min
+                    $('#timeto').datetimepicker('setDate', (new Date(now)));
+                    $('#timefrom').datetimepicker('setDate',
+                        (new Date(now-60*1000)));
+                } else if (tFrom > tTo-(1000*60)) {
+                    // set timeto to min(now, timefrom + 15 min)
+                    $('#timeto').datetimepicker('setDate',
+                        (new Date(Math.min(now, tFrom+(15*60*1000)))));
+                }
                 $('#timechange').css('visibility', 'visible');
                 $('#timeinput').val('custom');
-                $('#timeinput').change();
             }
         });
-    	
+
+        $('#timeto').datetimepicker({
+            showSecond: true,
+            timeFormat: 'hh:mm:ss',
+            dateFormat: 'yy-mm-dd',
+            separator: 'T',
+            maxDate: maxDateTime,
+            maxDateTime: maxDateTime,
+            onSelect: function (dateText, inst) {
+                if ($('#timefrom').val() != '') {
+                    $('#timefrom').datetimepicker('setDate',
+                        $('#timefrom').val());
+                }
+                var tTo = $(this).datetimepicker('getDate').getTime();
+                var tFrom = $('#timefrom').datetimepicker('getDate').getTime();
+                var now = new Date().getTime();
+                if (tTo > now) {
+                    // set timeto to now
+                    $('#timeto').datetimepicker('setDate', (new Date(now)));
+                } else if (tFrom > tTo) {
+                    // set timefrom to timeto - 15 min
+                    $('#timefrom').datetimepicker('setDate',
+                        (new Date(tTo-15*60*1000)));
+                }
+                $('#timechange').css('visibility', 'visible');
+                $('#timeinput').val('custom');
+            }
+        });
+
         $('#timefrom,#timeto').change(function () {
             $('#timechange').css('visibility', 'visible');
             $('#timeinput').val('custom');
@@ -614,11 +680,9 @@ function renderDateTimePicker(from, to) {
 
         // Give user a nice interface for selecting time ranges
         $("#timechange").click(function () {
-            var f = new Date($('#timefrom').val());
-            var t = new Date($('#timeto').val());
             var time = {
-                "from": ISODateString(f.getTime()),
-                "to": ISODateString(t.getTime())
+                "from": ISODateString(Date.parse($('#timefrom').val())-window.tOffset),
+                "to": ISODateString(Date.parse($('#timeto').val())-window.tOffset)
             };
             window.hashjson.offset = 0;
             window.hashjson.time = time;
@@ -632,21 +696,17 @@ function renderDateTimePicker(from, to) {
 // Big horrible function for creating graphs
 function logGraph(data, interval) {
 
-    // Calculate the timezone offset. ES stores everything in UTC
-    var d = new Date()
-    var tOffset = -d.getTimezoneOffset() * 60 * 1000;
-
     // Recreate the array, recalculating the time, gross.
     var array = new Array();
     for (var index in data) {
-        array.push(Array(data[index].time + tOffset, data[index].count));
+        array.push(Array(data[index].time + window.tOffset, data[index].count));
     }
 
     // Make sure we get results before calculating graph stuff
-    if (!(typeof data[0] === undefined)) {
-        var from = data[0].time + parseInt(tOffset);
-        var to = data[data.length - 1].time + parseInt(tOffset);
-		renderDateTimePicker(from, to);
+    if (!jQuery.isEmptyObject(data)) {
+        var from = data[0].time + window.tOffset;
+        var to = data[data.length - 1].time + window.tOffset;
+        renderDateTimePicker(from, to);
 
         // Allow user to select ranges on graph. Its this OR click, not both it seems.
         var intset = false;
@@ -654,8 +714,8 @@ function logGraph(data, interval) {
             if (!intset) {
                 intset = true;
                 var time = {
-                    "from": ISODateString(parseInt(ranges.xaxis.from.toFixed(0)) - parseInt(tOffset)),
-                    "to": ISODateString(parseInt(ranges.xaxis.to.toFixed(0)) - parseInt(tOffset))
+                    "from": ISODateString(parseInt(ranges.xaxis.from.toFixed(0)) - window.tOffset),
+                    "to": ISODateString(parseInt(ranges.xaxis.to.toFixed(0)) - window.tOffset)
                 };
                 window.hashjson.offset = 0;
                 window.hashjson.time = time;
@@ -663,75 +723,75 @@ function logGraph(data, interval) {
                 setHash(window.hashjson);
             }
         });
-    }
 
 
-    // Allow user to hover over a bar and get details
-    var previousPoint = null;
-    $("#graph").bind("plothover", function (event, pos, item) {
-        $("#x").text(pos.x.toFixed(2));
-        $("#y").text(pos.y.toFixed(2));
+        // Allow user to hover over a bar and get details
+        var previousPoint = null;
+        $("#graph").bind("plothover", function (event, pos, item) {
+            $("#x").text(pos.x.toFixed(2));
+            $("#y").text(pos.y.toFixed(2));
 
-        if (item) {
-            if (previousPoint != item.dataIndex) {
-                previousPoint = item.dataIndex;
+            if (item) {
+                if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
 
+                    $("#tooltip").remove();
+                    var x = item.datapoint[0].toFixed(0),
+                        y = item.datapoint[1].toFixed(0);
+    
+                    showTooltip(item.pageX, item.pageY, y + " events at " + ISODateString(x));
+                }
+            } else {
                 $("#tooltip").remove();
-                var x = item.datapoint[0].toFixed(0),
-                    y = item.datapoint[1].toFixed(0);
-
-                showTooltip(item.pageX, item.pageY, y + " events at " + ISODateString(x));
+                previousPoint = null;
             }
-        } else {
-            $("#tooltip").remove();
-            previousPoint = null;
-        }
-    });
+        });
 
-    $.plot(
-    $("#graph"), [{
-        data: array,
-        label: "Logs per " + (parseInt(interval) / 1000) + "s"
-    }], {
-        series: {
-            lines: {
-                show: false,
-                fill: true
+        $.plot(
+        $("#graph"), [{
+            data: array,
+            label: "Logs per " + (parseInt(interval) / 1000) + "s"
+        }], {
+            series: {
+                lines: {
+                    show: false,
+                    fill: true
+                },
+                bars: {
+                    show: true,
+                    fill: 1,
+                    barWidth: interval / 1.7,
+                },
+                points: {
+                    show: false
+                },
+                color: "#5aba65",
+                shadowSize: 0,
             },
-            bars: {
-                show: true,
-                fill: 1,
-                barWidth: interval / 1.7
+            xaxis: {
+                mode: "time",
+                timeformat: "%H:%M:%S<br>%m/%d",
+                label: "Datetime",
+                color: "#000",
             },
-            points: {
-                show: false
+            yaxis: {
+                min: 0,
+                color: "#000",
             },
-            color: "#5aba65",
-            shadowSize: 0
-        },
-        xaxis: {
-            mode: "time",
-            timeformat: "%H:%M:%S<br>%m/%d",
-            label: "Datetime",
-            color: "#000"
-        },
-        yaxis: {
-            min: 0,
-            color: "#000"
-        },
-        selection: {
-            mode: "x",
-            color: '#000'
-        },
-        grid: {
-            backgroundColor: '#fff',
-            borderWidth: 0,
-            borderColor: '#000',
-            color: "#ddd",
-            hoverable: true,
-            clickable: true
-        }
-    });
+            selection: {
+                mode: "x",
+                color: '#000',
+            },
+            grid: {
+                backgroundColor: '#fff',
+                borderWidth: 0,
+                borderColor: '#000',
+                color: "#ddd",
+                hoverable: true,
+                clickable: true,
+            },
+        });
+    }
 
 }
 
@@ -754,7 +814,7 @@ function showTooltip(x, y, contents) {
 
 // Create an ISO8601 compliant timestamp for ES
 function ISODateString(unixtime) {
-    d = new Date(parseInt(unixtime));
+    var d = new Date(parseInt(unixtime));
 
     function pad(n) {
         return n < 10 ? '0' + n : n
@@ -766,7 +826,6 @@ function ISODateString(unixtime) {
         pad(d.getUTCMinutes()) + ':' + 
         pad(d.getUTCSeconds())
 }
-
 
 function is_int(value) {
     if ((parseFloat(value) == parseInt(value)) && !isNaN(value)) {
