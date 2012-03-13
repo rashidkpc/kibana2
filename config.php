@@ -2,7 +2,7 @@
 
 $KIBANA_CONFIG = array(
     // Your elastic search server
-    'elasticsearch_server' => "elasticsearch1:9200",
+    'elasticsearch_server' => "elasticsearch2:9200",
 
     // The record type as defined in your logstash configuration.
     // Seperate multiple types with a comma, no spaces.
@@ -34,6 +34,12 @@ $KIBANA_CONFIG = array(
     // Show this many results in analyze/ mode
     'analyze_show' => 25,
 
+    // Show this many results in a csv export
+    'csv_show' => 1000,
+
+    // Show this many results in an rss feed
+    'rss_show' => 20,
+
     // By default, Kibana will look for grok/filter defined fields
     // in your results. Logstash has some default fields that it also
     // supplies. You might want to enable or disable some of those.
@@ -53,7 +59,7 @@ $KIBANA_CONFIG = array(
     // field called _all that is searched when no field is specified.
     // Dropping _all can reduce index size significantly. If you do that
     // you'll need to change primary_field to be '@message'
-    'primary_field' => '_all',
+    'primary_field' => '@message',
 
     // Default Elastic Search index to query
     'default_index' => '_all',

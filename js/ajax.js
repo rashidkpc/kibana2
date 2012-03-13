@@ -169,8 +169,11 @@ function getPage() {
                     }
                     analyzestr += '</ul>';
                     fieldstr += '</p>';
-                    $('#feedlinks').html("<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
-                                        "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + ">stream <img src=images/stream.png></a>");
+                    $('#feedlinks').html(
+                        "<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
+                        "<a href=loader2.php?mode=csv&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">csv <img src=images/csv.gif></a> "+
+                        "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + ">stream <img src=images/stream.png></a>"
+                    );
                     $('#fields').html("<h3><strong>Show</strong> Fields</h3>" + fieldstr);
                     $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>" + analyzestr);
 
@@ -537,10 +540,11 @@ function mFields(field) {
 
     $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs table-condensed'));
 
-    $('#feedlinks').html("<a href=loader2.php?mode=rss&page=" + 
-        base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
-        "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + 
-        ">stream <img src=images/stream.png></a>");
+    $('#feedlinks').html(
+        "<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
+        "<a href=loader2.php?mode=csv&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">csv <img src=images/csv.gif></a> "+
+        "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + ">stream <img src=images/stream.png></a>"
+    );
     pageLinks();
 
 }

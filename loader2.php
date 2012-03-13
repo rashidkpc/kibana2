@@ -66,10 +66,18 @@ class LogstashLoader {
             $query = $this->buildQuery($req);
             $return = $this->processQuery($req, $query);
 
-            if ($req->mode == 'rss') {
-                echo  $this->rssFeed($req, $query, $return);
-            } else { 
-                echo  json_encode($return);
+            switch ($req->mode) {
+                case 'csv':
+                    header('Content-type: application/ms-excel');
+                    header('Content-Disposition: attachment; filename=kibana_'.
+                        implode('_',$req->fields).'-'.time().'.csv');
+                    echo  $this->csvFeed($req, $query, $return);
+                    break;
+                case 'rss':
+                    echo  $this->rssFeed($req, $query, $return);
+                    break;
+                default:
+                    echo  json_encode($return);
             }
         } else {
             echo "No Page parameter";
@@ -153,9 +161,9 @@ class LogstashLoader {
 
             // Figure out which indices to search
             if ($this->config['smart_index']) {
-                $index_array = $this->getIndicesByTime(
+                $this->index_array = $this->getIndicesByTime(
                         $time->from, $time->to);
-                $this->index = implode(',', $index_array);
+                $this->index = implode(',', $this->index_array);
             }
         }
 
@@ -175,7 +183,12 @@ class LogstashLoader {
                 break;
 
             case 'rss':
-                $query->size = 20;
+                $query->size = $this->config['rss_show'];
+                $query->query = $query->query->filtered->query;
+                unset($query->facets);
+                break;
+            case 'csv':
+                $query->size = $this->config['csv_show'];
                 $query->query = $query->query->filtered->query;
                 unset($query->facets);
                 break;
@@ -359,7 +372,37 @@ class LogstashLoader {
 
         return $pDom->saveXML();
     } //end rssFeed
-    
+   
+    /**
+     * Create a CSV file from a set of results.
+     *
+     * @param object $req Request data
+     * @param object $query ES query
+     * @param object $return Partial response
+     * @return object Response to request
+     */
+    protected function csvFeed ($req, $query, $return) {
+
+        if (sizeof($req->fields) < 1) 
+            $req->fields = array('@message');
+        $e_query = $req->search;
+        $csv = 'timestamp,'.implode(',',$req->fields)."\n";
+   
+        foreach ($return->results as $result) {
+            $csv .= date('Y-m-d H:i:s',strtotime($result['@timestamp'])).',';
+            foreach ($req->fields as $field) {
+                if (is_array($result[$field])) {
+                    $csv .= implode('+',$result[$field]).',';
+                } else {
+                    $csv .= $result[$field].',';
+                }
+            }
+            $csv .= "\n";
+        }
+
+        return $csv;
+    } //end csvFeed
+ 
 
     /**
      * Analyze a field from a set of results.
@@ -466,7 +509,7 @@ class LogstashLoader {
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_URL, "http://" .
             $this->config['elasticsearch_server'] .
-            "/{$this->index}/{$this->config['type']}/_search");
+            "/{$this->index}/{$this->config['type']}/_search?search_type=query_then_fetch");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $response = curl_exec($ch);
         return json_decode($response);
