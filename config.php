@@ -59,7 +59,7 @@ $KIBANA_CONFIG = array(
     // field called _all that is searched when no field is specified.
     // Dropping _all can reduce index size significantly. If you do that
     // you'll need to change primary_field to be '@message'
-    'primary_field' => '@message',
+    'primary_field' => '_all',
 
     // Default Elastic Search index to query
     'default_index' => '_all',
