@@ -189,7 +189,6 @@ class LogstashLoader {
                 break;
             case 'csv':
                 $query->size = $this->config['csv_show'];
-                $query->query = $query->query->filtered->query;
                 unset($query->facets);
                 break;
             case 'stream':
@@ -385,6 +384,7 @@ class LogstashLoader {
 
         if (sizeof($req->fields) < 1) 
             $req->fields = array('@message');
+
         $e_query = $req->search;
         $csv = 'timestamp,'.implode(',',$req->fields)."\n";
    
