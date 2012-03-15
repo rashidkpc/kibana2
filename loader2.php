@@ -188,7 +188,7 @@ class LogstashLoader {
                 unset($query->facets);
                 break;
             case 'csv':
-                $query->size = $this->config['csv_show'];
+                $query->size = $this->config['export_show'];
                 unset($query->facets);
                 break;
             case 'stream':
@@ -386,15 +386,18 @@ class LogstashLoader {
             $req->fields = array('@message');
 
         $e_query = $req->search;
-        $csv = 'timestamp,'.implode(',',$req->fields)."\n";
+        $csv = 'timestamp'.$this->config['export_delimiter'].
+            implode($this->config['export_delimiter'],$req->fields)."\n";
    
         foreach ($return->results as $result) {
-            $csv .= date('Y-m-d H:i:s',strtotime($result['@timestamp'])).',';
+            $csv .= date('Y-m-d H:i:s',strtotime($result['@timestamp'])).
+                $this->config['export_delimiter'];
             foreach ($req->fields as $field) {
                 if (is_array($result[$field])) {
-                    $csv .= implode('+',$result[$field]).',';
+                    $csv .= implode('+',$result[$field]).
+                        $this->config['export_delimiter'];
                 } else {
-                    $csv .= $result[$field].',';
+                    $csv .= $result[$field].$this->config['export_delimiter'];
                 }
             }
             $csv .= "\n";

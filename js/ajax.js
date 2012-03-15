@@ -86,7 +86,7 @@ function pageload(hash) {
         } else {
             $('#feedlinks').html(
                 "<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
-                "<a href=loader2.php?mode=csv&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">csv <img src=images/csv.gif></a> "+
+                "<a href=loader2.php?mode=csv&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">export <img src=images/csv.gif></a> "+
                 "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + ">stream <img src=images/stream.png></a>"
              );
             getPage();
@@ -532,7 +532,7 @@ function mFields(field) {
 
     $('#feedlinks').html(
         "<a href=loader2.php?mode=rss&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">rss <img src=images/feed.png></a> "+
-        "<a href=loader2.php?mode=csv&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">csv <img src=images/csv.gif></a> "+
+        "<a href=loader2.php?mode=csv&page=" + base64Encode(JSON.stringify(window.hashjson)) + ">export <img src=images/csv.gif></a> "+
         "<a href=stream.html#" + base64Encode(JSON.stringify(window.hashjson)) + ">stream <img src=images/stream.png></a>"
     );
     pageLinks();

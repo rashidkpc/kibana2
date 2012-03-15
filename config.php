@@ -34,11 +34,16 @@ $KIBANA_CONFIG = array(
     // Show this many results in analyze/ mode
     'analyze_show' => 25,
 
-    // Show this many results in a csv export
-    'csv_show' => 1000,
-
     // Show this many results in an rss feed
     'rss_show' => 20,
+
+   // Show this many results in an exported file
+    'export_show' => 1000,
+
+    // Delimit exported file fields with what? 
+    // You may want to change this to something like "\t" (tab) if you have 
+    // commas in your logs 
+    'export_delimiter' => ",",
 
     // By default, Kibana will look for grok/filter defined fields
     // in your results. Logstash has some default fields that it also
