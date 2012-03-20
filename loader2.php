@@ -215,13 +215,9 @@ class LogstashLoader {
         // After this, dates are in local timezone
         date_default_timezone_set($this->config['local_timezone']);
 
-        echo "Pre-query:".memory_get_usage()."\n";
-
         // Run the query
         $result = $this->esQuery($query);
    
-        echo "Post-query:".memory_get_usage()."\n";    
-
         // build the response
         $return = new stdClass;
 
