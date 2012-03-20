@@ -66,6 +66,7 @@ class LogstashLoader {
             $query = $this->buildQuery($req);
             $return = $this->processQuery($req, $query);
 
+
             switch ($req->mode) {
                 case 'csv':
                     header('Content-type: application/ms-excel');
@@ -214,8 +215,12 @@ class LogstashLoader {
         // After this, dates are in local timezone
         date_default_timezone_set($this->config['local_timezone']);
 
+        echo "Pre-query:".memory_get_usage()."\n";
+
         // Run the query
         $result = $this->esQuery($query);
+   
+        echo "Post-query:".memory_get_usage()."\n";    
 
         // build the response
         $return = new stdClass;
@@ -254,7 +259,9 @@ class LogstashLoader {
                 $return->all_fields = array_values(array_unique(array_merge(
                         array('@message'),
                         $this->config['default_fields'])));
-                foreach ($result->hits->hits as $hit) {
+                $i=0;
+                foreach ($result->hits->hits as $hitkey => $hit) {
+                    $i++;
                     $hit_id = $hit->{'_id'};
                     $return->results[$hit_id]['@cabin_time'] =
                             date('m/d H:i:s', strtotime(
@@ -272,6 +279,7 @@ class LogstashLoader {
                         $return->results[$hit_id][$field] =
                                 $hit->fields->{$field};
                     }
+                    unset($result->hits->hits[$i]);
                 }
                 sort($return->all_fields);
                 $return->page_count = count($result->hits->hits);
@@ -282,7 +290,8 @@ class LogstashLoader {
         
         // Insert meta data for javascript
         $return->meta->per_page = $this->config['results_per_page'];
-
+        
+        unset($result);
         return $return;
     } //end processQuery
 
@@ -386,24 +395,28 @@ class LogstashLoader {
             $req->fields = array('@message');
 
         $e_query = $req->search;
-        $csv = 'timestamp'.$this->config['export_delimiter'].
-            implode($this->config['export_delimiter'],$req->fields)."\n";
-   
+
+        $csv = array(
+            'timestamp'.$this->config['export_delimiter'].
+            implode($this->config['export_delimiter'],$req->fields));
+    
         foreach ($return->results as $result) {
-            $csv .= date('Y-m-d H:i:s',strtotime($result['@timestamp'])).
-                $this->config['export_delimiter'];
+            $csv_line = array();
+            array_push($csv_line, 
+                date('Y-m-d H:i:s',strtotime($result['@timestamp'])));
             foreach ($req->fields as $field) {
                 if (is_array($result[$field])) {
-                    $csv .= implode('+',$result[$field]).
-                        $this->config['export_delimiter'];
+                    array_push($csv_line,implode('+',$result[$field]));
                 } else {
-                    $csv .= $result[$field].$this->config['export_delimiter'];
+                    array_push($csv_line,$result[$field]);
                 }
             }
-            $csv .= "\n";
+            array_push($csv,
+                implode($this->config['export_delimiter'],$csv_line));
+            unset($csv_line);
         }
 
-        return $csv;
+        return implode("\n",$csv); 
     } //end csvFeed
  
 
@@ -515,7 +528,9 @@ class LogstashLoader {
             "/{$this->index}/{$this->config['type']}/_search?search_type=query_then_fetch");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $response = curl_exec($ch);
-        return json_decode($response);
+        $return = json_decode($response);
+        unset($response);
+        return $return;
     } //end esQuery
 
 
