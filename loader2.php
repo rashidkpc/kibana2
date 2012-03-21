@@ -255,6 +255,7 @@ class LogstashLoader {
                 $return->all_fields = array_values(array_unique(array_merge(
                         array('@message'),
                         $this->config['default_fields'])));
+                $return->page_count = count($result->hits->hits);
                 $i=0;
                 foreach ($result->hits->hits as $hitkey => $hit) {
                     $i++;
@@ -278,7 +279,6 @@ class LogstashLoader {
                     unset($result->hits->hits[$i]);
                 }
                 sort($return->all_fields);
-                $return->page_count = count($result->hits->hits);
         }
         if (sizeof($req->fields) == 0) $req->fields = array('@message');
         $return->fields_requested = $req->fields;
