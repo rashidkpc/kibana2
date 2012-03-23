@@ -12,9 +12,37 @@ $(document).ready(function () {
         window.hashjson.timeframe = $(this).val();
         if (window.hashjson.timeframe == "custom") {
             //Initialize the date picker with a 15 minute window into the past
-            var d = new Date()
-            var startDate = new Date(d - (15 * 60 * 1000));
-            renderDateTimePicker((startDate.getTime() + window.tOffset), (d.getTime() + window.tOffset));
+            var d = new Date();
+            var fromDate = new Date(d - (15 * 60 * 1000));
+            renderDateTimePicker((fromDate.getTime() + window.tOffset), (d.getTime() + window.tOffset));
+        } else {
+            //Initialize the date picker with the appropriate time range
+            var d = new Date();
+            var fromDate = fromTime($(this).val());
+            window.hashjson.time = {
+                "from": ISODateString(fromDate.getTime()),
+                "to": ISODateString(d.getTime())
+            };
+            renderDateTimePicker((fromDate.getTime() + window.tOffset), (d.getTime() + window.tOffset));
+        }
+    });
+
+    $('#timeinput').click(function () {
+        window.hashjson.timeframe = $(this).val();
+        if (window.hashjson.timeframe == "custom") {
+            //Initialize the date picker with a 15 minute window into the past
+            var d = new Date();
+            var fromDate = new Date(d - (15 * 60 * 1000));
+            renderDateTimePicker((fromDate.getTime() + window.tOffset), (d.getTime() + window.tOffset));
+        } else {
+            //Initialize the date picker with the appropriate time range
+            var d = new Date();
+            var fromDate = fromTime($(this).val());
+            window.hashjson.time = {
+                "from": ISODateString(fromDate.getTime()),
+                "to": ISODateString(d.getTime())
+            };
+            renderDateTimePicker((fromDate.getTime() + window.tOffset), (d.getTime() + window.tOffset));
         }
     });
 
@@ -39,19 +67,17 @@ $(document).ready(function () {
             // collapse
             sb.hide();
             main.removeClass('span10');
-            main.addClass('span12');
-            lnk.removeClass('ui-icon-triangle-1-w');
-            lnk.addClass('ui-icon-triangle-1-e');
-            main.addClass('sidebar-collapsed');
+            main.addClass('span12 sidebar-collapsed');
+            lnk.removeClass('icon-chevron-left jlink');
+            lnk.addClass('icon-chevron-right jlink');
             win.smartresize();
         } else {
             // expand
             sb.show();
-            main.removeClass('span12');
+            main.removeClass('span12 sidebar-collapsed');
             main.addClass('span10');
-            lnk.removeClass('ui-icon-triangle-1-e');
-            lnk.addClass('ui-icon-triangle-1-w');
-            main.removeClass('sidebar-collapsed');
+            lnk.removeClass('icon-chevron-right jlink');
+            lnk.addClass('icon-chevron-left jlink');
             win.smartresize();
         }
     });
@@ -94,6 +120,12 @@ function pageload(hash) {
 
     } else {
         window.hashjson = JSON.parse('{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
+        var d = new Date();
+        var fromDate = fromTime('15 minutes');
+        window.hashjson.time = {
+            "from": ISODateString(fromDate.getTime()),
+            "to": ISODateString(d.getTime())
+        };
         setHash(window.hashjson);
     }
 }
@@ -561,7 +593,13 @@ $(function () {
         window.hashjson.fields = $('#fieldsinput').val().split(',');
         
         if (window.hashjson.timeframe == "custom") {
-            $('#timechange').click();
+            var time = {
+                "from": ISODateString(Date.parse($('#timefrom').val())-window.tOffset),
+                "to": ISODateString(Date.parse($('#timeto').val())-window.tOffset)
+            };
+            window.hashjson.offset = 0;
+            window.hashjson.time = time;
+            //setHash(window.hashjson);
         }
         else {
             window.hashjson.timeframe = $('#timeinput').val();
@@ -599,108 +637,98 @@ function addCommas(nStr) {
 
 // Render the date/time picker
 function renderDateTimePicker(from, to) {
-    if (!$('#timechange').length) {
-        var maxDateTime = new Date();
-        // set to midnight of current day
-        maxDateTime.setHours(23,59,59,999);
-        $('#graphheader').html("<center><input size=19 id=timefrom class=hasDatePicker type=text name=timefrom value='" + 
-            ISODateString(from) + "'> to <input size=19 id=timeto class=hasDatePicker type=text name=timeto value='" + 
-            ISODateString(to) + "'> <button id='timechange' style='visibility: hidden' class='btn tiny success'>Filter</button></center>");
+    var maxDateTime = new Date();
+    // set to midnight of current day
+    maxDateTime.setHours(23,59,59,999);
 
-        $('#timefrom').datetimepicker({
-            showSecond: true,
-            timeFormat: 'hh:mm:ss',
-            dateFormat: 'yy-mm-dd',
-            separator: 'T',
-            maxDate: maxDateTime,
-            maxDateTime: maxDateTime,
-            onSelect: function (dateText, inst) {
-                // Work arround bug: /jQuery-Timepicker-Addon/issues/302
-                if ($('#timeto').val() != '') {
-                    $('#timeto').datetimepicker('setDate',
-                        $('#timeto').val());
-                }
-                var tFrom = $(this).datetimepicker('getDate').getTime();
-                var tTo = $('#timeto').datetimepicker('getDate').getTime();
-                var now = new Date().getTime();
-                if (tFrom > now-(1000*60)) {
-                    // set timeto to now and timefrom to now - 1 min
-                    $('#timeto').datetimepicker('setDate', (new Date(now)));
-                    $('#timefrom').datetimepicker('setDate',
-                        (new Date(now-60*1000)));
-                } else if (tFrom > tTo-(1000*60)) {
-                    // set timeto to min(now, timefrom + 15 min)
-                    $('#timeto').datetimepicker('setDate',
-                        (new Date(Math.min(now, tFrom+(15*60*1000)))));
-                }
-                $('#timechange').css('visibility', 'visible');
-                $('#timeinput').val('custom');
+    $('#timeto').val(ISODateString(to));
+    $('#timefrom').val(ISODateString(from));
+
+    $('#timefrom').datetimepicker({
+        showSecond: true,
+        timeFormat: 'hh:mm:ss',
+        dateFormat: 'yy-mm-dd',
+        separator: 'T',
+        maxDate: maxDateTime,
+        maxDateTime: maxDateTime,
+        onSelect: function (dateText, inst) {
+            // Work arround bug: /jQuery-Timepicker-Addon/issues/302
+            if ($('#timeto').val() != '') {
+                $('#timeto').datetimepicker('setDate',
+                    $('#timeto').val());
             }
-        });
-
-        $('#timeto').datetimepicker({
-            showSecond: true,
-            timeFormat: 'hh:mm:ss',
-            dateFormat: 'yy-mm-dd',
-            separator: 'T',
-            maxDate: maxDateTime,
-            maxDateTime: maxDateTime,
-            onSelect: function (dateText, inst) {
-                if ($('#timefrom').val() != '') {
-                    $('#timefrom').datetimepicker('setDate',
-                        $('#timefrom').val());
-                }
-                var tTo = $(this).datetimepicker('getDate').getTime();
-                var tFrom = $('#timefrom').datetimepicker('getDate').getTime();
-                var now = new Date().getTime();
-                if (tTo > now) {
-                    // set timeto to now
-                    $('#timeto').datetimepicker('setDate', (new Date(now)));
-                } else if (tFrom > tTo) {
-                    // set timefrom to timeto - 15 min
-                    $('#timefrom').datetimepicker('setDate',
-                        (new Date(tTo-15*60*1000)));
-                }
-                $('#timechange').css('visibility', 'visible');
-                $('#timeinput').val('custom');
+            var tFrom = $(this).datetimepicker('getDate').getTime();
+            var tTo = $('#timeto').datetimepicker('getDate').getTime();
+            var now = new Date().getTime();
+            if (tFrom > now-(1000*60)) {
+                // set timeto to now and timefrom to now - 1 min
+                $('#timeto').datetimepicker('setDate', (new Date(now)));
+                $('#timefrom').datetimepicker('setDate',
+                    (new Date(now-60*1000)));
+            } else if (tFrom > tTo-(1000*60)) {
+                // set timeto to min(now, timefrom + 15 min)
+                $('#timeto').datetimepicker('setDate',
+                    (new Date(Math.min(now, tFrom+(15*60*1000)))));
             }
-        });
-
-        $('#timefrom,#timeto').change(function () {
-            $('#timechange').css('visibility', 'visible');
             $('#timeinput').val('custom');
-            $('#timeinput').change();
-        });
-
-        // Give user a nice interface for selecting time ranges
-        $("#timechange").click(function () {
-            var time = {
-                "from": ISODateString(Date.parse($('#timefrom').val())-window.tOffset),
-                "to": ISODateString(Date.parse($('#timeto').val())-window.tOffset)
-            };
-            window.hashjson.offset = 0;
-            window.hashjson.time = time;
             window.hashjson.timeframe = "custom";
-            setHash(window.hashjson);
-        });
-    }
+        }
+    });
+
+    $('#timeto').datetimepicker({
+        showSecond: true,
+        timeFormat: 'hh:mm:ss',
+        dateFormat: 'yy-mm-dd',
+        separator: 'T',
+        maxDate: maxDateTime,
+        maxDateTime: maxDateTime,
+        onSelect: function (dateText, inst) {
+            if ($('#timefrom').val() != '') {
+                $('#timefrom').datetimepicker('setDate',
+                    $('#timefrom').val());
+            }
+            var tTo = $(this).datetimepicker('getDate').getTime();
+            var tFrom = $('#timefrom').datetimepicker('getDate').getTime();
+            var now = new Date().getTime();
+            if (tTo > now) {
+                // set timeto to now
+                $('#timeto').datetimepicker('setDate', (new Date(now)));
+            } else if (tFrom > tTo) {
+                // set timefrom to timeto - 15 min
+                $('#timefrom').datetimepicker('setDate',
+                    (new Date(tTo-15*60*1000)));
+            }
+            $('#timeinput').val('custom');
+            window.hashjson.timeframe = "custom";
+        }
+    });
 }
 
 
 // Big horrible function for creating graphs
 function logGraph(data, interval) {
 
-    // Recreate the array, recalculating the time, gross.
-    var array = new Array();
-    for (var index in data) {
-        array.push(Array(data[index].time + window.tOffset, data[index].count));
-    }
-
     // Make sure we get results before calculating graph stuff
     if (!jQuery.isEmptyObject(data)) {
-        var from = data[0].time + window.tOffset;
-        var to = data[data.length - 1].time + window.tOffset;
-        renderDateTimePicker(from, to);
+        // Recreate the array, recalculating the time, gross.
+        var array = new Array();
+        if(typeof window.hashjson.time !== 'undefined') {
+            // add null value at time from.
+            array.push(Array(Date.parse(window.hashjson.time.from) + window.tOffset, null));
+        }
+        for (var index in data) {
+            array.push(Array(data[index].time + window.tOffset, data[index].count));
+        }
+        if(typeof window.hashjson.time !== 'undefined') {
+            // add null value at time to.
+            array.push(Array(Date.parse(window.hashjson.time.to) + window.tOffset, null));
+            renderDateTimePicker(Date.parse(window.hashjson.time.from) + window.tOffset, 
+            Date.parse(window.hashjson.time.to) + window.tOffset);
+        } else {
+            var from = data[0].time + window.tOffset;
+            var to = data[data.length - 1].time + window.tOffset;
+            renderDateTimePicker(from, to);
+        }
 
         // Allow user to select ranges on graph. Its this OR click, not both it seems.
         var intset = false;
@@ -717,7 +745,6 @@ function logGraph(data, interval) {
                 setHash(window.hashjson);
             }
         });
-
 
         // Allow user to hover over a bar and get details
         var previousPoint = null;
@@ -764,7 +791,7 @@ function logGraph(data, interval) {
             },
             xaxis: {
                 mode: "time",
-                timeformat: "%H:%M:%S<br>%m/%d",
+                timeformat: "%H:%M:%S<br>%m-%d",
                 label: "Datetime",
                 color: "#000"
             },
@@ -786,7 +813,6 @@ function logGraph(data, interval) {
             }
         });
     }
-
 }
 
 
@@ -819,6 +845,39 @@ function ISODateString(unixtime) {
         pad(d.getUTCHours()) + ':' + 
         pad(d.getUTCMinutes()) + ':' + 
         pad(d.getUTCSeconds())
+}
+
+// create from time based on time from now.
+function fromTime(range) {
+    // default 15 minutes
+    var msago = 900000; //15*60*1000
+    switch (range) {
+        case '15 minutes':
+            msago = 900000; // 15*60*1000
+            break;
+        case '60 minutes':
+            msago = 3600000; // 60*60*1000
+            break;
+        case '4 hours':
+            msago = 14400000; // 4*60*60*1000
+            break;
+        case '12 hours':
+            msago = 43200000; // 12*60*60*1000
+            break;
+        case '24 hours':
+            msago = 86400000; // 24*60*60*1000
+            break;
+        case '48 hours':
+            msago = 172800000; // 48*60*60*1000
+            break;
+        case '7 days':
+            msago = 604800000; // 7*24*60*60*1000
+            break;
+        case '100 years':
+            msago = 3155760000000; // 100*365*24*60*60*1000 + 25*24*60*60*1000 (rounded up to nearest day)
+            break;
+    }
+    return new Date(new Date() - msago);
 }
 
 function is_int(value) {

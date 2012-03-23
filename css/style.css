@@ -15,10 +15,6 @@ padding-right: 0px;
   font-size: 10px;
 }
 
-.navbar-inner {
-height: 57px;
-}
-
 .topbar {
 padding: 7px;
 }
@@ -48,10 +44,12 @@ text-align: left;
 }
 
 #meta {
+display: inline-block;
 text-align: right;
-width: 120px;
 color: #fff;
 vertical-align: middle;
+zoom: 1;
+ *display: inline;
 }
 
 #meta td {
@@ -91,21 +89,32 @@ margin-top: 0px;
 }
 
 #searchform {
-width: 100%;
+display: inline;
 margin: 5px;
 }
 
 #searchform img {
 max-width: none;
+margin: 5px;
+vertical-align: middle;
+}
+
+#searchform button {
+margin: 4px;
 }
 
 #queryinput {
-width: 98%;
+width: 35%;
+}
+
+#timefrom, #timeto {
+width: 130px;
 }
 
 #feedlinks {
+width: 155px;
 position: absolute;
-top: 65px;
+display: inline-block;
 right: 20px;
 }
 
