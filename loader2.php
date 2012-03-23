@@ -66,7 +66,6 @@ class LogstashLoader {
             $query = $this->buildQuery($req);
             $return = $this->processQuery($req, $query);
 
-
             switch ($req->mode) {
                 case 'csv':
                     header('Content-type: application/ms-excel');
@@ -217,7 +216,7 @@ class LogstashLoader {
 
         // Run the query
         $result = $this->esQuery($query);
-   
+
         // build the response
         $return = new stdClass;
 

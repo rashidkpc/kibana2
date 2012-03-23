@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.min.css">
     <LINK REL=StyleSheet HREF="css/style.css" TYPE="text/css" MEDIA=screen>
     <LINK REL=StyleSheet HREF="css/jquery-ui-1.8.16.custom.css" TYPE="text/css" MEDIA=screen>
-    <LINK REL=StyleSheet HREF="css/jquery.ui.datepicker.css" TYPE="text/css" MEDIA=screen>
+    <LINK REL=StyleSheet HREF="css/jquery-ui-timepicker-addon.css" TYPE="text/css" MEDIA=screen>
     <style type="text/css">
       body {
         padding-top: 65px;
@@ -44,10 +44,8 @@
       <div class="navbar-inner">
         <div class="container-fluid">
             <form id='searchform' class="form-search form-horizontal" action="">
-              <table class=formatting><tr> 
-              <td width='1%'><center><img src='images/logo.png'></center></td>
-              <td width='1%'>
-              <select name="time" id=timeinput class="span2">
+              <img src='images/logo.png'>
+              <select name="time" id=timeinput class="input-small">
                 <option value="15 minutes">Last 15m</option>
                 <option value="60 minutes">Last 60m</option>
                 <option value="4 hours">Last 4h</option>
@@ -58,14 +56,14 @@
                 <option value="100 years">All Time</option>
                 <option value="custom">Custom</option>
               </select>
-              </td>
-              <td width='85%'><input type="text" placeholder="Search" id=queryinput><input type="hidden" id=fieldsinput></td>
-              <td width='1%'><button class="btn btn-primary" type=submit>Search</button></td>
-              <td width='1%'><button class="btn btn-danger" type="reset" id=resetall>Reset</button></td>
-              <td><div id=meta></div></td>
-            </tr></table>
+              <input size=19 id=timefrom type=text name=timefrom value="" />
+              <input size=19 id=timeto type=text name=timeto value="" />
+              <input type="text" placeholder="Search" id=queryinput />
+                  <input type="hidden" id=fieldsinput />
+              <button class="btn btn-primary" type=submit>Search</button>
+              <button class="btn btn-danger" type="reset" id=resetall>Reset</button>
+              <div id=meta></div>
             </form>
- 
         </div>
       </div>
     </div>
@@ -84,8 +82,14 @@
 
         <div class="content span10" id=main>
           <div>
-            <span id=sbctl class="ui-icon ui-icon-triangle-1-w ui-state-default jlink"></span>
-            <span id=feedlinks></span>
+            <div class=row-fluid>
+              <div class="span1">
+                <i id=sbctl class="icon-chevron-left jlink"></i>
+              </div>
+              <div class="span1">
+                <div id=feedlinks></div>
+              </div>
+            </div>
             <p id=graphheader></p>
             <div id=graph style='height: 100px;'>
               <div class=hero-unit>
