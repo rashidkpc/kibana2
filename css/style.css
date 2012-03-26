@@ -101,6 +101,8 @@ max-width: none;
 
 #queryinput {
 width: 98%;
+font-size: 8pt;
+color: #333;
 }
 
 #feedlinks {

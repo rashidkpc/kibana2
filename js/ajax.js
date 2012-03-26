@@ -165,8 +165,8 @@ function getPage() {
                     }
                     analyzestr += '</ul>';
                     fieldstr += '</p>';
-                    $('#fields').html("<h3><strong>Show</strong> Fields</h3>" + fieldstr);
-                    $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>" + analyzestr);
+                    $('#fields').html("<h4><strong>Show</strong> Fields</h4>" + fieldstr);
+                    $('#analyze').html("<h4><strong>Analyze</strong> Field</h4>" + analyzestr);
 
                     $('.dropdown-toggle').dropdown();
 
@@ -182,9 +182,9 @@ function getPage() {
                     // blank out the graph
                     getGraph(resultjson.graph.interval);
                     // blank out Fields
-                    $('#fields').html("<h3><strong>Show</strong> Fields</h3>");
+                    $('#fields').html("<h4><strong>Show</strong> Fields</h4>");
                     //blank out Analyze Field
-                    $('#analyze').html("<h3><strong>Analyze</strong> Field</h3>");
+                    $('#analyze').html("<h4><strong>Analyze</strong> Field</h4>");
                     // Error message in place of graph
                     $('#graph').html("No results match your query, give it another shot there champ.");
                     pageLinks();
@@ -525,7 +525,7 @@ function mFields(field) {
                 "_field ' onClick='mFields(\"" + resultjson.all_fields[index].toString() + "\")'>" + 
                 resultjson.all_fields[index].toString() + "</a> ";
     }
-    $('#fields').html("<h3><strong>Show</strong> Fields</h3> " + str);
+    $('#fields').html("<h4><strong>Show</strong> Fields</h4> " + str);
     $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass('logfield_selected');
 
     $('#logs').html(CreateTableView(window.resultjson.results, window.hashjson.fields, 'logs table-condensed'));
