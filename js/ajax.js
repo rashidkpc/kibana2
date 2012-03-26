@@ -125,11 +125,14 @@ function getPage() {
                 //Parse out the window hash
                 window.resultjson = JSON.parse(json);
 
+                //console.log('curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+'/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
+                //console.log(window.resultjson);
+
                 $('#graphheader,#graph').text("");
 
                 // Make sure we get some result before doing anything
                 if (resultjson.hits > 0) {
-
+               
                     var fieldstr = "<p class=small>";
                     for (var index in window.hashjson.fields) {
                         fieldstr += "<a class='jlink logfield_selected' onClick='mFields(\"" + window.hashjson.fields[index] + "\")'>" + window.hashjson.fields[index] + "</a> ";

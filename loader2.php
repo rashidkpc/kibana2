@@ -143,9 +143,9 @@ class LogstashLoader {
         
         $query->size = $this->config['results_per_page'];
         $query->sort->{'@timestamp'}->order = 'desc';
-        $query->fields = array_values(array_unique(array_merge(
-                    array('@timestamp', '@fields', '@message'),
-                    $this->config['default_fields'])));
+//        $query->fields = array_values(array_unique(array_merge(
+//                    array('@timestamp', '@fields', '@message'),
+//                    $this->config['default_fields'])));
 
         // Unless the user gives us exact times, compute relative 
         // timeframe based on drop down
@@ -260,6 +260,7 @@ class LogstashLoader {
                 foreach ($result->hits->hits as $hitkey => $hit) {
                     $i++;
                     $hit_id = $hit->{'_id'};
+                    $hit->fields = $hit->{'_source'};
                     $return->results[$hit_id]['@cabin_time'] =
                             date('m/d H:i:s', strtotime(
                                     $hit->fields->{'@timestamp'}));
