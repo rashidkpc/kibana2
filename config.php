@@ -2,10 +2,11 @@
 
 $KIBANA_CONFIG = array(
     // Your elastic search server
-    'elasticsearch_server' => "elasticsearch2:9200",
+    'elasticsearch_server' => "elasticsearch:9200",
 
     // The record type as defined in your logstash configuration.
-    // Seperate multiple types with a comma, no spaces.
+    // Seperate multiple types with a comma, no spaces. Leave blank 
+    // for all.
     'type' => '',
 
     // Results to show per page
@@ -38,7 +39,7 @@ $KIBANA_CONFIG = array(
     'rss_show' => 20,
 
    // Show this many results in an exported file
-    'export_show' => 1000,
+    'export_show' => 2000,
 
     // Delimit exported file fields with what? 
     // You may want to change this to something like "\t" (tab) if you have 
