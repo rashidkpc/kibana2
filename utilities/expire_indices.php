@@ -19,13 +19,13 @@ foreach($result->{'indices'} as $index => $nothing) {
 	$date = explode('.',$parts[1]);
 	$date = strtotime($date[1].'/'.$date[2].'/'.$date[0]);
 	if($date < $before && $parts[0] == 'logstash') {
-		$to_delete = "logstash-".date('Y.m.d',$date); 
-		echo "Deleting: ".$to_delete."\n"; 
+		$to_delete = "logstash-".date('Y.m.d',$date);
+		echo "Deleting: ".$to_delete."\n";
 		$ch = curl_init();
-	        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-	        curl_setopt($ch, CURLOPT_URL, 'http://' . $elasticsearch_server . '/'.$to_delete);
-	        $deleted = json_decode(curl_exec($ch));
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+	    curl_setopt($ch, CURLOPT_URL, 'http://' . $elasticsearch_server . '/'.$to_delete);
+	    $deleted = json_decode(curl_exec($ch));
 	}
 }
 
