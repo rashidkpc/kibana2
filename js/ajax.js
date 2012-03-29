@@ -20,6 +20,7 @@ $(document).ready(function () {
     }
   });
 
+  // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
     $('#meta').text("");
     $('#graph').html(""+
@@ -33,28 +34,11 @@ $(document).ready(function () {
   });
 
   $('#sbctl').click(function () {
-    var sb = $('#sidebar'),
-      main = $('#main'),
-      lnk = $('#sbctl'),
-      win = $(window);
+    var sb = $('#sidebar');
     if (sb.is(':visible')) {
-      // collapse
-      sb.hide();
-      main.removeClass('span10');
-      main.addClass('span12');
-      lnk.removeClass('ui-icon-triangle-1-w');
-      lnk.addClass('ui-icon-triangle-1-e');
-      main.addClass('sidebar-collapsed');
-      win.smartresize();
+      sbctl('hide');
     } else {
-      // expand
-      sb.show();
-      main.removeClass('span12');
-      main.addClass('span10');
-      lnk.removeClass('ui-icon-triangle-1-e');
-      lnk.addClass('ui-icon-triangle-1-w');
-      main.removeClass('sidebar-collapsed');
-      win.smartresize();
+      sbctl('show');
     }
   });
 
@@ -82,26 +66,14 @@ function pageload(hash) {
     // Take the hash data and populate the search fields
     $('#queryinput').val(window.hashjson.search);
     $('#fieldsinput').val(window.hashjson.fields);
-
     $('#timeinput').val(window.hashjson.timeframe);
 
     if (window.hashjson.mode == 'analyze' || window.hashjson.mode == 'trend') {
       getAnalysis();
     } else {
-      $('#feedlinks').html(
-        "<a href=loader2.php?mode=rss&page=" +
-        base64Encode(JSON.stringify(window.hashjson)) +
-        ">rss <img src=images/feed.png></a> "+
-        "<a href=loader2.php?mode=csv&page=" +
-        base64Encode(JSON.stringify(window.hashjson)) +
-        ">export <img src=images/csv.gif></a> "+
-        "<a href=stream.html#" +
-        base64Encode(JSON.stringify(window.hashjson)) +
-        ">stream <img src=images/stream.png></a>"
-       );
+      $('#feedlinks').html(feedLinks(window.hashjson));
       getPage();
     }
-
   } else {
     window.hashjson = JSON.parse(
       '{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
@@ -209,7 +181,7 @@ function getPage() {
           getGraph(resultjson.graph.interval);
 
           // Create and populate #logs table
-          $('#logs').html(CreateTableView(
+          $('#logs').html(CreateLogTable(
             window.resultjson.results, resultjson.fields_requested,
             'logs table-condensed'
           ));
@@ -308,6 +280,9 @@ function getAnalysis() {
         var field = window.hashjson.analyze_field;
         var resultjson = JSON.parse(json);
         window.resultjson = resultjson;
+
+        //console.log(window.resultjson);
+
         switch (window.hashjson.mode) {
         case 'analyze':
           if (resultjson.analysis.count == resultjson.hits) {
@@ -384,6 +359,7 @@ function getAnalysis() {
           i++;
         }
         str += '</table>'
+
         $('#logs').html(str);
 
         $("#back_to_logs").click(function () {
@@ -423,8 +399,8 @@ function pageLinks() {
   var perpage = window.resultjson.meta.per_page
   var str = "<center>";
   if (window.hashjson.offset - perpage >= 0) {
-    str += "<a class='firstpage jlink'>First</a> ";
-    str += "<a class='prevpage jlink'>Prev</a> ";
+    str += "<a class='firstpage jlink'>First</a> " +
+      "<a class='prevpage jlink'>Prev</a> ";
   }
   var end = window.hashjson.offset + window.resultjson.page_count;
   str += "<strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
@@ -457,7 +433,7 @@ function pageLinks() {
 // theme (optional) = A css class to add to the table (e.g. <table class="<theme>">
 // enableHeader (optional) = Controls if you want to hide/show, default is show
 
-function CreateTableView(objArray, fields, theme, enableHeader) {
+function CreateLogTable(objArray, fields, theme, enableHeader) {
   // set optional theme parameter
   if (theme === undefined) {
     theme = 'mediumTable'; //default theme
@@ -534,6 +510,7 @@ function viewLog(objid) {
   var i = 1;
   var selected = ""
   for (field in obj) {
+    var field_id = field.replace('@', 'ATSYM');
     selected = "";
     if ($.inArray(field, window.hashjson.fields) > -1) {
       selected = "logfield_selected";
@@ -542,28 +519,44 @@ function viewLog(objid) {
     if (!(field.match(/^@cabin_/))) {
       trclass = (i % 2 == 0) ? 'class=alt' : '';
       str += "<tr " + trclass + ">" +
-        "<td class='firsttd " + field.replace('@', 'ATSYM') + "_field "
+        "<td class='firsttd " + field_id + "_field "
         + selected + "'>" + field +
         "</td>" +
-        '<td>' + xmlEnt(wbr(value, 10)) +
+        '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
+        xmlEnt(value) + "</span>" +
         " <div style='display: inline-block'>" +
-        "<button style='display: inline-block' class='btn tiny' "+
-        "onClick='mSearch(\"" + field + "\",getLogField(\"" +
-          objid + "\",\"" + field +
-        "\"))'>Find this</button> " +
-        "<button style='display: inline-block' class='btn tiny' "+
-        "onClick='mSearch(\"NOT " + field + "\",getLogField(\"" +
-          objid + "\",\"" + field +
-        "\"))'>NOT this</button> " +
+        "<button style='display: inline-block' class='btn tiny' id=findthis_"+
+        objid+"_"+field_id+">Find this</button> " +
+        "<button style='display: inline-block' class='btn tiny' id=notthis_"+
+        objid+"_"+field_id+">NOT this</button> " +
         "</div>" +
         "</td></tr>";
       i++;
     }
+
+    $("body").delegate(
+      "#findthis_"+objid+"_"+field_id, "click", function (objid) {
+        mSearch(
+          $(this).parents().eq(2).find('.firsttd').text(),
+          $(this).parents().eq(1).find('span').text() 
+        );
+    });
+
+    $("body").delegate(
+      "#notthis_"+objid+"_"+field_id, "click", function (objid) {
+        mSearch(
+          "NOT " + $(this).parents().eq(2).find('.firsttd').text(),
+          $(this).parents().eq(1).find('span').text()  
+        );
+    });    
+
   }
   str += "</table>";
 
   // Populate td with that table
   $('#log_' + objid).html(str);
+
+  
 
   $('.ui-state-default').hover(function () {
     $(this).toggleClass('ui-state-hover');
@@ -575,6 +568,8 @@ function viewLog(objid) {
   // Regular jQuery toggle() doesn't work with table-rows
   $('#logrow_' + objid).toggleClass('showdetails');
   $('#logrow_' + objid).toggleClass('hidedetails');
+
+  
 }
 
 function getLogField(objid, field) {
@@ -629,22 +624,26 @@ function mFields(field) {
   $('td.' + field.replace('@', 'ATSYM') + '_field').toggleClass(
     'logfield_selected');
 
-  $('#logs').html(CreateTableView(
+  $('#logs').html(CreateLogTable(
     window.resultjson.results, window.hashjson.fields, 'logs table-condensed'));
 
-  $('#feedlinks').html(
-    "<a href=loader2.php?mode=rss&page=" +
-    base64Encode(JSON.stringify(window.hashjson)) +
-    ">rss <img src=images/feed.png></a> "+
-    "<a href=loader2.php?mode=csv&page=" +
-    base64Encode(JSON.stringify(window.hashjson)) +
-    ">export <img src=images/csv.gif></a> "+
-    "<a href=stream.html#" +
-    base64Encode(JSON.stringify(window.hashjson)) +
-    ">stream <img src=images/stream.png></a>"
-  );
+  $('#feedlinks').html(feedLinks(window.hashjson));
+  
   pageLinks();
 
+}
+
+function feedLinks(obj) {
+  var str = "<a href=loader2.php?mode=rss&page=" +
+    base64Encode(JSON.stringify(obj)) +
+    ">rss <img src=images/feed.png></a> "+
+    "<a href=loader2.php?mode=csv&page=" +
+    base64Encode(JSON.stringify(obj)) +
+    ">export <img src=images/csv.gif></a> "+
+    "<a href=stream.html#" +
+    base64Encode(JSON.stringify(obj)) +
+    ">stream <img src=images/stream.png></a>"
+  return str; 
 }
 
 // Split up log spaceless strings
@@ -971,6 +970,31 @@ function sortObj(arr) {
   return sortedObj;
 }
 
+function sbctl(mode) {
+  var sb = $('#sidebar'),
+    main = $('#main'),
+    lnk = $('#sbctl'),
+    win = $(window);
+  if (mode == 'hide') {
+    // collapse
+    sb.hide();
+    main.removeClass('span10');
+    main.addClass('span12');
+    lnk.removeClass('ui-icon-triangle-1-w');
+    lnk.addClass('ui-icon-triangle-1-e');
+    main.addClass('sidebar-collapsed');
+    win.smartresize();
+  }   
+  if (mode == 'show') {
+    sb.show();
+    main.removeClass('span12');
+    main.addClass('span10');
+    lnk.removeClass('ui-icon-triangle-1-e');
+    lnk.addClass('ui-icon-triangle-1-w');
+    main.removeClass('sidebar-collapsed');
+    win.smartresize(); 
+  }
+}
 
 function addslashes(str) {
   str = str.replace(/\\/g, '\\\\');
