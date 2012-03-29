@@ -42,6 +42,11 @@ $(document).ready(function () {
     }
   });
 
+  $("body").delegate(
+    ".mfield", "click", function () {
+      mFields($(this).text());
+  });
+
   // Whenever the URL changes, fire this.
   $.history.init(pageload);
 
@@ -120,9 +125,7 @@ function getPage() {
 
           var fieldstr = "<p class=small>";
           for (var index in window.hashjson.fields) {
-            fieldstr += "<a class='jlink logfield_selected'" +
-              " onClick='mFields(\"" +
-              window.hashjson.fields[index] + "\")'>" +
+            fieldstr += "<a class='jlink mfield logfield_selected'>" +
               window.hashjson.fields[index] + "</a> ";
           }
 
@@ -159,10 +162,7 @@ function getPage() {
             );
             if ($.inArray(resultjson.all_fields[index].toString(),
               window.hashjson.fields) < 0) {
-                fieldstr += "<a class='jlink " + afield +
-                  "' onClick='mFields(\""
-                  + resultjson.all_fields[index].toString() +
-                  "\")'>" +
+                fieldstr += "<a class='jlink mfield " + afield + "'>" +
                   resultjson.all_fields[index].toString() + "</a> ";
             }
           }
@@ -538,7 +538,7 @@ function viewLog(objid) {
       "#findthis_"+objid+"_"+field_id, "click", function (objid) {
         mSearch(
           $(this).parents().eq(2).find('.firsttd').text(),
-          $(this).parents().eq(1).find('span').text() 
+          $(this).parents().eq(1).find('span').text()
         );
     });
 
@@ -546,9 +546,9 @@ function viewLog(objid) {
       "#notthis_"+objid+"_"+field_id, "click", function (objid) {
         mSearch(
           "NOT " + $(this).parents().eq(2).find('.firsttd').text(),
-          $(this).parents().eq(1).find('span').text()  
+          $(this).parents().eq(1).find('span').text()
         );
-    });    
+    });
 
   }
   str += "</table>";
@@ -556,7 +556,7 @@ function viewLog(objid) {
   // Populate td with that table
   $('#log_' + objid).html(str);
 
-  
+
 
   $('.ui-state-default').hover(function () {
     $(this).toggleClass('ui-state-hover');
@@ -569,7 +569,7 @@ function viewLog(objid) {
   $('#logrow_' + objid).toggleClass('showdetails');
   $('#logrow_' + objid).toggleClass('hidedetails');
 
-  
+
 }
 
 function getLogField(objid, field) {
@@ -605,18 +605,15 @@ function mFields(field) {
   $('#fieldsinput').val(window.hashjson.fields);
   var str = "";
   for (var index in window.hashjson.fields) {
-    str += "<a class='jlink logfield_selected' onClick='mFields(\""
-      + window.hashjson.fields[index] + "\")'>"
+    str += "<a class='jlink mfield logfield_selected'>"
       + window.hashjson.fields[index] + "</a> ";
   }
   for (var index in resultjson.all_fields) {
     if ($.inArray(resultjson.all_fields[index].toString(),
       window.hashjson.fields) < 0) {
-      str += "<a class='jlink " +
+      str += "<a class='jlink mfield " +
         resultjson.all_fields[index].toString().replace('@', 'ATSYM') +
-        "_field ' onClick='mFields(\"" +
-        resultjson.all_fields[index].toString() +
-        "\")'>" +
+        "_field '>" +
         resultjson.all_fields[index].toString() + "</a> ";
     }
   }
@@ -628,7 +625,7 @@ function mFields(field) {
     window.resultjson.results, window.hashjson.fields, 'logs table-condensed'));
 
   $('#feedlinks').html(feedLinks(window.hashjson));
-  
+
   pageLinks();
 
 }
@@ -643,7 +640,7 @@ function feedLinks(obj) {
     "<a href=stream.html#" +
     base64Encode(JSON.stringify(obj)) +
     ">stream <img src=images/stream.png></a>"
-  return str; 
+  return str;
 }
 
 // Split up log spaceless strings
@@ -984,7 +981,7 @@ function sbctl(mode) {
     lnk.addClass('ui-icon-triangle-1-e');
     main.addClass('sidebar-collapsed');
     win.smartresize();
-  }   
+  }
   if (mode == 'show') {
     sb.show();
     main.removeClass('span12');
@@ -992,7 +989,7 @@ function sbctl(mode) {
     lnk.removeClass('ui-icon-triangle-1-e');
     lnk.addClass('ui-icon-triangle-1-w');
     main.removeClass('sidebar-collapsed');
-    win.smartresize(); 
+    win.smartresize();
   }
 }
 
