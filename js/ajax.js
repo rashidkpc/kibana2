@@ -113,9 +113,9 @@ function getPage() {
         //Parse out the window hash
         window.resultjson = JSON.parse(json);
 
-        //console.log(
-        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
-        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
+        console.log(
+          'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
+          '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
         //console.log(window.resultjson.results);
 
         $('#graphheader,#graph').text("");
@@ -141,31 +141,30 @@ function getPage() {
               resultjson.all_fields[index].toString() +
               '<b class=caret></b></a>' +
               '<ul class="dropdown-menu">' +
-              "<li id='analyze_" + afield + "'>" +
+              "<li class='analyze_btn'>" +
               "<a class=jlink>Score</a></li> " +
-              "<li id='trend_" + afield + "'>" +
+              "<li class='trend_btn'>" +
               "<a class=jlink>Trend</a></li> "+
               "</ul>"+
               "</li>";
 
-            $("#sidebar").delegate(
-              "li#analyze_" + afield + " a", "click", function () {
-                analyzeField(
-                  $(this).parents().eq(2).children('a').text(), "analyze");
-            });
-            $("#sidebar").delegate("li#trend_" + afield + " a", "click",
-              function () {
-                analyzeField(
-                  $(this).parents().eq(2).children('a').text(), "trend"
-                );
-              }
-            );
-            if ($.inArray(resultjson.all_fields[index].toString(),
-              window.hashjson.fields) < 0) {
+            if ($.inArray(
+              resultjson.all_fields[index].toString(),
+              window.hashjson.fields) < 0
+            ) {
                 fieldstr += "<a class='jlink mfield " + afield + "'>" +
                   resultjson.all_fields[index].toString() + "</a> ";
             }
           }
+
+          $("#sidebar").delegate("li.analyze_btn a", "click", function () {
+            analyzeField(
+              $(this).parents().eq(2).children('a').text(), "analyze")});
+
+          $("#sidebar").delegate("li.trend_btn a", "click",function () {
+            analyzeField(
+              $(this).parents().eq(2).children('a').text(), "trend")});
+
           analyzestr += '</ul>';
           fieldstr += '</p>';
           $('#fields').html(
