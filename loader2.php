@@ -687,4 +687,4 @@ function aasort (&$array, $key) {
 $handler = new LogstashLoader($KIBANA_CONFIG);
 $handler->handleRequest();
 
-// vim:sw=4 ts=4 sts=4 et :
+// vim:sw=2 ts=2 sts=2 et :

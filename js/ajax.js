@@ -116,7 +116,7 @@ function getPage() {
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(window.resultjson);
+        //console.log(window.resultjson.results);
 
         $('#graphheader,#graph').text("");
 
@@ -313,54 +313,45 @@ function getAnalysis() {
             ' and end of the selected timeframe for your query.<br><br>';
           break;
         }
-        var str = title + '<table class="logs analysis">';
-        str += '<th>Rank</th><th>' +
-          window.hashjson.analyze_field +
-          '</th><th>Count</th><th>Percent</th>';
-
-        if (window.hashjson.mode == 'trend')
-          str += '<th>Trend</th>';
-
-        str += '<th></th>';
-        var i = 0;
-        var metric = 0;
-        var isalt = '';
+        var str = title;
+        var i = 0,
+          metric = 0,
+          isalt = '';
+          tblArray = new Array();
         for (var obj in resultjson.analysis.results) {
           metric = resultjson.analysis.results[obj];
-          isalt = (i % 2 == 0) ? '' : 'alt';
-          str += '<tr class="' + isalt + '" id="analysisrow_' + i + '">' +
-            '<td><strong>' + (i + 1) + '</strong></td>' +
-            '<td>' + wbr(obj, 10) + '</td>' +
-            '<td style="display: none" class=analysis_value>' + obj + '</td>' +
-            '<td>' + metric['count'] + '</td>'+
-            '<td>' +
-            Math.round(
-              metric['count'] / resultjson.analysis.count * 10000
-            ) / 100 +
-            '%</td>';
+          metric['Rank'] = i+1;
+          metric[window.hashjson.analyze_field] = obj;
+          metric['Count'] = metric.count;
+          metric['Percent'] =  Math.round(
+            metric['count'] / resultjson.analysis.count * 10000
+            ) / 100 + '%';
           if (window.hashjson.mode == 'trend') {
             if (metric['trend'] > 0) {
-              str += '<td class=positive>+' + metric['trend'] + '</td>';
+              metric['Trend'] = '<span class=positive>+' + metric['trend'] + '</span>';
             } else {
-              str += '<td class=negative>' + metric['trend'] + '</td>';
+              metric['Trend'] = '<span class=negative>' + metric['trend'] + '</span>';
             }
+            delete metric.trend;
+            delete metric.start;
+            delete metric.abs;
           }
-          str += "<td>" +
-            "<button style='display: inline-block' class='btn tiny default'>" +
+          metric['Search'] = "<button style='display: inline-block' class='btn tiny default'>" +
             " Search</button></td>";
-          str += "</tr>";
-          $(".content").delegate("tr#analysisrow_" + i + " td button", "click",
-             function () {
-              mSearch(
-                field, $(this).parent().siblings('.analysis_value').text()
-              );
-            }
-          );
+          delete metric.count;
+          tblArray[i] = metric;
           i++;
         }
-        str += '</table>'
 
-        $('#logs').html(str);
+        $("#logs").delegate("table.analysis tr td button", "click",
+          function () {
+            mSearch(
+              field, $(this).parents().eq(1).children().eq(1).text()
+            );
+          }
+        );
+
+        $('#logs').html(str+CreateTableView(tblArray,'logs analysis'));
 
         $("#back_to_logs").click(function () {
           window.hashjson.mode = '';
@@ -428,6 +419,43 @@ function pageLinks() {
 }
 
 // This function creates a standard table with column/rows
+// objArray = Anytype of object array, like JSON results
+// theme (optional) = A css class to add to the table (e.g. <table class="<theme>">
+// enableHeader (optional) = Controls if you want to hide/show, default is show
+function CreateTableView(objArray, theme, enableHeader) {
+
+  if (theme === undefined) theme = 'mediumTable'; //default theme
+  if (enableHeader === undefined) enableHeader = true; //default enable header
+
+  // If the returned data is an object do nothing, else try to parse
+  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+
+  var str = '<table class="' + theme + '">';
+
+    // table head
+  if (enableHeader) {
+    str += '<thead><tr>';
+    for (var index in array[0]) {
+      str += '<th scope="col">' + index + '</th>';
+    }
+    str += '</tr></thead>';
+  }
+
+    // table body
+  str += '<tbody>';
+  for (var i = 0; i < array.length; i++) {
+    str += (i % 2 == 0) ? '<tr class="alt">' : '<tr>';
+    for (var index in array[i]) {
+      str += '<td>' + array[i][index] + '</td>';
+    }
+    str += '</tr>';
+  }
+  str += '</tbody></table>';
+  return str;
+}
+
+
+// This function creates a table of LOGS with column/rows
 // objArray = Anytype of object array, like JSON results
 // fields = Of the fields returned, only display these
 // theme (optional) = A css class to add to the table (e.g. <table class="<theme>">
@@ -812,7 +840,8 @@ function logGraph(data, interval) {
     var to = data[data.length - 1].time + window.tOffset;
     renderDateTimePicker(from, to);
 
-    // Allow user to select ranges on graph. Its this OR click, not both it seems.
+    // Allow user to select ranges on graph.
+    // Its this OR click, not both it seems.
     var intset = false;
     $('#graph').bind("plotselected", function (event, ranges) {
       if (!intset) {
@@ -902,7 +931,6 @@ function logGraph(data, interval) {
   }
 
 }
-
 
 function showTooltip(x, y, contents) {
   $('<div id="tooltip">' + contents + '</div>').css({
