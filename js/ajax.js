@@ -4,8 +4,6 @@ $(document).ready(function () {
   window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
 
   $("#resetall").click(function () {
-    window.hashjson = JSON.parse(
-      '{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
     window.location.hash = '#';
   });
 
@@ -51,7 +49,9 @@ $(document).ready(function () {
 
   // Resize flot graph with window
   $(window).smartresize(function () {
-    logGraph(window.graphdata, window.interval);
+    if ($(".legend").length > 0){
+      logGraph(window.graphdata,window.interval,window.hashjson.graphmode);
+    }
   });
 });
 
@@ -72,9 +72,9 @@ function pageload(hash) {
     $('#fieldsinput').val(window.hashjson.fields);
     $('#timeinput').val(window.hashjson.timeframe);
 
-    if (window.hashjson.mode == 'analyze' || 
-      window.hashjson.mode == 'trend'   || 
-      window.hashjson.mode == 'mean') 
+    if (window.hashjson.mode == 'analyze' ||
+      window.hashjson.mode == 'trend'   ||
+      window.hashjson.mode == 'mean')
     {
       getAnalysis();
     } else {
@@ -82,9 +82,7 @@ function pageload(hash) {
       getPage();
     }
   } else {
-    window.hashjson = JSON.parse(
-      '{"search":"","fields":[],"offset":0,"timeframe":"15 minutes"}');
-    setHash(window.hashjson);
+    resetAll();
   }
 }
 
@@ -185,7 +183,7 @@ function getPage() {
           // Create and populate graph
           $('#graph').html(
             '<center><br><p><img src=images/barload.gif></center>');
-          getGraph(resultjson.graph.interval,'graph');
+          getGraph(resultjson.graph.interval);
 
           // Create and populate #logs table
           $('#logs').html(CreateLogTable(
@@ -195,19 +193,8 @@ function getPage() {
           pageLinks();
 
         } else {
-          // blank out the graph. XXX: Does nothing?
-          //getGraph(resultjson.graph.interval,'graph');
-
           showError('No logs matched',"Sorry, I couldn't find anything for that " +
             "query. Double check your spelling and syntax.");
-
-          // Draw custom time selection pickers. XXX: Does nothing?
-          //if(typeof window.hashjson.time !== 'undefined') {
-          //  renderDateTimePicker(
-          //    Date.parse(window.hashjson.time.from) + window.tOffset,
-          //    Date.parse(window.hashjson.time.to) + window.tOffset
-          //  );
-          //}
         }
 
         // Populate meta data
@@ -221,14 +208,13 @@ function getPage() {
   window.inprogress = false;
 }
 
-function getGraph(interval,mode) {
+function getGraph(interval) {
 
   //generate the parameter for the php script
   var sendhash = window.location.hash.replace(/^#/, '');
-  if(typeof mode === 'undefined')
-    var mode = 'graph';
+  var mode = window.hashjson.graphmode;
 
-  var data = 'page=' + sendhash + "&mode="+mode+"&interval=" + interval;
+  var data = 'page=' + sendhash + "&mode="+mode+"graph&interval=" + interval;
 
   //Get the data and display it
   request = $.ajax({
@@ -248,8 +234,7 @@ function getGraph(interval,mode) {
         window.interval = graphjson.graph.interval
 
         // Create and populate graph
-        logGraph(graphjson.graph.data, window.interval, mode);
-
+        logGraph(graphjson.graph.data, window.interval, window.hashjson.graphmode);
       }
     }
   });
@@ -304,6 +289,7 @@ function getAnalysis() {
 
           $("#back_to_logs").click(function () {
             window.hashjson.mode = '';
+            window.hashjson.graphmode = 'count';
             window.hashjson.analyze_field = '';
             setHash(window.hashjson);
           });
@@ -330,7 +316,8 @@ function getAnalysis() {
           $('#logs').html(
             title+CreateTableView(analysisTable(resultjson),'logs analysis'));
           graphLoading();
-          getGraph(resultjson.graph.interval,'graph');
+          window.hashjson.graphmode = 'count'
+          getGraph(resultjson.graph.interval);
           break;
         case 'trend':
           var basedon = "<strong>" + resultjson.analysis.count + "</strong>";
@@ -345,7 +332,8 @@ function getAnalysis() {
           $('#logs').html(
             title+CreateTableView(analysisTable(resultjson),'logs analysis'));
           graphLoading();
-          getGraph(resultjson.graph.interval,'graph');
+          window.hashjson.graphmode = 'count'
+          getGraph(resultjson.graph.interval);
           break;
         case 'mean':
           var title = '<h2>Stastical analysis of <strong>' +
@@ -355,9 +343,9 @@ function getAnalysis() {
             '</button>' +
             '</h2>' +
             'Simple computations of a numeric field across your timeframe. ' +
-            'The graph above <strong>shows the mean value</strong> ' + 
+            'The graph above <strong>shows the mean value</strong> ' +
             'of the <strong>'+field+
-            '</strong> field over your selected time frame' + 
+            '</strong> field over your selected time frame' +
             '<br><br>';
           var tbl = Array(), i = 0, metric;
           delete resultjson.analysis.results._type;
@@ -371,7 +359,8 @@ function getAnalysis() {
           $('#logs').html(
             title+CreateTableView(tbl,'logs'));
           graphLoading();
-          getGraph(resultjson.graph.interval,'meangraph');
+          window.hashjson.graphmode = 'mean'
+          getGraph(resultjson.graph.interval);
           break;
         }
 
@@ -385,6 +374,7 @@ function getAnalysis() {
 
         $("#back_to_logs").click(function () {
           window.hashjson.mode = '';
+          window.hashjson.graphmode = 'count';
           window.hashjson.analyze_field = '';
           setHash(window.hashjson);
         });
@@ -417,10 +407,10 @@ function analysisTable(resultjson) {
       ) / 100 + '%';
     if (window.hashjson.mode == 'trend') {
       if (metric['trend'] > 0) {
-        metric['Trend'] = '<span class=positive>+' + 
+        metric['Trend'] = '<span class=positive>+' +
           metric['trend'] + '</span>';
       } else {
-        metric['Trend'] = '<span class=negative>' + 
+        metric['Trend'] = '<span class=negative>' +
           metric['trend'] + '</span>';
       }
       delete metric.trend;
@@ -894,13 +884,13 @@ function logGraph(data, interval, metric) {
 
   // If mode is graph, graph count, otherwise remove word 'graph' and chart
   // whatever is left. ie meangraph -> mean
-  if (typeof metric === 'undefined') 
+  if (typeof metric === 'undefined')
     metric = 'count';
 
   metric = metric.replace('graph','');
   if (metric === '')
     metric = 'count';
-  
+
   // Recreate the array, recalculating the time, gross.
   var array = new Array();
   for (var index in data) {
@@ -1132,6 +1122,13 @@ function showError(title,text) {
   $('#logs').html("");
   // Nothing found error message
   $('#graph').html("<h2>"+title+"</h2>"+text);
+
+  if(typeof window.hashjson.time !== 'undefined') {
+    renderDateTimePicker(
+      Date.parse(window.hashjson.time.from) + window.tOffset,
+      Date.parse(window.hashjson.time.to) + window.tOffset
+    );
+  }
 }
 
 function getGraphColor(mode) {
@@ -1141,7 +1138,20 @@ function getGraphColor(mode) {
     var color = '#ef9a23';
   break;
   default:
-    var color = '#5aba65'; 
+    var color = '#5aba65';
   }
   return color;
+}
+
+function resetAll() {
+  window.hashjson = JSON.parse(
+    '{'+
+      '"search":"",'+
+      '"fields":[],'+
+      '"offset":0,'+
+      '"timeframe":"15 minutes",'+
+      '"graphmode":"count"'+
+    '}'
+  );
+  setHash(window.hashjson);
 }

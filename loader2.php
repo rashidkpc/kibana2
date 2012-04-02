@@ -167,7 +167,7 @@ class LogstashLoader {
 
     // Check the mode
     switch ($req->mode) {
-      case 'graph':
+      case 'countgraph':
         $query->size = 0;
         $query->facets->histo1->date_histogram->field =
           "@timestamp";
@@ -467,7 +467,7 @@ class LogstashLoader {
   } //end analyzeField
 
   /**
-   * Run statistical facet against field 
+   * Run statistical facet against field
    *
    * @param object $req Request data
    * @param object $query ES query
