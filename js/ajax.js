@@ -234,7 +234,11 @@ function getGraph(interval) {
         window.interval = graphjson.graph.interval
 
         // Create and populate graph
-        logGraph(graphjson.graph.data, window.interval, window.hashjson.graphmode);
+        logGraph(
+          graphjson.graph.data,
+          window.interval,
+          window.hashjson.graphmode
+        );
       }
     }
   });
