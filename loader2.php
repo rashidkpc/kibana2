@@ -106,7 +106,7 @@ class LogstashLoader {
 
       $req->mode = isset($_GET['mode'])? $_GET['mode']: '';
       $req->interval = (isset($_GET['interval']))?
-          self::roundInterval($_GET['interval']): 600000;
+        self::roundInterval($_GET['interval']): 600000;
 
     }
     return $req;
@@ -143,9 +143,6 @@ class LogstashLoader {
 
     $query->size = $this->config['results_per_page'];
     $query->sort->{'@timestamp'}->order = 'desc';
-//    $query->fields = array_values(array_unique(array_merge(
-//          array('@timestamp', '@fields', '@message'),
-//          $this->config['default_fields'])));
 
     // Unless the user gives us exact times, compute relative
     // timeframe based on drop down
@@ -158,7 +155,7 @@ class LogstashLoader {
     // Check if we have a time range, if so filter
     if ($time != '') {
       $query->query->filtered->filter->range->{'@timestamp'} = $time;
-      $facet = ($req->mode == 'graph') ? "histo1" : "stats";
+      $facet = (strpos($req->mode,'graph') !== false) ? "histo1" : "stats";
 
       // Figure out which indices to search
       if ($this->config['smart_index']) {
@@ -173,14 +170,27 @@ class LogstashLoader {
       case 'graph':
         $query->size = 0;
         $query->facets->histo1->date_histogram->field =
-            "@timestamp";
+          "@timestamp";
         $query->facets->histo1->date_histogram->interval =
-            $req->interval;
+          $req->interval;
         break;
-
+      case 'meangraph':
+        $query->size = 0;
+        $query->facets->histo1->date_histogram->key_field =
+          "@timestamp";
+        $query->facets->histo1->date_histogram->value_field =
+          $req->analyze_field;
+        $query->facets->histo1->date_histogram->interval =
+          $req->interval;
+        break;
       case 'trend':
       case 'analyze':
         $query->facets->stats->statistical->field = '@timestamp';
+        break;
+
+      case 'mean':
+        $query->facets->stats->statistical->field = '@timestamp';
+        $query->facets->statistics->statistical->field = $req->analyze_field;
         break;
 
       case 'rss':
@@ -229,9 +239,8 @@ class LogstashLoader {
     }
     $return->total = $this->esTotalDocumentCount();
 
-    if ($req->mode == 'graph') {
+    if (strpos($req->mode,'graph') !== false) {
       $return->graph->interval = $req->interval;
-
     } else {
       // Compute an interval to give us around 100 bars
       if(isset($result->facets))
@@ -246,6 +255,10 @@ class LogstashLoader {
 
       case 'trend':
         $return = $this->trendField($req, $query, $return);
+        break;
+
+      case 'mean':
+        $return = $this->statField($req, $query, $return);
         break;
 
       default:
@@ -453,6 +466,24 @@ class LogstashLoader {
     return $return;
   } //end analyzeField
 
+  /**
+   * Run statistical facet against field 
+   *
+   * @param object $req Request data
+   * @param object $query ES query
+   * @param object $return Partial response
+   * @return object Response to request
+   */
+  protected function statField ($req, $query, $return) {
+    $field = self::canonicalFieldName($req->analyze_field);
+    $query->size = 1;
+
+    $result = $this->esQuery($query);
+    $return->analysis->results = $result->facets->statistics;
+
+    return $return;
+
+  } //end statField
 
   /**
    * Compute trends in the values of a field.
@@ -496,7 +527,7 @@ class LogstashLoader {
       $final[$key]['count'] = $value;
       $final[$key]['start'] = $first;
       $final[$key]['trend'] = round((($value / $query->size) -
-          ($first / $query->size)) * 100, 2);
+        ($first / $query->size)) * 100, 2);
       $final[$key]['abs'] = abs($final[$key]['trend']);
     }
 

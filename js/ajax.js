@@ -23,10 +23,9 @@ $(document).ready(function () {
   // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
     $('#meta').text("");
-    $('#graph').html(""+
-      "<h2><strong>Oops!</strong> Something went terribly wrong.</h2>"+
-      "I'm not totally sure what happened, but maybe logging out, or "+
-      "hitting Reset will help. If that doesn't word, you can try "+
+    showError("<strong>Oops!</strong> Something went terribly wrong.",
+      "I'm not totally sure what happened, but maybe refreshing, or "+
+      "hitting Reset will help. If that doesn't work, you can try "+
       "restarting your browser. If all else fails, it possible your"+
       " configuation has something funky going on. <br><br>If it helps,"+
       " I received a <strong>" + xhr.status + " " + xhr.statusText +
@@ -73,7 +72,10 @@ function pageload(hash) {
     $('#fieldsinput').val(window.hashjson.fields);
     $('#timeinput').val(window.hashjson.timeframe);
 
-    if (window.hashjson.mode == 'analyze' || window.hashjson.mode == 'trend') {
+    if (window.hashjson.mode == 'analyze' || 
+      window.hashjson.mode == 'trend'   || 
+      window.hashjson.mode == 'mean') 
+    {
       getAnalysis();
     } else {
       $('#feedlinks').html(feedLinks(window.hashjson));
@@ -113,10 +115,10 @@ function getPage() {
         //Parse out the window hash
         window.resultjson = JSON.parse(json);
 
-        console.log(
-          'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
-          '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(window.resultjson.results);
+        //console.log(
+        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
+        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
+        //console.log(window.resultjson.graph);
 
         $('#graphheader,#graph').text("");
 
@@ -145,6 +147,8 @@ function getPage() {
               "<a class=jlink>Score</a></li> " +
               "<li class='trend_btn'>" +
               "<a class=jlink>Trend</a></li> "+
+              "<li class='stat_btn'>" +
+              "<a class=jlink>Statistics</a></li> "+
               "</ul>"+
               "</li>";
 
@@ -165,6 +169,10 @@ function getPage() {
             analyzeField(
               $(this).parents().eq(2).children('a').text(), "trend")});
 
+          $("#sidebar").delegate("li.stat_btn a", "click",function () {
+            analyzeField(
+              $(this).parents().eq(2).children('a').text(), "mean")});
+
           analyzestr += '</ul>';
           fieldstr += '</p>';
           $('#fields').html(
@@ -177,7 +185,7 @@ function getPage() {
           // Create and populate graph
           $('#graph').html(
             '<center><br><p><img src=images/barload.gif></center>');
-          getGraph(resultjson.graph.interval);
+          getGraph(resultjson.graph.interval,'graph');
 
           // Create and populate #logs table
           $('#logs').html(CreateLogTable(
@@ -187,34 +195,23 @@ function getPage() {
           pageLinks();
 
         } else {
-          // blank out the graph
-          getGraph(resultjson.graph.interval);
-          // blank out Fields
-          $('#fields').html("<h4><strong>Show</strong> Fields</h4>");
-          // blank out Analyze Field
-          $('#analyze').html("<h4><strong>Analyze</strong> Field</h4>");
-          pageLinks();
-          // blank out pagelinks
-          $('.pagelinks').html("");
-          // blank out logs
-          $('#logs').html("");
+          // blank out the graph. XXX: Does nothing?
+          //getGraph(resultjson.graph.interval,'graph');
 
-          // Nothing found error message
-          $('#graph').html(
-            "No results match your query. Please try a different search");
+          showError('No logs matched',"Sorry, I couldn't find anything for that " +
+            "query. Double check your spelling and syntax.");
 
-          // Draw custom time selection pickers
-          if(typeof window.hashjson.time !== 'undefined') {
-            renderDateTimePicker(
-              Date.parse(window.hashjson.time.from) + window.tOffset,
-              Date.parse(window.hashjson.time.to) + window.tOffset
-            );
-          }
+          // Draw custom time selection pickers. XXX: Does nothing?
+          //if(typeof window.hashjson.time !== 'undefined') {
+          //  renderDateTimePicker(
+          //    Date.parse(window.hashjson.time.from) + window.tOffset,
+          //    Date.parse(window.hashjson.time.to) + window.tOffset
+          //  );
+          //}
         }
 
         // Populate meta data
         setMeta(window.resultjson.hits,window.resultjson.total,false);
-
 
         // display the body with fadeIn transition
         $('#logs').fadeIn('slow');
@@ -224,10 +221,14 @@ function getPage() {
   window.inprogress = false;
 }
 
-function getGraph(interval) {
+function getGraph(interval,mode) {
+
   //generate the parameter for the php script
   var sendhash = window.location.hash.replace(/^#/, '');
-  var data = 'page=' + sendhash + "&mode=graph&interval=" + interval;
+  if(typeof mode === 'undefined')
+    var mode = 'graph';
+
+  var data = 'page=' + sendhash + "&mode="+mode+"&interval=" + interval;
 
   //Get the data and display it
   request = $.ajax({
@@ -247,7 +248,7 @@ function getGraph(interval) {
         window.interval = graphjson.graph.interval
 
         // Create and populate graph
-        logGraph(graphjson.graph.data, window.interval);
+        logGraph(graphjson.graph.data, window.interval, mode);
 
       }
     }
@@ -280,7 +281,34 @@ function getAnalysis() {
         var resultjson = JSON.parse(json);
         window.resultjson = resultjson;
 
-        //console.log(window.resultjson);
+        if(window.resultjson.hits < 1) {
+          if(window.resultjson.hits == 0) {
+            setMeta(window.resultjson.hits,window.resultjson.total,false);
+            showError('No logs matched '+
+              '<button class="btn tiny btn-info" ' +
+              'style="display: inline-block" id="back_to_logs">back to logs' +
+              '</button>',
+              "Sorry, I couldn't find anything for " +
+              "that query. Double check your spelling and syntax.");
+          }
+          if(window.resultjson.hits == null) {
+            setMeta(0,window.resultjson.total,false);
+            showError('Statistical analysis unavailable for '+field +
+              ' <button class="btn tiny btn-info" ' +
+              'style="display: inline-block" id="back_to_logs">back to logs' +
+              '</button>',
+              "I'm not able to analyze <strong>" + field + "</strong>. " +
+              "Statistical analysis is only available for fields " +
+              "that are stored a number (eg float, int) in ElasticSearch");
+          }
+
+          $("#back_to_logs").click(function () {
+            window.hashjson.mode = '';
+            window.hashjson.analyze_field = '';
+            setHash(window.hashjson);
+          });
+          return;
+        }
 
         switch (window.hashjson.mode) {
         case 'analyze':
@@ -299,6 +327,10 @@ function getAnalysis() {
             '</h2>' +
             'This analysis is based on ' + basedon +
             ' events for your query in your selected timeframe.<br><br>';
+          $('#logs').html(
+            title+CreateTableView(analysisTable(resultjson),'logs analysis'));
+          graphLoading();
+          getGraph(resultjson.graph.interval,'graph');
           break;
         case 'trend':
           var basedon = "<strong>" + resultjson.analysis.count + "</strong>";
@@ -310,36 +342,37 @@ function getAnalysis() {
             '</h2>' +
             'These trends are based on ' + basedon + ' events from beginning' +
             ' and end of the selected timeframe for your query.<br><br>';
+          $('#logs').html(
+            title+CreateTableView(analysisTable(resultjson),'logs analysis'));
+          graphLoading();
+          getGraph(resultjson.graph.interval,'graph');
           break;
-        }
-        var str = title;
-        var i = 0,
-          metric = 0,
-          isalt = '';
-          tblArray = new Array();
-        for (var obj in resultjson.analysis.results) {
-          metric = resultjson.analysis.results[obj];
-          metric['Rank'] = i+1;
-          metric[window.hashjson.analyze_field] = obj;
-          metric['Count'] = metric.count;
-          metric['Percent'] =  Math.round(
-            metric['count'] / resultjson.analysis.count * 10000
-            ) / 100 + '%';
-          if (window.hashjson.mode == 'trend') {
-            if (metric['trend'] > 0) {
-              metric['Trend'] = '<span class=positive>+' + metric['trend'] + '</span>';
-            } else {
-              metric['Trend'] = '<span class=negative>' + metric['trend'] + '</span>';
-            }
-            delete metric.trend;
-            delete metric.start;
-            delete metric.abs;
+        case 'mean':
+          var title = '<h2>Stastical analysis of <strong>' +
+            window.hashjson.analyze_field + '</strong> field ' +
+            '<button class="btn tiny btn-info" ' +
+            'style="display: inline-block" id="back_to_logs">back to logs' +
+            '</button>' +
+            '</h2>' +
+            'Simple computations of a numeric field across your timeframe. ' +
+            'The graph above <strong>shows the mean value</strong> ' + 
+            'of the <strong>'+field+
+            '</strong> field over your selected time frame' + 
+            '<br><br>';
+          var tbl = Array(), i = 0, metric;
+          delete resultjson.analysis.results._type;
+          for (var obj in resultjson.analysis.results) {
+            metric = Array();
+            metric['Statistic'] = obj.charAt(0).toUpperCase() + obj.slice(1);
+            metric['Value'] = resultjson.analysis.results[obj];
+            tbl[i] = metric;
+            i++;
           }
-          metric['Search'] = "<button style='display: inline-block' class='btn tiny default'>" +
-            " Search</button></td>";
-          delete metric.count;
-          tblArray[i] = metric;
-          i++;
+          $('#logs').html(
+            title+CreateTableView(tbl,'logs'));
+          graphLoading();
+          getGraph(resultjson.graph.interval,'meangraph');
+          break;
         }
 
         $("#logs").delegate("table.analysis tr td button", "click",
@@ -350,18 +383,11 @@ function getAnalysis() {
           }
         );
 
-        $('#logs').html(str+CreateTableView(tblArray,'logs analysis'));
-
         $("#back_to_logs").click(function () {
           window.hashjson.mode = '';
           window.hashjson.analyze_field = '';
           setHash(window.hashjson);
         });
-
-        // Create and populate graph
-        $('#graph').html(
-          '<center><br><p><img src=images/barload.gif></center>');
-        getGraph(resultjson.graph.interval);
 
         $('.pagelinks').html('');
         $('#fields').html('');
@@ -369,6 +395,45 @@ function getAnalysis() {
       }
     }
   });
+}
+
+function graphLoading() {
+  $('#graph').html(
+    '<center><br><p><img src=images/barload.gif></center>');
+}
+
+function analysisTable(resultjson) {
+  var i = 0,
+    metric = 0,
+    isalt = '';
+    tblArray = new Array();
+  for (var obj in resultjson.analysis.results) {
+    metric = resultjson.analysis.results[obj];
+    metric['Rank'] = i+1;
+    metric[window.hashjson.analyze_field] = obj;
+    metric['Count'] = metric.count;
+    metric['Percent'] =  Math.round(
+      metric['count'] / resultjson.analysis.count * 10000
+      ) / 100 + '%';
+    if (window.hashjson.mode == 'trend') {
+      if (metric['trend'] > 0) {
+        metric['Trend'] = '<span class=positive>+' + 
+          metric['trend'] + '</span>';
+      } else {
+        metric['Trend'] = '<span class=negative>' + 
+          metric['trend'] + '</span>';
+      }
+      delete metric.trend;
+      delete metric.start;
+      delete metric.abs;
+    }
+    metric['Search'] = "<button style='display: inline-block' "+
+      "class='btn tiny default'>Search</button></td>";
+    delete metric.count;
+    tblArray[i] = metric;
+    i++;
+  }
+  return tblArray;
 }
 
 function setMeta(hits, indexed, mode) {
@@ -825,12 +890,22 @@ function renderDateTimePicker(from, to) {
 
 
 // Big horrible function for creating graphs
-function logGraph(data, interval) {
+function logGraph(data, interval, metric) {
 
+  // If mode is graph, graph count, otherwise remove word 'graph' and chart
+  // whatever is left. ie meangraph -> mean
+  if (typeof metric === 'undefined') 
+    metric = 'count';
+
+  metric = metric.replace('graph','');
+  if (metric === '')
+    metric = 'count';
+  
   // Recreate the array, recalculating the time, gross.
   var array = new Array();
   for (var index in data) {
-    array.push(Array(data[index].time + window.tOffset, data[index].count));
+    value = data[index][metric];
+    array.push(Array(data[index].time + window.tOffset, value));
   }
 
   // Make sure we get results before calculating graph stuff
@@ -871,10 +946,10 @@ function logGraph(data, interval) {
 
           $("#tooltip").remove();
           var x = item.datapoint[0].toFixed(0),
-            y = item.datapoint[1].toFixed(0);
+            y = Math.round(item.datapoint[1]*100)/100;
 
           showTooltip(
-            item.pageX, item.pageY, y + " events at " + ISODateString(x)
+            item.pageX, item.pageY, y + " at " + ISODateString(x)
           );
         }
       } else {
@@ -883,10 +958,16 @@ function logGraph(data, interval) {
       }
     });
 
+    var label = 'Logs';
+    if (metric !== '')
+      label = metric;
+
+    var color = getGraphColor(metric);
+
     $.plot(
     $("#graph"), [{
       data: array,
-      label: "Logs per " + (parseInt(interval) / 1000) + "s"
+      label: label + " per " + (parseInt(interval) / 1000) + "s"
     }], {
       series: {
         lines: {
@@ -901,7 +982,7 @@ function logGraph(data, interval) {
         points: {
           show: false
         },
-        color: "#5aba65",
+        color: color,
         shadowSize: 0
       },
       xaxis: {
@@ -936,7 +1017,7 @@ function showTooltip(x, y, contents) {
     position: 'absolute',
     display: 'none',
     top: y - 20,
-    left: x - 230,
+    left: x - 200,
     color: '#eee',
     border: '1px solid #fff',
     padding: '3px',
@@ -1037,4 +1118,30 @@ function getcookie(name) {
     if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
   }
   return null;
+}
+
+function showError(title,text) {
+  // blank out Fields
+  $('#fields').html("<h4><strong>Show</strong> Fields</h4>");
+  // blank out Analyze Field
+  $('#analyze').html("<h4><strong>Analyze</strong> Field</h4>");
+  pageLinks();
+  // blank out pagelinks
+  $('.pagelinks').html("");
+  // blank out logs
+  $('#logs').html("");
+  // Nothing found error message
+  $('#graph').html("<h2>"+title+"</h2>"+text);
+}
+
+function getGraphColor(mode) {
+  switch(mode)
+  {
+  case "mean":
+    var color = '#ef9a23';
+  break;
+  default:
+    var color = '#5aba65'; 
+  }
+  return color;
 }
