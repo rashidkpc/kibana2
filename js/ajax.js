@@ -72,6 +72,9 @@ function pageload(hash) {
     $('#fieldsinput').val(window.hashjson.fields);
     $('#timeinput').val(window.hashjson.timeframe);
 
+    if(typeof window.hashjson.graphmode == 'undefined')
+      window.hashjson.graphmode = 'count';
+
     if (window.hashjson.mode == 'analyze' ||
       window.hashjson.mode == 'trend'   ||
       window.hashjson.mode == 'mean')
