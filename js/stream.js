@@ -23,7 +23,7 @@ function getStream() {
   window.hashjson.timeframe = '20 seconds';
   var maxEvents = 15;
   var b64json = base64Encode(JSON.stringify(window.hashjson));
-  $.getJSON("loader2.php?mode=stream&page=" + b64json, null, function(data) {
+  $.getJSON(window.APP.path + "loader2.php?mode=stream&page=" + b64json, null, function(data) {
     if (data != null) {
       window.i++;
       var hasTime = false;
