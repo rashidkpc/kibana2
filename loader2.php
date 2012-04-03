@@ -168,6 +168,7 @@ class LogstashLoader {
     // Check the mode
     switch ($req->mode) {
       case 'countgraph':
+        unset($query->sort);
         $query->size = 0;
         $query->facets->histo1->date_histogram->field =
           "@timestamp";
@@ -175,6 +176,7 @@ class LogstashLoader {
           $req->interval;
         break;
       case 'meangraph':
+        unset($query->sort);
         $query->size = 0;
         $query->facets->histo1->date_histogram->key_field =
           "@timestamp";
@@ -189,6 +191,8 @@ class LogstashLoader {
         break;
 
       case 'mean':
+        unset($query->sort);
+        $query->size = 0;
         $query->facets->stats->statistical->field = '@timestamp';
         $query->facets->statistics->statistical->field = $req->analyze_field;
         break;
@@ -476,8 +480,6 @@ class LogstashLoader {
    */
   protected function statField ($req, $query, $return) {
     $field = self::canonicalFieldName($req->analyze_field);
-    $query->size = 1;
-
     $result = $this->esQuery($query);
     $return->analysis->results = $result->facets->statistics;
 
