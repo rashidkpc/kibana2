@@ -135,6 +135,7 @@ function getPage() {
           var analyzestr =
             '<ul id=analyze_list class="nav nav-pills nav-stacked">';
           var afield = '';
+          window.resultjson.all_fields.sort();
           for (var index in resultjson.all_fields) {
             afield = resultjson.all_fields[index].toString().replace(
               '@', 'ATSYM') + "_field";
@@ -697,7 +698,8 @@ function mFields(field) {
     str += "<a class='jlink mfield logfield_selected'>"
       + window.hashjson.fields[index] + "</a> ";
   }
-  for (var index in resultjson.all_fields) {
+  
+  for (var index in window.resultjson.all_fields) {
     if ($.inArray(resultjson.all_fields[index].toString(),
       window.hashjson.fields) < 0) {
       str += "<a class='jlink mfield " +

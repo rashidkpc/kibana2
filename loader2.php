@@ -262,7 +262,7 @@ class LogstashLoader {
         break;
 
       case 'mean':
-        $return = $this->statField($req, $query, $return);
+        $return->analysis->results = $result->facets->statistics;
         break;
 
       default:
@@ -296,7 +296,7 @@ class LogstashLoader {
           }
           unset($result->hits->hits[$i]);
         }
-        sort($return->all_fields);
+        //sort($return->all_fields);
     }
     if (sizeof($req->fields) == 0) $req->fields = array('@message');
     $return->fields_requested = $req->fields;
@@ -469,23 +469,6 @@ class LogstashLoader {
 
     return $return;
   } //end analyzeField
-
-  /**
-   * Run statistical facet against field
-   *
-   * @param object $req Request data
-   * @param object $query ES query
-   * @param object $return Partial response
-   * @return object Response to request
-   */
-  protected function statField ($req, $query, $return) {
-    $field = self::canonicalFieldName($req->analyze_field);
-    $result = $this->esQuery($query);
-    $return->analysis->results = $result->facets->statistics;
-
-    return $return;
-
-  } //end statField
 
   /**
    * Compute trends in the values of a field.
