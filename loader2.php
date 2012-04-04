@@ -152,11 +152,11 @@ class LogstashLoader {
       $time->to = date('c');
     }
 
+    $req->time = $time;
+
     // Check if we have a time range, if so filter
     if ($time != '') {
       $query->query->filtered->filter->range->{'@timestamp'} = $time;
-      $facet = (strpos($req->mode,'graph') !== false) ? "histo1" : "stats";
-
       // Figure out which indices to search
       if ($this->config['smart_index']) {
         $this->index_array = $this->getIndicesByTime(
@@ -187,16 +187,12 @@ class LogstashLoader {
         break;
       case 'trend':
       case 'analyze':
-        $query->facets->stats->statistical->field = '@timestamp';
         break;
-
       case 'mean':
         unset($query->sort);
         $query->size = 0;
-        $query->facets->stats->statistical->field = '@timestamp';
         $query->facets->statistics->statistical->field = $req->analyze_field;
         break;
-
       case 'rss':
         $query->size = $this->config['rss_show'];
         $query->query = $query->query->filtered->query;
@@ -211,7 +207,6 @@ class LogstashLoader {
         unset($query->facets);
         break;
       default:
-        $query->facets->stats->statistical->field = '@timestamp';
     }
 
     return $query;
@@ -238,6 +233,7 @@ class LogstashLoader {
     // Add some top level statistical and informational data
     $return->indices = $this->index;
     $return->hits = $result->hits->total;
+    $return->time = $req->time;
     if (isset($result->facets->histo1)) {
       $return->graph->data = $result->facets->histo1->entries;
     }
@@ -246,10 +242,8 @@ class LogstashLoader {
     if (strpos($req->mode,'graph') !== false) {
       $return->graph->interval = $req->interval;
     } else {
-      // Compute an interval to give us around 100 bars
-      if(isset($result->facets))
-      $return->graph->interval = ($result->facets->stats->max -
-          $result->facets->stats->min) / 100;
+      $return->graph->interval = (strtotime($req->time->to) -
+        strtotime($req->time->from)) * 10;
     }
 
     switch ($req->mode) {

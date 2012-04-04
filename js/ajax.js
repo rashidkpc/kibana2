@@ -119,7 +119,7 @@ function getPage() {
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(window.resultjson.graph);
+        console.log(window.resultjson);
 
         $('#graphheader,#graph').text("");
 
@@ -900,17 +900,31 @@ function logGraph(data, interval, metric) {
   if (metric === '')
     metric = 'count';
 
-  // Recreate the array, recalculating the time, gross.
   var array = new Array();
+  if(typeof window.resultjson.time !== 'undefined') {
+    // add null value at time from.
+    array.push(Array(Date.parse(window.resultjson.time.from) + window.tOffset, null));
+  }
   for (var index in data) {
     value = data[index][metric];
     array.push(Array(data[index].time + window.tOffset, value));
   }
+  if(typeof window.resultjson.time !== 'undefined') {
+    // add null value at time to.
+    array.push(Array(Date.parse(window.resultjson.time.to) + window.tOffset, null));
+    renderDateTimePicker(Date.parse(window.resultjson.time.from) + window.tOffset, 
+    Date.parse(window.resultjson.time.to) + window.tOffset);
+  } else {
+    var from = data[0].time + window.tOffset;
+    var to = data[data.length - 1].time + window.tOffset;
+    renderDateTimePicker(from, to);
+  }
+
 
   // Make sure we get results before calculating graph stuff
   if (!jQuery.isEmptyObject(data)) {
-    var from = data[0].time + window.tOffset;
-    var to = data[data.length - 1].time + window.tOffset;
+    var from = window.resultjson.time.from + window.tOffset;
+    var to = window.resultjson.time.to + window.tOffset;
     renderDateTimePicker(from, to);
 
     // Allow user to select ranges on graph.
@@ -1051,7 +1065,8 @@ function is_int(value) {
 }
 
 function xmlEnt(value) {
-  var stg1 = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  var stg1 = value.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(
+    /\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
   return stg1.replace(/&lt;del&gt;/g, '<del>').replace(
     /&lt;\/del&gt;/g, '</del>');
 }
@@ -1132,6 +1147,8 @@ function showError(title,text) {
   // Nothing found error message
   $('#graph').html("<h2>"+title+"</h2>"+text);
 
+  // We have to use hashjson's time here since we won't
+  // get a resultjson on error, usually
   if(typeof window.hashjson.time !== 'undefined') {
     renderDateTimePicker(
       Date.parse(window.hashjson.time.from) + window.tOffset,
