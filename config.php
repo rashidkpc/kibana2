@@ -1,6 +1,9 @@
 <?php
 
 $KIBANA_CONFIG = array(
+  // Initial path to kibana
+  'app_path' => '',
+  
   // Your elastic search server
   'elasticsearch_server' => "elasticsearch:9200",
 

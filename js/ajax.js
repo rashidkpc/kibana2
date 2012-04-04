@@ -105,7 +105,7 @@ function getPage() {
 
   //Get the data and display it
   request = $.ajax({
-    url: "loader2.php",
+    url: window.APP.path + "loader2.php",
     type: "GET",
     data: data,
     cache: false,
@@ -186,7 +186,7 @@ function getPage() {
 
           // Create and populate graph
           $('#graph').html(
-            '<center><br><p><img src=images/barload.gif></center>');
+            '<center><br><p><img src=' + window.APP.path + 'images/barload.gif></center>');
           getGraph(resultjson.graph.interval);
 
           // Create and populate #logs table
@@ -222,7 +222,7 @@ function getGraph(interval) {
 
   //Get the data and display it
   request = $.ajax({
-    url: "loader2.php",
+    url: window.APP.path + "loader2.php",
     type: "GET",
     data: data,
     cache: false,
@@ -261,7 +261,7 @@ function getAnalysis() {
   var data = 'page=' + sendhash + "&mode=" + window.hashjson.mode;
   //Get the data and display it
   request = $.ajax({
-    url: "loader2.php",
+    url: window.APP.path + "loader2.php",
     type: "GET",
     data: data,
     cache: false,
@@ -397,7 +397,7 @@ function getAnalysis() {
 
 function graphLoading() {
   $('#graph').html(
-    '<center><br><p><img src=images/barload.gif></center>');
+    '<center><br><p><img src=' + window.APP.path + 'images/barload.gif></center>');
 }
 
 function analysisTable(resultjson) {
@@ -437,7 +437,7 @@ function analysisTable(resultjson) {
 function setMeta(hits, indexed, mode) {
   var metastr = "";
   if ( mode == 'loading' ) {
-    metastr += '<img src=images/ajax-loader.gif>';
+    metastr += '<img src=' + window.APP.path + 'images/ajax-loader.gif>';
   } else {
     metastr = '<table class=formatting>' +
       "<tr><td>Hits</td><td>" + addCommas(hits) + "</td></tr>" +
@@ -722,15 +722,15 @@ function mFields(field) {
 }
 
 function feedLinks(obj) {
-  var str = "<a href=loader2.php?mode=rss&page=" +
+  var str = "<a href=" + window.APP.path + "loader2.php?mode=rss&page=" +
     base64Encode(JSON.stringify(obj)) +
-    ">rss <img src=images/feed.png></a> "+
-    "<a href=loader2.php?mode=csv&page=" +
+    ">rss <img src=" + window.APP.path + "images/feed.png></a> "+
+    "<a href=" + window.APP.path + "loader2.php?mode=csv&page=" +
     base64Encode(JSON.stringify(obj)) +
-    ">export <img src=images/csv.gif></a> "+
-    "<a href=stream.html#" +
+    ">export <img src=" + window.APP.path + "images/csv.gif></a> "+
+    "<a href=" + window.APP.path + "stream.html#" +
     base64Encode(JSON.stringify(obj)) +
-    ">stream <img src=images/stream.png></a>"
+    ">stream <img src=" + window.APP.path + "images/stream.png></a>"
   return str;
 }
 
