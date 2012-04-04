@@ -119,7 +119,7 @@ function getPage() {
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        console.log(window.resultjson);
+        //console.log(window.resultjson.graph);
 
         $('#graphheader,#graph').text("");
 
