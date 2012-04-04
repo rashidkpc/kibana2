@@ -794,13 +794,14 @@ function renderDateTimePicker(from, to) {
     var maxDateTime = new Date();
     // set to midnight of current day
     maxDateTime.setHours(23,59,59,999);
-    $('#graphheader').html("<center>" +
+    $('#graphheader').html("<table width='100%'><tr><td width='20%'></td><td width='60%' align='center'>" +
       "<input size=19 id=timefrom class=hasDatePicker " +
       "type=text name=timefrom value='" + ISODateString(from) + "'> to " +
       "<input size=19 id=timeto class=hasDatePicker " +
       " type=text name=timeto value='" + ISODateString(to) + "'> " +
       "<button id='timechange' style='visibility: hidden' " +
-      "class='btn tiny success'>Filter</button></center>"
+      "class='btn tiny success'>Filter</button></td>" +
+      "<td width='20%' align='right'>Graph Granularity <select name='barspan' id=barspan style='width: 100px'><option value='100'>Low</option><option value='10'>Medium</option><option value='1'>High</option></select></td></tr></table>"
     );
 
     $('#timefrom').datetimepicker({
@@ -879,6 +880,11 @@ function renderDateTimePicker(from, to) {
       window.hashjson.timeframe = "custom";
       setHash(window.hashjson);
     });
+    
+    $('#barspan').change(function () {
+      window.hashjson.barspan = $(this).val();
+	    setHash(window.hashjson);
+	  });
   }
 }
 

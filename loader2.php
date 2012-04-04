@@ -246,8 +246,14 @@ class LogstashLoader {
     if (strpos($req->mode,'graph') !== false) {
       $return->graph->interval = $req->interval;
     } else {
-      $return->graph->interval = (strtotime($req->time->to) -
-        strtotime($req->time->from)) * 10;
+      if(isset($req->barspan)) {
+        $return->graph->interval = (strtotime($req->time->to) -
+            strtotime($req->time->from)) * $req->barspan;
+      }
+	    else {
+	      $return->graph->interval = (strtotime($req->time->to) -
+            strtotime($req->time->from)) * 10;
+	    }
     }
 
     switch ($req->mode) {
