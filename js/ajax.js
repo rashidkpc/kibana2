@@ -662,11 +662,6 @@ function viewLog(objid) {
 
 }
 
-function getLogField(objid, field) {
-  obj = window.resultjson.results[objid];
-  return obj[field];
-}
-
 function mSearch(field, value) {
   window.hashjson.mode = '';
   window.hashjson.analyze_field = '';
@@ -895,7 +890,6 @@ function logGraph(data, interval, metric) {
   // whatever is left. ie meangraph -> mean
   if (typeof metric === 'undefined')
     metric = 'count';
-
   metric = metric.replace('graph','');
   if (metric === '')
     metric = 'count';
@@ -903,7 +897,10 @@ function logGraph(data, interval, metric) {
   var array = new Array();
   if(typeof window.resultjson.time !== 'undefined') {
     // add null value at time from.
-    array.push(Array(Date.parse(window.resultjson.time.from) + window.tOffset, null));
+    if(window.hashjson.timeframe != 'all') {
+      array.push(
+        Array(Date.parse(window.resultjson.time.from) + window.tOffset, null));
+    }
   }
   for (var index in data) {
     value = data[index][metric];
@@ -911,21 +908,14 @@ function logGraph(data, interval, metric) {
   }
   if(typeof window.resultjson.time !== 'undefined') {
     // add null value at time to.
-    array.push(Array(Date.parse(window.resultjson.time.to) + window.tOffset, null));
-    renderDateTimePicker(Date.parse(window.resultjson.time.from) + window.tOffset, 
-    Date.parse(window.resultjson.time.to) + window.tOffset);
-  } else {
-    var from = data[0].time + window.tOffset;
-    var to = data[data.length - 1].time + window.tOffset;
-    renderDateTimePicker(from, to);
+    array.push(
+      Array(Date.parse(window.resultjson.time.to) + window.tOffset, null));
   }
+  renderDateTimePicker(array[0][0],array[array.length -1][0]);
 
 
   // Make sure we get results before calculating graph stuff
   if (!jQuery.isEmptyObject(data)) {
-    var from = window.resultjson.time.from + window.tOffset;
-    var to = window.resultjson.time.to + window.tOffset;
-    renderDateTimePicker(from, to);
 
     // Allow user to select ranges on graph.
     // Its this OR click, not both it seems.

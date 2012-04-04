@@ -148,7 +148,11 @@ class LogstashLoader {
     // timeframe based on drop down
     if ($req->timeframe != "custom") {
       $time = new stdClass;
-      $time->from = date('c', strtotime("{$req->timeframe} ago"));
+      if($req->timeframe == 'all') {
+        $time->from = date('c', strtotime("100 years ago"));
+      } else {
+        $time->from = date('c', strtotime("{$req->timeframe} ago"));
+      }
       $time->to = date('c');
     }
 

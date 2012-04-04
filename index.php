@@ -79,7 +79,7 @@ require_once KIBANA_CONFIG_FILE;
         <option value="24 hours">Last 24h</option>
         <option value="48 hours">Last 48h</option>
         <option value="7 days">Last 7d</option>
-        <option value="100 years">All Time</option>
+        <option value="all">All Time</option>
         <option value="custom">Custom</option>
         </select>
         </td>
