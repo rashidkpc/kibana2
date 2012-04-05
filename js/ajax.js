@@ -939,7 +939,6 @@ function logGraph(data, interval, metric) {
     array.push(
       Array(Date.parse(window.resultjson.time.to) + window.tOffset, null));
   }
-  console.log("First element: "+array[0][0]);
   renderDateTimePicker(array[0][0],array[array.length -1][0],true);
 
 
