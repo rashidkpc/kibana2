@@ -103,7 +103,7 @@ class LogstashLoader {
           $req->{$key} = $default;
         }
       }
-
+      $req->segment = isset($_GET['segment'])? $_GET['segment']: '';
       $req->mode = isset($_GET['mode'])? $_GET['mode']: '';
       $req->interval = (isset($_GET['interval']))?
         self::roundInterval($_GET['interval']): 600000;
@@ -228,26 +228,41 @@ class LogstashLoader {
     // After this, dates are in local timezone
     date_default_timezone_set($this->config['local_timezone']);
 
-    // Run the query
-    $result = $this->esQuery($query);
-
     // build the response
     $return = new stdClass;
 
-    // Add some top level statistical and informational data
-    $return->indices = $this->index;
-    $return->hits = $result->hits->total;
-    $return->time = $req->time;
-    if (isset($result->facets->histo1)) {
-      $return->graph->data = $result->facets->histo1->entries;
-    }
-    $return->total = $this->esTotalDocumentCount();
-
+    // Run the query
     if (strpos($req->mode,'graph') !== false) {
+
+      $index_array = explode(',',$this->index);
+      if(sizeof($index_array) > 1) {
+        if($req->segment == '') {
+          $this->index  = $index_array[0];
+          $return->next = 1;
+        } else {
+          $this->index = $index_array[$req->segment];
+          if(sizeof($index_array) > $req->segment+1) {
+            $return->next = $req->segment + 1;
+          }
+        }
+      }
+
+      $result = $this->esQuery($query);
       $return->graph->interval = $req->interval;
     } else {
-      $return->graph->interval = (strtotime($req->time->to) -
-        strtotime($req->time->from)) * 10;
+      $result = $this->esQuery($query);
+      $return->graph->interval =
+        (strtotime($req->time->to) - strtotime($req->time->from)) * 10;
+    }
+
+    // Add some top level statistical and informational data
+    $return->indices  = $this->index;
+    $return->hits     = $result->hits->total;
+    $return->time     = $req->time;
+    $return->total    = $this->esTotalDocumentCount();
+
+    if (isset($result->facets->histo1)) {
+      $return->graph->data = $result->facets->histo1->entries;
     }
 
     switch ($req->mode) {
@@ -265,11 +280,11 @@ class LogstashLoader {
 
       default:
         $base_fields = array_values(array_unique(array_merge(
-            array('@message'),
-            $this->config['default_fields'])));
+          array('@message'),
+          $this->config['default_fields'])));
         $return->all_fields = array_values(array_unique(array_merge(
-            array('@message'),
-            $this->config['default_fields'])));
+          array('@message'),
+          $this->config['default_fields'])));
         $return->page_count = count($result->hits->hits);
         $i=0;
         foreach ($result->hits->hits as $hitkey => $hit) {
@@ -290,7 +305,7 @@ class LogstashLoader {
 
           foreach ($base_fields as $field) {
             $return->results[$hit_id][$field] =
-                $hit->fields->{$field};
+              $hit->fields->{$field};
           }
           unset($result->hits->hits[$i]);
         }
@@ -595,7 +610,7 @@ class LogstashLoader {
     if (count($aryRange) > $this->config['smart_index_limit']) {
       $aryRange = array('_all');
     }
-    sort($aryRange);
+    rsort($aryRange);
 
     // back to default timezone
     date_default_timezone_set($save_tz);

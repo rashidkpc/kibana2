@@ -184,11 +184,6 @@ function getPage() {
 
           $('.dropdown-toggle').dropdown();
 
-          // Create and populate graph
-          $('#graph').html(
-            '<center><br><p><img src=' + window.APP.path + 'images/barload.gif></center>');
-          getGraph(resultjson.graph.interval);
-
           // Create and populate #logs table
           $('#logs').html(CreateLogTable(
             window.resultjson.results, resultjson.fields_requested,
@@ -196,16 +191,23 @@ function getPage() {
           ));
           pageLinks();
 
+          // Populate hit and total
+          setMeta(window.resultjson.hits,window.resultjson.total,false);
+
+          // Create and populate graph
+          $('#graph').html(
+            '<center><br><p><img src=' + 
+            window.APP.path + 'images/barload.gif></center>');
+          getGraph(resultjson.graph.interval);
+
         } else {
-          showError('No logs matched',"Sorry, I couldn't find anything for that " +
-            "query. Double check your spelling and syntax.");
+          
+          // Populate hits and total
+          setMeta(window.resultjson.hits,window.resultjson.total,false);
+
+          showError('No logs matched',"Sorry, I couldn't find anything for " + 
+            "that query. Double check your spelling and syntax.");
         }
-
-        // Populate meta data
-        setMeta(window.resultjson.hits,window.resultjson.total,false);
-
-        // display the body with fadeIn transition
-        $('#logs').fadeIn('slow');
       }
     }
   });
@@ -217,8 +219,12 @@ function getGraph(interval) {
   //generate the parameter for the php script
   var sendhash = window.location.hash.replace(/^#/, '');
   var mode = window.hashjson.graphmode;
+  var segment = '';
+  if(typeof window.segment !== 'undefined')
+    segment = '&segment=' + window.segment;
 
-  var data = 'page=' + sendhash + "&mode="+mode+"graph&interval=" + interval;
+  var data = 'page=' + sendhash + "&mode="+mode+"graph&interval=" + 
+    interval + segment;
 
   //Get the data and display it
   request = $.ajax({
@@ -234,15 +240,36 @@ function getGraph(interval) {
         //Parse out the returned JSON
         var graphjson = JSON.parse(json);
 
-        window.graphdata = graphjson.graph.data
+        if ($(".legend").length > 0) {
+          window.graphdata = window.graphdata.concat(graphjson.graph.data);
+          window.graphhits = graphjson.hits + window.graphhits
+        } else {
+          window.graphdata = graphjson.graph.data
+          window.graphhits = graphjson.hits
+        }
         window.interval = graphjson.graph.interval
+        setMeta(window.graphhits,graphjson.total,false);
 
-        // Create and populate graph
+        // Display graph data
         logGraph(
-          graphjson.graph.data,
+          window.graphdata,
           window.interval,
-          window.hashjson.graphmode
-        );
+          window.hashjson.graphmode);
+
+        if (typeof graphjson.next !== 'undefined') {
+          window.segment = graphjson.next;
+          if (!($(".graphloading").length > 0)) {
+            $('div.legend table, div.legend table td').css({
+              "background-image": "url(images/barload.gif)",
+              "background-size":  "100% 100%"
+            });
+          }
+          getGraph(window.interval);
+        } else {
+          if(typeof window.segment !== 'undefined')
+            delete window.segment
+        }
+
       }
     }
   });
@@ -274,6 +301,9 @@ function getAnalysis() {
         var resultjson = JSON.parse(json);
         window.resultjson = resultjson;
 
+        $('.pagelinks').html('');
+        $('#fields').html('');
+
         if(window.resultjson.hits < 1) {
           if(window.resultjson.hits == 0) {
             setMeta(window.resultjson.hits,window.resultjson.total,false);
@@ -302,6 +332,8 @@ function getAnalysis() {
             setHash(window.hashjson);
           });
           return;
+        } else {
+          setMeta(resultjson.hits,resultjson.total,false);
         }
 
         switch (window.hashjson.mode) {
@@ -386,10 +418,6 @@ function getAnalysis() {
           window.hashjson.analyze_field = '';
           setHash(window.hashjson);
         });
-
-        $('.pagelinks').html('');
-        $('#fields').html('');
-        setMeta(resultjson.hits,resultjson.total,false);
       }
     }
   });
