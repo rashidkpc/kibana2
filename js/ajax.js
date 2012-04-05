@@ -241,7 +241,7 @@ function getGraph(interval) {
         var graphjson = JSON.parse(json);
 
         if ($(".legend").length > 0) {
-          window.graphdata = window.graphdata.concat(graphjson.graph.data);
+          window.graphdata = graphjson.graph.data.concat(window.graphdata);
           window.graphhits = graphjson.hits + window.graphhits
         } else {
           window.graphdata = graphjson.graph.data
@@ -817,8 +817,8 @@ function addCommas(nStr) {
 }
 
 // Render the date/time picker
-function renderDateTimePicker(from, to) {
-  if (!$('#timechange').length) {
+function renderDateTimePicker(from, to, force) {
+  if (!$('#timechange').length || force == true) {
     var maxDateTime = new Date();
     // set to midnight of current day
     maxDateTime.setHours(23,59,59,999);
@@ -939,7 +939,8 @@ function logGraph(data, interval, metric) {
     array.push(
       Array(Date.parse(window.resultjson.time.to) + window.tOffset, null));
   }
-  renderDateTimePicker(array[0][0],array[array.length -1][0]);
+  console.log("First element: "+array[0][0]);
+  renderDateTimePicker(array[0][0],array[array.length -1][0],true);
 
 
   // Make sure we get results before calculating graph stuff
