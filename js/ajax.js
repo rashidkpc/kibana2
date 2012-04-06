@@ -126,7 +126,7 @@ function getPage() {
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(resultjson.debug);
+        // console.log(resultjson.debug);
 
         $('#graphheader,#graph').text("");
 
@@ -171,14 +171,17 @@ function getPage() {
           }
 
           $("#sidebar").delegate("li.analyze_btn a", "click", function () {
+            window.hashjson.offset = 0;
             analyzeField(
               $(this).parents().eq(2).children('a').text(), "analyze")});
 
           $("#sidebar").delegate("li.trend_btn a", "click",function () {
+            window.hashjson.offset = 0;
             analyzeField(
               $(this).parents().eq(2).children('a').text(), "trend")});
 
           $("#sidebar").delegate("li.stat_btn a", "click",function () {
+            window.hashjson.offset = 0;
             analyzeField(
               $(this).parents().eq(2).children('a').text(), "mean")});
 

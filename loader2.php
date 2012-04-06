@@ -262,7 +262,8 @@ class LogstashLoader {
       while($return->hits <= ($req->offset + $query->size) 
         && $i < sizeof($index_array)) 
       {
-        $return->debug[$i] = $this->index;
+        $query->size = $query->size - sizeof($result->hits->hits);
+        $return->debug[$i] = $query->size;
         if(($query->size - $req->offset) < 0) {
           $query->from = 0;
         }
@@ -276,11 +277,6 @@ class LogstashLoader {
           $result->hits->hits,$result_tmp->hits->hits);
         $i++;
       }
-      if($req->mode == '') {
-        $slice = $this->config['results_per_page'];
-        $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
-      }
-
     } else {
       $result = $this->esQuery($query);
       $return->hits = $result->hits->total;
@@ -298,10 +294,14 @@ class LogstashLoader {
 
     switch ($req->mode) {
       case 'analyze':
+        $slice = $this->config['analyze_limit'];
+        $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $return = $this->analyzeField($req, $query, $return, $result);
         break;
 
       case 'trend':
+        $slice = $this->config['analyze_limit'];
+        $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $return = $this->trendField($req, $query, $return, $result);
         break;
 
@@ -310,6 +310,8 @@ class LogstashLoader {
         break;
 
       default:
+        $slice = $this->config['results_per_page'];
+        $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $base_fields = array_values(array_unique(array_merge(
           array('@message'),
           $this->config['default_fields'])));
