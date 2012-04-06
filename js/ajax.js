@@ -156,8 +156,6 @@ function getPage() {
               "<a class=jlink>Score</a></li> " +
               "<li class='trend_btn'>" +
               "<a class=jlink>Trend</a></li> "+
-              "<li class='stat_btn'>" +
-              "<a class=jlink>Statistics</a></li> "+
               "</ul>"+
               "</li>";
 
@@ -760,7 +758,7 @@ function feedLinks(obj) {
     "<a href=" + window.APP.path + "loader2.php?mode=csv&page=" +
     base64Encode(JSON.stringify(obj)) +
     ">export <img src=" + window.APP.path + "images/csv.gif></a> "+
-    "<a href=" + window.APP.path + "stream.html#" +
+    "<a href=" + window.APP.path + "stream.php#" +
     base64Encode(JSON.stringify(obj)) +
     ">stream <img src=" + window.APP.path + "images/stream.png></a>"
   return str;
