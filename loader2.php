@@ -233,7 +233,6 @@ class LogstashLoader {
 
     // Run the query
     if (strpos($req->mode,'graph') !== false) {
-
       $index_array = explode(',',$this->index);
       if(sizeof($index_array) > 1) {
         if($req->segment == '') {
@@ -246,13 +245,36 @@ class LogstashLoader {
           }
         }
       }
-
-      $result = $this->esQuery($query);
       $return->graph->interval = $req->interval;
     } else {
-      $result = $this->esQuery($query);
       $return->graph->interval =
         (strtotime($req->time->to) - strtotime($req->time->from)) * 10;
+    }
+
+    if($req->mode == '') {
+      $index_array = explode(',',$this->index);
+      $this->index = $index_array[0];
+      $result = $this->esQuery($query);
+      $return->hits = $result->hits->total;
+      $i = 1;
+      while($return->hits <= ($req->offset + $query->size) && $i < sizeof($index_array)) {
+        if(($query->size - $req->offset) < 0) {
+          $query->from = 0;
+        }
+        if ($req->offset > $return->hits) {
+          $query->from = $req->offset - $return->hits;
+        }
+        $this->index = $index_array[$i];
+        $result_tmp = $this->esQuery($query);
+        $return->hits = $return->hits + $result_tmp->hits->total;
+        $result->hits->hits = array_merge($result->hits->hits,$result_tmp->hits->hits);
+        $i++;
+      }
+      $result->hits->hits = array_slice($result->hits->hits, 0,50);
+
+    } else {
+      $result = $this->esQuery($query);
+      $return->hits = $result->hits->total;
     }
 
     // Add some top level statistical and informational data
@@ -591,11 +613,9 @@ class LogstashLoader {
     // Dates in this section are UTC
     $save_tz = date_default_timezone_get();
     date_default_timezone_set('UTC');
-
     $aryRange = array();
     $iDateFrom = strtotime(date("F j, Y", strtotime($strDateFrom)));
     $iDateTo = strtotime(date("F j, Y", strtotime($strDateTo)));
-
     if ($iDateTo >= $iDateFrom) {
       $aryRange[] = 'logstash-' . date('Y.m.d', $iDateFrom);
       while ($iDateFrom < $iDateTo) {
@@ -605,7 +625,7 @@ class LogstashLoader {
         }
       }
     }
-
+    
     $aryRange = array_intersect($aryRange, $this->getAllIndices());
     if (count($aryRange) > $this->config['smart_index_limit']) {
       $aryRange = array('_all');
@@ -630,7 +650,6 @@ class LogstashLoader {
     curl_setopt($ch, CURLOPT_URL,
         "http://{$this->config['elasticsearch_server']}/_status");
     $result = json_decode(curl_exec($ch));
-
     $indices = array();
     foreach ($result->indices as $indexname => $index) {
       $indices[] = $indexname;

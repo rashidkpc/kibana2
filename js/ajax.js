@@ -119,7 +119,7 @@ function getPage() {
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(window.resultjson.graph);
+        //console.log(resultjson.debug);
 
         $('#graphheader,#graph').text("");
 
@@ -239,7 +239,6 @@ function getGraph(interval) {
 
         //Parse out the returned JSON
         var graphjson = JSON.parse(json);
-
         if ($(".legend").length > 0) {
           window.graphdata = graphjson.graph.data.concat(window.graphdata);
           window.graphhits = graphjson.hits + window.graphhits
@@ -260,7 +259,8 @@ function getGraph(interval) {
           window.segment = graphjson.next;
           if (!($(".graphloading").length > 0)) {
             $('div.legend table, div.legend table td').css({
-              "background-image": "url(images/barload.gif)",
+              "background-image": "url(" 
+                + window.APP.path + "images/barload.gif)",
               "background-size":  "100% 100%"
             });
           }
@@ -425,7 +425,8 @@ function getAnalysis() {
 
 function graphLoading() {
   $('#graph').html(
-    '<center><br><p><img src=' + window.APP.path + 'images/barload.gif></center>');
+    '<center><br><p><img src=' + window.APP.path + 
+    'images/barload.gif></center>');
 }
 
 function analysisTable(resultjson) {
@@ -485,7 +486,8 @@ function pageLinks() {
   }
   var end = window.hashjson.offset + window.resultjson.page_count;
   str += "<strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
-  if (window.hashjson.offset + perpage < window.resultjson.hits) {
+  if (window.hashjson.offset + perpage <= end) 
+  {
     str += "<a class='nextpage jlink'>Next</a> ";
   }
   str += "</center>";
