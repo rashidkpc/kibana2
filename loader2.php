@@ -191,6 +191,8 @@ class LogstashLoader {
         break;
       case 'trend':
       case 'analyze':
+        $query->size = $this->config['analyze_limit'];
+        $query->fields = self::canonicalFieldName($req->analyze_field); 
         break;
       case 'mean':
         unset($query->sort);
@@ -251,13 +253,16 @@ class LogstashLoader {
         (strtotime($req->time->to) - strtotime($req->time->from)) * 10;
     }
 
-    if($req->mode == '') {
+    if($req->mode != 'mean' && strpos($req->mode,'graph') === false) {
       $index_array = explode(',',$this->index);
       $this->index = $index_array[0];
       $result = $this->esQuery($query);
       $return->hits = $result->hits->total;
       $i = 1;
-      while($return->hits <= ($req->offset + $query->size) && $i < sizeof($index_array)) {
+      while($return->hits <= ($req->offset + $query->size) 
+        && $i < sizeof($index_array)) 
+      {
+        $return->debug[$i] = $this->index;
         if(($query->size - $req->offset) < 0) {
           $query->from = 0;
         }
@@ -267,10 +272,14 @@ class LogstashLoader {
         $this->index = $index_array[$i];
         $result_tmp = $this->esQuery($query);
         $return->hits = $return->hits + $result_tmp->hits->total;
-        $result->hits->hits = array_merge($result->hits->hits,$result_tmp->hits->hits);
+        $result->hits->hits = array_merge(
+          $result->hits->hits,$result_tmp->hits->hits);
         $i++;
       }
-      $result->hits->hits = array_slice($result->hits->hits, 0,50);
+      if($req->mode == '') {
+        $slice = $this->config['results_per_page'];
+        $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
+      }
 
     } else {
       $result = $this->esQuery($query);
@@ -289,11 +298,11 @@ class LogstashLoader {
 
     switch ($req->mode) {
       case 'analyze':
-        $return = $this->analyzeField($req, $query, $return);
+        $return = $this->analyzeField($req, $query, $return, $result);
         break;
 
       case 'trend':
-        $return = $this->trendField($req, $query, $return);
+        $return = $this->trendField($req, $query, $return, $result);
         break;
 
       case 'mean':
@@ -477,13 +486,8 @@ class LogstashLoader {
    * @param object $return Partial response
    * @return object Response to request
    */
-  protected function analyzeField ($req, $query, $return) {
+  protected function analyzeField ($req, $query, $return, $result) {
     $field = self::canonicalFieldName($req->analyze_field);
-    $query->size = $this->config['analyze_limit'];
-    $query->fields = $field;
-
-    $result = $this->esQuery($query);
-
     $return->analysis->count = count($result->hits->hits);
 
     $analyze = self::collectFieldValues($result->hits->hits, $field);
@@ -513,11 +517,8 @@ class LogstashLoader {
    * @param object $return Partial response
    * @return object Response to request
    */
-  protected function trendField ($req, $query, $return) {
+  protected function trendField ($req, $query, $return, $result) {
     $field = self::canonicalFieldName($req->analyze_field);
-    $query->size = 0;
-    $query->fields = $field;
-    $result = $this->esQuery($query);
 
     // Scale samples. If analyze_limit is more than 50% of the
     // results, then change size to 50% of the results to avoid
