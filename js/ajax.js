@@ -156,6 +156,8 @@ function getPage() {
               "<a class=jlink>Score</a></li> " +
               "<li class='trend_btn'>" +
               "<a class=jlink>Trend</a></li> "+
+              "<li class='stat_btn'>" +
+              "<a class=jlink>Statistics</a></li> "+
               "</ul>"+
               "</li>";
 
