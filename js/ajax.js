@@ -21,13 +21,15 @@ $(document).ready(function () {
   // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
     $('#meta').text("");
-    showError("<strong>Oops!</strong> Something went terribly wrong.",
-      "I'm not totally sure what happened, but maybe refreshing, or "+
-      "hitting Reset will help. If that doesn't work, you can try "+
-      "restarting your browser. If all else fails, it possible your"+
-      " configuation has something funky going on. <br><br>If it helps,"+
-      " I received a <strong>" + xhr.status + " " + xhr.statusText +
-      "</strong> from: " + settings.url);
+    if(xhr.statusText != 'abort') {
+      showError("<strong>Oops!</strong> Something went terribly wrong.",
+        "I'm not totally sure what happened, but maybe refreshing, or "+
+        "hitting Reset will help. If that doesn't work, you can try "+
+        "restarting your browser. If all else fails, it possible your"+
+        " configuation has something funky going on. <br><br>If it helps,"+
+        " I received a <strong>" + xhr.status + " " + xhr.statusText +
+        "</strong> from: " + settings.url);
+    }
   });
 
   $('#sbctl').click(function () {
@@ -60,6 +62,11 @@ $(document).ready(function () {
 // cause a reload of the results
 
 function pageload(hash) {
+  if (typeof window.request !== 'undefined') {
+    window.request.abort();
+    delete window.segment;
+  }
+
   if (getcookie('username') != null)
     $('#dynamic_menu').html(
       '<a class="tab jlink" href="auth.php?logout">Logout</a>')
@@ -104,7 +111,7 @@ function getPage() {
   var data = 'page=' + sendhash;
 
   //Get the data and display it
-  request = $.ajax({
+  window.request = $.ajax({
     url: window.APP.path + "loader2.php",
     type: "GET",
     data: data,
@@ -227,7 +234,7 @@ function getGraph(interval) {
     interval + segment;
 
   //Get the data and display it
-  request = $.ajax({
+  window.request = $.ajax({
     url: window.APP.path + "loader2.php",
     type: "GET",
     data: data,
@@ -287,7 +294,7 @@ function getAnalysis() {
   var sendhash = window.location.hash.replace(/^#/, '');
   var data = 'page=' + sendhash + "&mode=" + window.hashjson.mode;
   //Get the data and display it
-  request = $.ajax({
+  window.request = $.ajax({
     url: window.APP.path + "loader2.php",
     type: "GET",
     data: data,
