@@ -101,7 +101,7 @@ function getPage() {
 
   var sendhash = window.location.hash.replace(/^#/, '');;
 
-  var data = 'page=' + sendhash;
+  var data = 'page=' + sendhash + "&mode=" + window.hashjson.mode;
 
   //Get the data and display it
   request = $.ajax({
