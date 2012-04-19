@@ -233,6 +233,9 @@ class LogstashLoader {
     // build the response
     $return = new stdClass;
 
+    //Store original query size to slice with
+    $slice = $query->size;
+
     // Run the query
     if (strpos($req->mode,'graph') !== false) {
       $index_array = explode(',',$this->index);
@@ -294,13 +297,11 @@ class LogstashLoader {
 
     switch ($req->mode) {
       case 'analyze':
-        $slice = $this->config['analyze_limit'];
         $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $return = $this->analyzeField($req, $query, $return, $result);
         break;
 
       case 'trend':
-        $slice = $this->config['analyze_limit'];
         $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $return = $this->trendField($req, $query, $return, $result);
         break;
@@ -310,7 +311,6 @@ class LogstashLoader {
         break;
 
       default:
-        $slice = $this->config['results_per_page'];
         $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $base_fields = array_values(array_unique(array_merge(
           array('@message'),
@@ -330,6 +330,8 @@ class LogstashLoader {
           $return->results[$hit_id]['@timestamp'] =
               $hit->fields->{'@timestamp'};
           foreach ($hit->fields->{'@fields'} as $name => $value) {
+            if (is_array($value))
+              $value = implode(',',$value);
             $return->results[$hit_id][$name] = $value;
             if (!in_array($name, $return->all_fields)) {
               $return->all_fields[] = $name;
