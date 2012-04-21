@@ -600,12 +600,16 @@ class LogstashLoader {
 
     $indices = $result->indices;
     $totaldocs = 0;
-    foreach ($indices as $index) {
-      $totaldocs += $index->docs->num_docs;
+    if ($this->config['default_index'] == "_all") {
+      foreach ($indices as $index) {
+        $totaldocs += $index->docs->num_docs;
+      }
+    } else {
+      $index = $this->config['default_index'];
+      $totaldocs = $indices->$index->docs->num_docs;
     }
     return $totaldocs;
   } //end esTotalDocumentCount
-
 
   /**
    * Get a list of all indices that fall within the given time range.
