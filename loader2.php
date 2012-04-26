@@ -266,7 +266,6 @@ class LogstashLoader {
         && $i < sizeof($index_array)) 
       {
         $query->size = $query->size - sizeof($result->hits->hits);
-        $return->debug[$i] = $query->size;
         if(($query->size - $req->offset) < 0) {
           $query->from = 0;
         }
@@ -287,7 +286,6 @@ class LogstashLoader {
 
     // Add some top level statistical and informational data
     $return->indices  = $this->index;
-    $return->hits     = $result->hits->total;
     $return->time     = $req->time;
     $return->total    = $this->esTotalDocumentCount();
 
