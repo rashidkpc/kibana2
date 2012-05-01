@@ -130,6 +130,30 @@ class LogstashLoader {
     $filter_string = ($this->config['filter_string'] == "")?
         "":" AND ".$this->config['filter_string'];
 
+    /** 
+     * This will prevent extremely slow queries from running because of 
+     * wildcard search terms.
+     *
+     * See: http://www.elasticsearch.org/guide/reference/query-dsl/wildcard-query.html
+     */
+    if ($this->config['disable_fullscan']) {
+      $sanitized_search = "";
+      $search = $req->search;
+      $last_char = "";
+      for ($i=0; $i < strlen($search); $i++) {
+        if ($search[$i] == "*" || $search[$i] == "?") {
+          if ($last_char == "" || ctype_alnum($last_char)) {
+            $sanitized_search .= $search[$i];
+            $last_char = $search[$i];
+          }
+        } else {
+            $sanitized_search .= $search[$i];
+            $last_char = $search[$i];
+        }
+      }
+      $req->search = $sanitized_search;
+    }
+
     $query->query->filtered->query->query_string->query =
         ($req->search == "")? "*" . $filter_string:
         "(".$req->search.")" . $filter_string;
