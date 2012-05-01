@@ -142,7 +142,13 @@ class LogstashLoader {
       $last_char = "";
       for ($i=0; $i < strlen($search); $i++) {
         if ($search[$i] == "*" || $search[$i] == "?") {
-          if ($last_char == "" || ctype_alnum($last_char)) {
+	  /**
+	   * if the wildcard isn't at the beginning of the term (not first 
+	   * character in search, not preceded by whitespace, not first
+	   * character after a query component), then add it to the list 
+           */
+          $bad_chars = array('(', ':', '"', '\'', ' ', '\t', ',');
+          if ($last_char != "" && !in_array($last_char, $bad_chars)) {
             $sanitized_search .= $search[$i];
             $last_char = $search[$i];
           }
