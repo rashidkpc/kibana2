@@ -85,4 +85,8 @@ $KIBANA_CONFIG = array(
 
 
   'local_timezone' => date_default_timezone_get(),
+
+  // Prevent wildcard search terms which result in extremely slow queries
+  // See: http://www.elasticsearch.org/guide/reference/query-dsl/wildcard-query.html
+  'disable_fullscan' => false,
   );
