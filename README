@@ -41,3 +41,22 @@ in PHP. I'm open to other suggestions though.
 
 Q: Where can I get some help with this?
 A: Find me on Freenode - flipwork in #logstash
+
+Q: Why do come results not show up when I search for a string I know is in
+the elasticsearch indexes?
+A: If you are searching analyzed fields, which is the default in ES for string
+fields, remember that they are broken down into terms.  For instance, a search
+for "test" will match records containing test@bleh.com, since @ is a term
+boundary and is broken down into "test" and "bleh.com".  However, this will NOT
+match records containing blah@test.com because "test.com" is the full term and
+you are searching for an exact match.  You would need to use test* to match both
+of these records.  Note you may also want to configure the ES analyze behavior
+for certain fields if this is not the desired behavior.  Helpful References:
+
+  http://www.elasticsearch.org/guide/reference/mapping/core-types.html
+  http://www.elasticsearch.org/guide/reference/api/admin-indices-templates.html
+
+Q: Is there any way to prevent queries which perform full index scans of my
+elasticsearch cluster?
+A: Yes.  Set the 'disable_fullscan' to 'true' and search terms beginning with
+an elasticsearch wildcard (* or ?) will be stripped of the wildcard.
