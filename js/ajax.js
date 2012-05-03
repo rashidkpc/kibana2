@@ -1042,6 +1042,9 @@ function logGraph(data, interval, metric) {
         mode: "x",
         color: '#000'
       },
+      legend: {
+        position: "nw"
+      },
       grid: {
         backgroundColor: '#fff',
         borderWidth: 0,
