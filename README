@@ -59,4 +59,4 @@ A: Yes.  Set the 'disable_fullscan' to 'true' and search terms beginning with
 an elasticsearch wildcard (* or ?) will be stripped of the wildcard.
 
 Q: Where can I get some help with this?                                         
-A: Find me on Freenode - flipwork in #logstash  
+A: Find me on Freenode - rashidkpc in #logstash  
