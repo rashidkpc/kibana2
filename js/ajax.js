@@ -636,7 +636,7 @@ function viewLog(objid) {
 
   // Create a table of information about the log
   var str = "<table class='logdetails table-bordered'>" +
-    "<tr><th>Field</th><th>Value</th></tr>";
+    "<tr><th>Field</th><th>Action</th><th>Value</th></tr>";
   var i = 1;
   var selected = ""
   for (field in obj) {
@@ -652,14 +652,14 @@ function viewLog(objid) {
         "<td class='firsttd " + field_id + "_field "
         + selected + "'>" + field +
         "</td>" +
+        "<td style='width: 60px'>" +
+        "<button style='display: inline-block' class='btn tiny' id=findthis_"+
+        objid+"_"+field_id+"><img src='/images/plus.png' style='vertical-align: top' alt='Find this'/></button> " +
+        "<button style='display: inline-block' class='btn tiny' id=notthis_"+
+        objid+"_"+field_id+"><img src='/images/minus.png' style='vertical-align: top' alt='Not this'/></button> " +
+        "</td>" +
         '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
         xmlEnt(value) + "</span>" +
-        " <div style='display: inline-block'>" +
-        "<button style='display: inline-block' class='btn tiny' id=findthis_"+
-        objid+"_"+field_id+">Find this</button> " +
-        "<button style='display: inline-block' class='btn tiny' id=notthis_"+
-        objid+"_"+field_id+">NOT this</button> " +
-        "</div>" +
         "</td></tr>";
       i++;
     }
@@ -667,7 +667,7 @@ function viewLog(objid) {
     $("body").delegate(
       "#findthis_"+objid+"_"+field_id, "click", function (objid) {
         mSearch(
-          $(this).parents().eq(2).find('.firsttd').text(),
+          $(this).parents().eq(1).find('.firsttd').text(),
           $(this).parents().eq(1).find('span').text()
         );
     });
@@ -675,7 +675,7 @@ function viewLog(objid) {
     $("body").delegate(
       "#notthis_"+objid+"_"+field_id, "click", function (objid) {
         mSearch(
-          "NOT " + $(this).parents().eq(2).find('.firsttd').text(),
+          "NOT " + $(this).parents().eq(1).find('.firsttd').text(),
           $(this).parents().eq(1).find('span').text()
         );
     });
