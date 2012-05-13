@@ -654,9 +654,9 @@ function viewLog(objid) {
         "</td>" +
         "<td style='width: 60px'>" +
         "<button style='display: inline-block' class='btn tiny' id=findthis_"+
-        objid+"_"+field_id+"><img src='/images/plus.png' style='vertical-align: top' alt='Find this'/></button> " +
+        objid+"_"+field_id+"><img src=" + window.APP.path + "'/images/plus.png' style='vertical-align: top' alt='Find this'/></button> " +
         "<button style='display: inline-block' class='btn tiny' id=notthis_"+
-        objid+"_"+field_id+"><img src='/images/minus.png' style='vertical-align: top' alt='Not this'/></button> " +
+        objid+"_"+field_id+"><img src=" + window.APP.path + "'/images/minus.png' style='vertical-align: top' alt='Not this'/></button> " +
         "</td>" +
         '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
         xmlEnt(value) + "</span>" +
