@@ -1,7 +1,7 @@
 %define debug_package %{nil}
 
 Name:           kibana
-Version:        0.1.5
+Version:        0.1.6
 Release:        1%{?dist}
 Summary:        logstash is a tool for managing events and logs.
 
@@ -44,5 +44,7 @@ rm -rf %{buildroot}
 %config(noreplace) /etc/httpd/conf.d/kibana.conf
 
 %changelog
-* Fri Apr 06 2012 David Castro arimus@gmail.com 1.1.0
+* Wed May 16 2012 David Castro arimus@gmail.com 0.1.6-1
+- Spec updated for master branch
+* Fri Apr 06 2012 David Castro arimus@gmail.com 0.1.5-1
 - Initial spec
