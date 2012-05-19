@@ -60,3 +60,11 @@ an elasticsearch wildcard (* or ?) will be stripped of the wildcard.
 
 Q: Where can I get some help with this?                                         
 A: Find me on Freenode - rashidkpc in #logstash  
+
+Q: How do I build an RPM for Kibana?
+A: On a RHEL 5/6-compatible system:
+- grab a Kibana tgz from https://github.com/rashidkpc/Kibana/tags
+- rename the file to kibana-<version>.tar.gz where <version> is in the form
+  major.minor.patch (e.g. rashidkpc-Kibana-v0.1.5-0-g9753518.tar.gz becomes
+  kibana-0.1.5.tar.gz)
+- generate the RPM with: rpmbuild -tb kibana-<version>.tar.gz
