@@ -47,14 +47,9 @@ rm -rf %{buildroot}
 %config(noreplace) %attr(0644,root,root) /etc/httpd/conf.d/kibana.conf
 
 %changelog
-<<<<<<< HEAD
-* Fri Apr 06 2012 David Castro arimus@gmail.com 0.1.5-1
-=======
 * Fri May 18 2012 David Castro arimus@gmail.com 0.1.5-1
 - Modified spec to work with rpmbuild -ta kibana-0.1.5.tar.gz style builds,
   which only requires that the github-style tarballs are renamed to
   kibana-X.Y.Z.tar.gz
 
 * Fri Apr 06 2012 David Castro arimus@gmail.com 0.1.4
->>>>>>> e39917caacafc6c5e6188ab679022dd2f3377a4c
-- Initial spec
