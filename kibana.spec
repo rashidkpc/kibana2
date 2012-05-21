@@ -1,5 +1,3 @@
-%define debug_package %{nil}
-
 Name:           kibana
 Version:        0.1.5
 Release:        1%{?dist}
@@ -20,7 +18,7 @@ Kibana is an open source (MIT License), browser based interface to Logstash and 
 
 %prep
 rm -rf "${RPM_BUILD_ROOT}"
-mkdir -p "${RPM_BUILD_ROOT}/var/www/html/%{name}"
+mkdir -p "${RPM_BUILD_ROOT}"
 
 %build
 # do nothing
@@ -28,11 +26,16 @@ mkdir -p "${RPM_BUILD_ROOT}/var/www/html/%{name}"
 %install
 # untar kibana into the document root
 cd ${RPM_BUILD_ROOT}
-tar -zxvf %SOURCE0 --strip-components 1 -C ${RPM_BUILD_ROOT}/var/www/html/%{name}
+mkdir -p "${RPM_BUILD_ROOT}/var/www/html/%{name}"
+tar -zxvf %SOURCE0 --strip-components 1 \
+                   --exclude=kibana-httpd.conf \
+                   --exclude=kibana.spec \
+                   -C ${RPM_BUILD_ROOT}/var/www/html/%{name} 
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf.d
-install -m 644 $RPM_SOURCE_DIR/kibana-httpd.conf \
-        $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf.d/kibana.conf
+tar -zxvf %SOURCE0 --strip-components 1 \
+                   --to-stdout \
+                   */kibana-httpd.conf > ${RPM_BUILD_ROOT}%{_sysconfdir}/httpd/conf.d/kibana.conf
 
 %clean
 rm -rf %{buildroot}
@@ -41,8 +44,12 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 /var/www/html
 %config(noreplace) /var/www/html/%{name}/config.php
-%config(noreplace) /etc/httpd/conf.d/kibana.conf
+%config(noreplace) %attr(0644,root,root) /etc/httpd/conf.d/kibana.conf
 
 %changelog
-* Fri Apr 06 2012 David Castro arimus@gmail.com 1.1.0
-- Initial spec
+* Fri May 18 2012 David Castro arimus@gmail.com 0.1.5-1
+- Modified spec to work with rpmbuild -ta kibana-0.1.5.tar.gz style builds,
+  which only requires that the github-style tarballs are renamed to
+  kibana-X.Y.Z.tar.gz
+
+* Fri Apr 06 2012 David Castro arimus@gmail.com 0.1.4
