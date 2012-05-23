@@ -604,10 +604,16 @@ class LogstashLoader {
     $data = json_encode($query);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_URL, "http://" .
-      $this->config['elasticsearch_server'] .
-      "/{$this->index}/{$this->config['type']}/_search?search_type=query_then_fetch");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    if ($this->config['type'] != "") {
+      $url = "http://" . $this->config['elasticsearch_server'] .
+        "/{$this->index}/{$this->config['type']}".
+        "/_search?search_type=query_then_fetch";
+    } else {
+      $url = "http://" . $this->config['elasticsearch_server'] .
+        "/{$this->index}/_search?search_type=query_then_fetch";
+    }
+    curl_setopt($ch, CURLOPT_URL, $url);    
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     $response = curl_exec($ch);
     $return = json_decode($response);
     unset($response);
