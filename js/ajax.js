@@ -1098,10 +1098,13 @@ function is_int(value) {
 }
 
 function xmlEnt(value) {
-  var stg1 = value.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(
-    /\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-  return stg1.replace(/&lt;del&gt;/g, '<del>').replace(
-    /&lt;\/del&gt;/g, '</del>');
+  var stg1 = value.replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br/>')
+    .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+    .replace(/  /g, '&nbsp;&nbsp;');
+  return stg1.replace(/&lt;del&gt;/g, '<del>')
+    .replace(/&lt;\/del&gt;/g, '</del>');
 }
 
 function sortObj(arr) {
