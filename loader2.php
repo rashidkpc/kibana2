@@ -292,10 +292,10 @@ class LogstashLoader {
       $result = $this->esQuery($query);
       $return->hits = $result->hits->total;
       $i = 1;
-      while($return->hits <= ($req->offset + $query->size) 
+      while($return->hits <= ($req->offset + $slice) 
         && $i < sizeof($index_array)) 
       {
-        $query->size = $query->size - sizeof($result->hits->hits);
+        $query->size = $slice - sizeof($result->hits->hits);
         if(($query->size - $req->offset) < 0) {
           $query->from = 0;
         }
