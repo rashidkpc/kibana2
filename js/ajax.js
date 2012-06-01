@@ -645,7 +645,7 @@ function viewLog(objid) {
     if ($.inArray(field, window.hashjson.fields) > -1) {
       selected = "logfield_selected";
     }
-    value = obj[field].toString();
+    value = (obj[field] != null) ?  obj[field].toString() : '';
     if (!(field.match(/^@cabin_/))) {
       trclass = (i % 2 == 0) ? 'class=alt' : '';
       str += "<tr " + trclass + ">" +
