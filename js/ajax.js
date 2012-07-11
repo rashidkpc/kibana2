@@ -1100,6 +1100,8 @@ function is_int(value) {
 function xmlEnt(value) {
   var stg1 = value.replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
+    .replace(/\r\n/g, '<br/>')
+    .replace(/\r/g, '<br/>')
     .replace(/\n/g, '<br/>')
     .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
     .replace(/  /g, '&nbsp;&nbsp;');
