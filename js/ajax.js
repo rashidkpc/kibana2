@@ -1105,6 +1105,7 @@ function xmlEnt(value) {
     .replace(/\n/g, '<br/>')
     .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
     .replace(/  /g, '&nbsp;&nbsp;');
+  
   return stg1.replace(/&lt;del&gt;/g, '<del>')
     .replace(/&lt;\/del&gt;/g, '</del>');
 }
