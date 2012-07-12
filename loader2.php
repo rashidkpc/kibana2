@@ -19,7 +19,7 @@ require_once KIBANA_CONFIG_FILE;
 /**
  * Handle requests for Logstash data via JSON requests.
  *
- * @author Rashid Khan <flipwork #logstash irc.freenode.net>
+ * @author Rashid Khan <rashidkpc #logstash irc.freenode.net>
  * @copyright Copyright 2011 Rashid Khan
  * @license BSD 2 Clause <http://www.opensource.org/licenses/BSD-2-Clause>
  */

@@ -72,7 +72,7 @@ function pageload(hash) {
       '<a class="tab jlink" href="auth.php?logout">Logout</a>')
   //if hash value exists, run the ajax
   if (hash) {
-    window.hashjson = JSON.parse(base64Decode(hash));
+    window.hashjson = JSON.parse(Base64.decode(hash));
 
     // Take the hash data and populate the search fields
     $('#queryinput').val(window.hashjson.search);
@@ -758,13 +758,13 @@ function mFields(field) {
 
 function feedLinks(obj) {
   var str = "<a href=" + window.APP.path + "loader2.php?mode=rss&page=" +
-    base64Encode(JSON.stringify(obj)) +
+    Base64.encode(JSON.stringify(obj)) +
     ">rss <img src=" + window.APP.path + "images/feed.png></a> "+
     "<a href=" + window.APP.path + "loader2.php?mode=csv&page=" +
-    base64Encode(JSON.stringify(obj)) +
+    Base64.encode(JSON.stringify(obj)) +
     ">export <img src=" + window.APP.path + "images/csv.gif></a> "+
     "<a href=" + window.APP.path + "stream.php#" +
-    base64Encode(JSON.stringify(obj)) +
+    Base64.encode(JSON.stringify(obj)) +
     ">stream <img src=" + window.APP.path + "images/stream.png></a>"
   return str;
 }
@@ -784,7 +784,6 @@ function wbr(str, num) {
 $(function () {
   $('form').submit(function () {
     if (window.hashjson.search != $('#queryinput').val()) {
-      //delete window.hashjson.time;
       window.hashjson.offset = 0;
       window.hashjson.search = $('#queryinput').val();
     }
@@ -811,7 +810,7 @@ $(function () {
 
 // Sets #hash, thus refreshing results
 function setHash(json) {
-  window.location.hash = base64Encode(JSON.stringify(json));
+  window.location.hash = Base64.encode(JSON.stringify(json));
 }
 
 

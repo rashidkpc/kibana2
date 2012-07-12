@@ -22,7 +22,7 @@ require_once KIBANA_CONFIG_FILE;
 <html>
 <head><title>Kibana Stream</title>
 <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/base64.js"></script>
+<script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/safebase64.js"></script>
 <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery.history.js"></script>
 <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/stream.js"></script>
 <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/json2.js"></script>

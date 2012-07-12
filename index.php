@@ -30,7 +30,7 @@ require_once KIBANA_CONFIG_FILE;
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery.flot.selection.min.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery.smartresize.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/iso8601.min.js"></script>
-  <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/base64.js"></script>
+  <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/safebase64.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery-ui-1.8.16.custom.min.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery.ui.datepicker.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery-ui-timepicker-addon.js"></script>
