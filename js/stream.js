@@ -7,7 +7,7 @@ function pageload(hash) {
   if (hash) {
     window.hasHead = false;
     clearInterval(window.intervalID);
-    window.hashjson = JSON.parse(base64Decode(hash));
+    window.hashjson = JSON.parse(Base64.decode(hash));
     $('#query').html('<h3>' + window.hashjson.search + '</h3>');
     getStream();
     window.intervalID = setInterval("getStream()", 10000);
@@ -22,7 +22,7 @@ function getStream() {
   var time = {"from": ISODateString(from)};
   window.hashjson.timeframe = '20 seconds';
   var maxEvents = 15;
-  var b64json = base64Encode(JSON.stringify(window.hashjson));
+  var b64json = Base64.encode(JSON.stringify(window.hashjson));
   $.getJSON(window.APP.path + "loader2.php?mode=stream&page=" + b64json, null, function(data) {
     if (data != null) {
       window.i++;
