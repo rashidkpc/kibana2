@@ -646,7 +646,7 @@ function viewLog(objid) {
       selected = "logfield_selected";
     }
     try {
-        value = JSON.stringify(obj[field],null,2);
+        value = JSON.stringify(obj[field],null,4);
     } catch(e) {
         value = (obj[field] != null) ? obj[field].toString() : '';
     }
