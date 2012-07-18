@@ -774,11 +774,15 @@ function feedLinks(obj) {
 // num = number of letters between <wbr> tags
 
 function wbr(str, num) {
+  str = htmlEntities(str);
   return str.replace(RegExp("(\\w{" + num + "}|[:;,])([\\w\"'])", "g"),
     function (all, text, char) {
       return text + "<del>&#8203;</del>" + char;
     }
   );
+}
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 $(function () {
