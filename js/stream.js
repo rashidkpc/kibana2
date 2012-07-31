@@ -1,6 +1,24 @@
 jQuery(document).ready(function() {
   window.i = 0;
   $.history.init(pageload);
+
+  $("#pause_stream").click(function () {                                  
+    if (window.pause == true) {
+      window.intervalID = setInterval("getStream()", 10000);
+      window.pause = false;
+      $('#pause_stream').text('Pause');
+      $('#pause_stream').removeClass('btn-info');
+      $('#pause_stream').addClass('btn-danger');                    
+      getStream();
+    } else {
+      clearInterval(window.intervalID);
+      window.pause = true;
+      $('#pause_stream').text('Play');
+      $('#pause_stream').removeClass('btn-danger');                               
+      $('#pause_stream').addClass('btn-info');
+    } 
+  });
+
 });
 
 function pageload(hash) {

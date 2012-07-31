@@ -51,6 +51,9 @@ require_once KIBANA_CONFIG_FILE;
     <div class="navbar-inner">
     <div class="container-fluid topbar">
         <img src='<?php echo $KIBANA_CONFIG['app_path'] ?>images/logo.png' class=pull-left>
+        <span id=pause class=pull-left>                                         
+          <button class="btn tiny btn-danger" style="margin-right: 20px;" id="pause_stream">Pause</button>
+        </span>
         <span id=query class=pull-left></span>
         <span id=meta class=pull-right> </span>
     </div>
