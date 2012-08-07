@@ -66,7 +66,7 @@ function pageload(hash) {
     window.request.abort();
     delete window.segment;
   }
-
+//TODO: this looks useful, but it's broken
   if (getcookie('username') != null)
     $('#dynamic_menu').html(
       '<a class="tab jlink" href="auth.php?logout">Logout</a>')
