@@ -41,8 +41,8 @@ $(document).ready(function () {
 <center>
 <form action="auth.php" method="post">
 <table id=logintable>
-<tr><td><input type="text" name="username" value="username" /></td></tr>
-<tr><td><input type="password" name="password" value="password" /></td></tr>
+<tr><td><input type="text" name="auth_username" value="username" /></td></tr>
+<tr><td><input type="password" name="auth_password" value="password" /></td></tr>
 <tr><td align=right><input type="submit" class=submit value=Login /></td></tr>
 </table>
 </form>

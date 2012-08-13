@@ -6,11 +6,10 @@ session_start();
 
 require('users.php');
 
-$name = $_POST['username'];
-$pass = $_POST['password'];
+if (isset($_POST['auth_username'])) $name = $_POST['auth_username'];
+if (isset($_POST['auth_password'])) $pass = $_POST['auth_password'];
 
 if(isset($_GET['logout'])) {
-	setcookie("username", '');
 	session_destroy();
 	header('Location: login.php');
 	exit;        
