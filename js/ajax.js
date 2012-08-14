@@ -18,10 +18,6 @@ $(document).ready(function () {
     }
   });
 
-  $('#indexinput').change(function () {
-    window.hashjson.index = $(this).val();
-  });
-
   // Handle AJAX errors
   // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
@@ -69,12 +65,18 @@ $(document).ready(function () {
     success: function (json) {
         indices = JSON.parse(json);
         $("#indexinput").empty();
-        $("#indexinput").append(new Option("[select index]", ""));
         for(var index in indices) {
             $("#indexinput").append(new Option(indices[index], indices[index]));
         }
-        if(typeof window.hashjson.index != 'undefined')
+        $("#indexinput").chosen();
+        if(typeof window.hashjson.index != 'undefined') {
             $("#indexinput").val(window.hashjson.index);
+            $("#indexinput").trigger("liszt:updated");
+        }
+        $('#indexinput').chosen().change(function () {
+            window.hashjson.index = $(this).val();
+        });
+
     }
   });
 });
@@ -101,6 +103,7 @@ function pageload(hash) {
     $('#fieldsinput').val(window.hashjson.fields);
     $('#timeinput').val(window.hashjson.timeframe);
     $('#indexinput').val(window.hashjson.index);
+    $("#indexinput").trigger("liszt:updated");
 
     if(typeof window.hashjson.graphmode == 'undefined')
       window.hashjson.graphmode = 'count';
@@ -140,6 +143,10 @@ function getPage() {
     data: data,
     cache: false,
     success: function (json) {
+      if(json =="[]") {
+        setMeta(0,0,false);
+        return;
+      }
       // Make sure we're still on the same page
       if (sendhash == window.location.hash.replace(/^#/, '')) {
 
@@ -734,7 +741,7 @@ function mSearch(field, value) {
   window.hashjson.analyze_field = '';
   var glue = $('#queryinput').val() != "" ? " AND " : " ";
   window.hashjson.search = $('#queryinput').val() + glue + field + ":" + "\"" +
-    addslashes(value.toString()) + "\"";
+    addslashes(JSON.parse(value.toString())) + "\"";
   setHash(window.hashjson);
   scroll(0, 0);
 }

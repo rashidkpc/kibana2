@@ -139,7 +139,7 @@ class LogstashLoader {
   protected function buildQuery ($req) {
     // Preparse parameters
     $time = $req->time;
-    $this->index = $req->index;
+    $this->index = implode(",", $req->index);
 
     // Contruct the query
     $query = new stdClass;
@@ -672,14 +672,17 @@ class LogstashLoader {
     $aryRange = array();
     $iDateFrom = strtotime(date("F j, Y", strtotime($strDateFrom)));
     $iDateTo = strtotime(date("F j, Y", strtotime($strDateTo)));
-    if ($iDateTo >= $iDateFrom) {
-      $aryRange[] = $this->index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
-      while ($iDateFrom < $iDateTo) {
-        $iDateFrom += 86400;
+    $indices = explode(",", $this->index);
+    foreach($indices as $index) {
         if ($iDateTo >= $iDateFrom) {
-            $aryRange[] = $this->index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
+            $aryRange[] = $index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
+            while ($iDateFrom < $iDateTo) {
+                $iDateFrom += 86400;
+                if ($iDateTo >= $iDateFrom) {
+                    $aryRange[] = $index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
+                }
+            }
         }
-      }
     }
 
     $aryRange = array_intersect($aryRange, $this->getAllIndices());
