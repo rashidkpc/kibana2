@@ -7,10 +7,6 @@ $(document).ready(function () {
     window.location.hash = '#';
   });
 
-  $('#indexinput').change(function () {
-    window.hashjson.index = $(this).val();
-  });
-
   $('#timeinput').change(function () {
     window.hashjson.timeframe = $(this).val();
     if (window.hashjson.timeframe == "custom") {
@@ -24,7 +20,6 @@ $(document).ready(function () {
 
   $('#indexinput').change(function () {
     window.hashjson.index = $(this).val();
-    setHash(window.hashjson);
   });
 
   // Handle AJAX errors
@@ -74,10 +69,12 @@ $(document).ready(function () {
     success: function (json) {
         indices = JSON.parse(json);
         $("#indexinput").empty();
+        $("#indexinput").append(new Option("[select index]", ""));
         for(var index in indices) {
             $("#indexinput").append(new Option(indices[index], indices[index]));
         }
-        $("#searchform").submit();
+        if(typeof window.hashjson.index != 'undefined')
+            $("#indexinput").val(window.hashjson.index);
     }
   });
 });
