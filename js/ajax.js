@@ -123,10 +123,10 @@ function getPage() {
         //Parse out the window hash
         window.resultjson = JSON.parse(json);
 
-        //console.log(
-        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
-        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(resultjson);
+        console.log(
+          'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
+          '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
+        console.log(resultjson);
 
         $('#graphheader,#graph').text("");
 
@@ -645,11 +645,7 @@ function viewLog(objid) {
     if ($.inArray(field, window.hashjson.fields) > -1) {
       selected = "logfield_selected";
     }
-    try {
-        value = JSON.stringify(obj[field],null,4);
-    } catch(e) {
-        value = (obj[field] != null) ? obj[field].toString() : '';
-    }
+    value = (obj[field] != null) ? obj[field].toString() : '';
     if (!(field.match(/^@cabin_/))) {
       trclass = (i % 2 == 0) ? 'class=alt' : '';
       str += "<tr " + trclass + ">" +
