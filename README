@@ -18,6 +18,12 @@ and go at it.
 
 Edit config.php to set your elasticsearch server. 
 
+Multiple index support
+----------------------
+To enable multiple index support, simply empty the default_index setting in 
+config.php, and optionally add a suffix (we use '-logs' to distinguish log 
+indices from other ES indexes).
+
 Notes
 -----
 Q: Why is there no last button?

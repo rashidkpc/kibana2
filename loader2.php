@@ -50,6 +50,8 @@ class LogstashLoader {
    */
   public function __construct ($config = array()) {
     $this->config = $config;
+    $this->index = $config['default_index'];
+    $this->indexSuffix = $config['index_suffix'];
   }
 
 
@@ -66,8 +68,15 @@ class LogstashLoader {
         $indexNames = array();
         foreach($result as $index) {
             $indexParts = explode("-", $index);
-            if(count($indexParts) == 3 && $indexParts[2] == 'logs')
-                $indexNames[] = $indexParts[0];
+            if(!empty($this->indexSuffix)) {
+                if(count($indexParts) == 3 && strpos($this->indexSuffix, $indexParts[2]) !== FALSE) {
+                    if(empty($this->index) || ($this->index == $indexParts[0]))
+                        $indexNames[] = $indexParts[0];
+                }
+            }
+            else if(count($indexParts) == 2)
+                if(empty($this->index) || ($this->index == $indexParts[0]))
+                    $indexNames[] = $indexParts[0];
         }
         $return = array_values(array_unique($indexNames));
         sort($return);
@@ -105,7 +114,7 @@ class LogstashLoader {
    */
   protected function collectInput () {
     $req = false;
-    if ($_GET['page']) {
+    if (isset($_GET['page'])) {
       // XXX: validation and/or error trapping?
       $base64 = strtr($_GET['page'], '-_', '+/');
       $req = json_decode(base64_decode($base64));
@@ -675,11 +684,11 @@ class LogstashLoader {
     $indices = explode(",", $this->index);
     foreach($indices as $index) {
         if ($iDateTo >= $iDateFrom) {
-            $aryRange[] = $index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
+            $aryRange[] = $index . '-' . date('Y.m.d', $iDateFrom) . $this->indexSuffix;
             while ($iDateFrom < $iDateTo) {
                 $iDateFrom += 86400;
                 if ($iDateTo >= $iDateFrom) {
-                    $aryRange[] = $index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
+                    $aryRange[] = $index . '-' . date('Y.m.d', $iDateFrom) . $this->indexSuffix;
                 }
             }
         }

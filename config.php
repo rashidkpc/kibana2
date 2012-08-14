@@ -76,6 +76,11 @@ $KIBANA_CONFIG = array(
   // you'll need to change primary_field to be '@message'
   'primary_field' => '_all',
 
+  // Default Elastic Search index to query
+  'default_index' => 'logstash',
+
+  'index_suffix' => '',
+
   // default search settings
   'default_search' => array(
     'search' => '*',

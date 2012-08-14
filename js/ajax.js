@@ -61,22 +61,27 @@ $(document).ready(function () {
     url: window.APP.path + "loader2.php?getindices=1",
     type: "GET",
     data: {},
-    cache: true,
+    cache: false,
     success: function (json) {
         indices = JSON.parse(json);
-        $("#indexinput").empty();
-        for(var index in indices) {
-            $("#indexinput").append(new Option(indices[index], indices[index]));
+        if(indices.length > 1) {
+            $("#indexinput").empty();
+            for(var index in indices) {
+                $("#indexinput").append(new Option(indices[index], indices[index]));
+            }
+            $("#indexinput").chosen();
+            if(typeof window.hashjson.index != 'undefined') {
+                $("#indexinput").val(window.hashjson.index);
+                $("#indexinput").trigger("liszt:updated");
+            }
+            $('#indexinput').chosen().change(function () {
+                window.hashjson.index = $(this).val();
+            });
         }
-        $("#indexinput").chosen();
-        if(typeof window.hashjson.index != 'undefined') {
-            $("#indexinput").val(window.hashjson.index);
-            $("#indexinput").trigger("liszt:updated");
+        else {
+            window.hashjson.index = indices;
+            setHash(window.hashjson);
         }
-        $('#indexinput').chosen().change(function () {
-            window.hashjson.index = $(this).val();
-        });
-
     }
   });
 });
