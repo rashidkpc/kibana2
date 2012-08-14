@@ -50,7 +50,6 @@ class LogstashLoader {
    */
   public function __construct ($config = array()) {
     $this->config = $config;
-    $this->index = $this->config['default_index'];
   }
 
 
@@ -61,10 +60,24 @@ class LogstashLoader {
   public function handleRequest () {
     $req = $this->collectInput();
     if ($req) {
-      $req->fields = array_filter($req->fields);
 
-      $query = $this->buildQuery($req);
-      $return = $this->processQuery($req, $query);
+      if($req->mode == 'getindices') {
+        $result = $this->getAllIndices();
+        $indexNames = array();
+        foreach($result as $index) {
+            $indexParts = explode("-", $index);
+            if(count($indexParts) == 3 && $indexParts[2] == 'logs')
+                $indexNames[] = $indexParts[0];
+        }
+        $return = array_values(array_unique($indexNames));
+        sort($return);
+      }
+      else {
+        $req->fields = array_filter($req->fields);
+        $query = $this->buildQuery($req);
+        if(!$this->index) $return = array();
+        else $return = $this->processQuery($req, $query);
+      }
 
 
       switch ($req->mode) {
@@ -109,6 +122,10 @@ class LogstashLoader {
         self::roundInterval($_GET['interval']): 600000;
 
     }
+    else if($_GET['getindices']) {
+        $req = new stdClass();
+        $req->mode = 'getindices';
+    }
     return $req;
   } //end collectInput
 
@@ -122,6 +139,7 @@ class LogstashLoader {
   protected function buildQuery ($req) {
     // Preparse parameters
     $time = $req->time;
+    $this->index = $req->index;
 
     // Contruct the query
     $query = new stdClass;
@@ -634,13 +652,8 @@ class LogstashLoader {
 
     $indices = $result->indices;
     $totaldocs = 0;
-    if ($this->config['default_index'] == "_all") {
-      foreach ($indices as $index) {
+    foreach ($indices as $index) {
         $totaldocs += $index->docs->num_docs;
-      }
-    } else {
-      $index = $this->config['default_index'];
-      $totaldocs = $indices->$index->docs->num_docs;
     }
     return $totaldocs;
   } //end esTotalDocumentCount
@@ -660,15 +673,15 @@ class LogstashLoader {
     $iDateFrom = strtotime(date("F j, Y", strtotime($strDateFrom)));
     $iDateTo = strtotime(date("F j, Y", strtotime($strDateTo)));
     if ($iDateTo >= $iDateFrom) {
-      $aryRange[] = 'logstash-' . date('Y.m.d', $iDateFrom);
+      $aryRange[] = $this->index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
       while ($iDateFrom < $iDateTo) {
         $iDateFrom += 86400;
         if ($iDateTo >= $iDateFrom) {
-          $aryRange[] = 'logstash-' . date('Y.m.d',$iDateFrom);
+            $aryRange[] = $this->index . '-' . date('Y.m.d', $iDateFrom) . '-logs';
         }
       }
     }
-    
+
     $aryRange = array_intersect($aryRange, $this->getAllIndices());
     if (count($aryRange) > $this->config['smart_index_limit']) {
       $aryRange = array('_all');

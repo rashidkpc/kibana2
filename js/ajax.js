@@ -7,6 +7,10 @@ $(document).ready(function () {
     window.location.hash = '#';
   });
 
+  $('#indexinput').change(function () {
+    window.hashjson.index = $(this).val();
+  });
+
   $('#timeinput').change(function () {
     window.hashjson.timeframe = $(this).val();
     if (window.hashjson.timeframe == "custom") {
@@ -18,6 +22,12 @@ $(document).ready(function () {
     }
   });
 
+  $('#indexinput').change(function () {
+    window.hashjson.index = $(this).val();
+    setHash(window.hashjson);
+  });
+
+  // Handle AJAX errors
   // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
     $('#meta').text("");
@@ -55,6 +65,21 @@ $(document).ready(function () {
       logGraph(window.graphdata,window.interval,window.hashjson.graphmode);
     }
   });
+
+  $.ajax({
+    url: window.APP.path + "loader2.php?getindices=1",
+    type: "GET",
+    data: {},
+    cache: true,
+    success: function (json) {
+        indices = JSON.parse(json);
+        $("#indexinput").empty();
+        for(var index in indices) {
+            $("#indexinput").append(new Option(indices[index], indices[index]));
+        }
+        $("#searchform").submit();
+    }
+  });
 });
 
 // This gets called every time the URL changes,
@@ -78,6 +103,7 @@ function pageload(hash) {
     $('#queryinput').val(window.hashjson.search);
     $('#fieldsinput').val(window.hashjson.fields);
     $('#timeinput').val(window.hashjson.timeframe);
+    $('#indexinput').val(window.hashjson.index);
 
     if(typeof window.hashjson.graphmode == 'undefined')
       window.hashjson.graphmode = 'count';
@@ -804,7 +830,7 @@ $(function () {
     else {
       window.hashjson.timeframe = $('#timeinput').val();
     }
-
+    window.hashjson.index = $('#indexinput').val();
 
     if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
       pageload(window.location.hash);
@@ -1222,7 +1248,8 @@ function resetAll() {
       '"fields":[],'+
       '"offset":0,'+
       '"timeframe":"15 minutes",'+
-      '"graphmode":"count"'+
+      '"graphmode":"count",'+
+      '"index":null'+
     '}'
   );
   setHash(window.hashjson);
