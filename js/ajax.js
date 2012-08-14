@@ -123,10 +123,10 @@ function getPage() {
         //Parse out the window hash
         window.resultjson = JSON.parse(json);
 
-        console.log(
-          'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
-          '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        console.log(resultjson);
+        //console.log(
+        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.indices+
+        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
+        //console.log(resultjson);
 
         $('#graphheader,#graph').text("");
 
