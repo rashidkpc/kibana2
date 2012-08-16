@@ -5,9 +5,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Kibana</title>
-<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-<script type="text/javascript" src="js/jquery.history.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.history.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui-1.8.16.custom.min.js"></script>
 
 <LINK REL=StyleSheet HREF="css/style.css" TYPE="text/css" MEDIA=screen>
 <LINK REL=StyleSheet HREF="css/jquery-ui-1.8.16.custom.css" TYPE="text/css" MEDIA=screen>
@@ -36,7 +36,6 @@ $(document).ready(function () {
 </head>
 <body>
 <div id="login">
-<img src=images/login.png>
 <br><br><br>
 <center>
 <form action="auth.php" method="post">
