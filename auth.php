@@ -1,7 +1,5 @@
 <?php
 
-require_once('config.php');//TODO: proper configurable location
-
 //TODO: is this secure? It's been a while since rashidkpc did it and a lot has changed...
 session_start();
 
@@ -103,6 +101,7 @@ function fetch_users(){
 
 function make_salt($length=12){
   $characters='qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890';
+  $string='';
   for ($i=0;$i<$length;$i++){
     $string.=$characters[mt_rand(0,35)];
   }

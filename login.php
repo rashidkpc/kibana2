@@ -38,7 +38,7 @@ $(document).ready(function () {
 <div id="login">
 <br><br><br>
 <center>
-<form action="auth.php" method="post">
+<form action="index.php" method="post">
 <table id=logintable>
 <tr><td><input type="text" name="auth_username" value="username" /></td></tr>
 <tr><td><input type="password" name="auth_password" value="password" /></td></tr>

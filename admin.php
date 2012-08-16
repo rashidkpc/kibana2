@@ -1,3 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Kibana</title>
+<script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.validate.js"></script>
+
+<!-- Validate all the forms, -->
+  <script>
+  $(document).ready(function(){
+    $('form').each(function () { 
+        $(this).validate(); 
+    });
+  });
+  </script>
+ </head>
+<body>
 <?php
 
 if (!defined('KIBANA_CONFIG_FILE')) {
@@ -31,15 +51,17 @@ if (!$USER->admin){
 
 $USERS=fetch_users();
 
-//TODO: All sorts of injection could go on here...
-$formdata=array();
-//Allow only alphanumeric characters or underscores; strip underscores to prevent ES injection
-$formdata['name']=trim(preg_replace("/[^a-zA-Z0-9_]/","",$_POST['name']),'_');
-//TODO: how on earth can I properly sanitise filters while not intefering with them?
-$formdata['filter']=$_POST['filter'];
-//TODO: sanitise passwords
-$formdata['password']=$_POST['password'];
-$formdata['password2']=$_POST['password2'];
+if(!empty($_POST)){
+  //TODO: All sorts of injection could go on here...
+  $formdata=array();
+  //Allow only alphanumeric characters or underscores; strip underscores to prevent ES injection
+  $formdata['name']=trim(preg_replace("/[^a-zA-Z0-9_]/","",$_POST['name']),'_');
+  //TODO: how on earth can I properly sanitise filters while not intefering with them?
+  $formdata['filter']=$_POST['filter'];
+  //TODO: sanitise passwords
+  $formdata['password']=$_POST['password'];
+  $formdata['password2']=$_POST['password2'];
+}
 
 
 if(isset($_POST['new'])){
@@ -54,7 +76,7 @@ if(isset($_POST['new'])){
       $USERS[$formdata['name']]=new stdClass();
       $USERS[$formdata['name']]->name=$formdata['name'];
       $USERS[$formdata['name']]->salt=make_salt();
-      $USERS[$formdata['name']]->pass=md5($formdata['password'].$new_user->salt);
+      $USERS[$formdata['name']]->pass=md5($formdata['password'].$USERS[$formdata['name']]->salt);
       $USERS[$formdata['name']]->admin=false;
       $USERS[$formdata['name']]->filter=$formdata['filter'];
       if (! create_user($USERS[$formdata['name']])) echo 'Error creating default admin user';
@@ -77,20 +99,22 @@ foreach ($USERS as $u){
   echo '<form id="edituser_'.$u->name.'" method="post" action="admin.php">'.$u->name.
        '<input type="hidden" name="name" value="'.$u->name.'"><br />
         Filter:<input name="filter" value="'.str_replace('"','&quot;',$u->filter).'"><br />
-        New Password:<input name="password" type="password"><br />
-        Confirm:<input name="password2" type="password"><br />
+        New Password:<input name="password" id="'.$u->name.'_password" type="password"><br />
+        Confirm:<input name="password2" type="password" equalTo="#'.$u->name.'_password"><br />
         <input type="submit" value="Update"></form>';
 }
   //TODO: select admins from this interface
   //TODO: _ttl field could make temporary users easy, might be useful?
   //TODO: ability to delete users
   //TODO: sort users
-  echo '<form method="post" action="admin.php">New user:
-        <input type="hidden" name="new" value="true"><br />
-        Username:<input name="name"><br />
+  echo '<form id="newUserForm" method="post" action="admin.php">New user:
+        <input type="hidden" name="new" value="true" ><br />
+        Username:<input name="name" class="required"><br />
         Filter:<input name="filter" value="'.$u->filter.'"><br />
-        New Password:<input name="password" type="password"><br />
-        Confirm:<input name="password2" type="password"><br />
+        New Password:<input name="password" id="new_password" type="password" class="required"><br />
+        Confirm:<input name="password2" type="password" equalTo="#new_password"><br />
         <input type="submit" value="New User"></form>';
 
 ?>
+</body>
+</html>
