@@ -29,21 +29,12 @@ if (!$USER->admin){
   die('ERROR: permission denied');
 }
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_URL, 'http://' . $KIBANA_CONFIG['elasticsearch_server'] . '/kibana/user/_search');//TODO: _search etc are valid names...
-$results = json_decode(curl_exec($ch))->hits->hits;
-
-
-$USERS=Array();
-foreach ($results as $result){
-  $USERS[$result->_id]=$result->_source;
-}
+$USERS=fetch_users();
 
 //TODO: All sorts of injection could go on here...
 $formdata=array();
-//Allow only alphanumeric characters or underscores
-$formdata['name']=preg_replace("/[^a-zA-Z0-9_]/","",$_POST['name']);
+//Allow only alphanumeric characters or underscores; strip underscores to prevent ES injection
+$formdata['name']=trim(preg_replace("/[^a-zA-Z0-9_]/","",$_POST['name']),'_');
 //TODO: how on earth can I properly sanitise filters while not intefering with them?
 $formdata['filter']=$_POST['filter'];
 //TODO: sanitise passwords
@@ -60,19 +51,14 @@ if(isset($_POST['new'])){
     if($formdata['password']!=$formdata['password2']){
       echo 'Passwords don\'t match';
     }else{
-      $new_user=new stdClass();
-      $new_user->name=$formdata['name'];
-      $new_user->salt=make_salt();
-      $new_user->pass=md5($formdata['password'].$new_user->salt);
-      $new_user->admin=false;
-      $new_user->filter=$formdata['filter'];
-      $ch = curl_init();
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-      curl_setopt($ch, CURLOPT_POST, true);
-      curl_setopt($ch, CURLOPT_URL, 'http://' . $KIBANA_CONFIG['elasticsearch_server'] . '/kibana/user/'.$new_user->name);//TODO: _search etc are valid names...
-      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($new_user)); 
-      $result=curl_exec($ch);//TODO: check it was sucessful
+      $USERS[$formdata['name']]=new stdClass();
+      $USERS[$formdata['name']]->name=$formdata['name'];
+      $USERS[$formdata['name']]->salt=make_salt();
+      $USERS[$formdata['name']]->pass=md5($formdata['password'].$new_user->salt);
+      $USERS[$formdata['name']]->admin=false;
+      $USERS[$formdata['name']]->filter=$formdata['filter'];
+      if (! create_user($USERS[$formdata['name']])) echo 'Error creating default admin user';
+
     }
   }
 }elseif(!empty($formdata['name'])){
@@ -84,12 +70,7 @@ if(isset($_POST['new'])){
       $USERS[$formdata['name']]->pass=md5($formdata['password'].$USERS[$formdata['name']]->salt);
     }
   }
-      $ch = curl_init();
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_POST, true);
-      curl_setopt($ch, CURLOPT_URL, 'http://' . $KIBANA_CONFIG['elasticsearch_server'] . '/kibana/user/'.$formdata['name']);//TODO: _search etc are valid names...
-      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($USERS[$formdata['name']])); 
-      $result=curl_exec($ch);//TODO: check it was sucessful
+  update_user($USERS[$formdata['name']]);
 }
 
 foreach ($USERS as $u){
@@ -103,6 +84,7 @@ foreach ($USERS as $u){
   //TODO: select admins from this interface
   //TODO: _ttl field could make temporary users easy, might be useful?
   //TODO: ability to delete users
+  //TODO: sort users
   echo '<form method="post" action="admin.php">New user:
         <input type="hidden" name="new" value="true"><br />
         Username:<input name="name"><br />
