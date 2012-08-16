@@ -16,6 +16,12 @@ if (!defined('KIBANA_CONFIG_FILE')) {
 }
 require_once KIBANA_CONFIG_FILE;
 
+// Sorry, this will take too long to make E_STRICT compatible                 
+// I absolutely welcome a pull to remove this!                                
+if(defined('E_STRICT')){                                                      
+  error_reporting(E_ALL);                                                     
+}
+
 /**
  * Handle requests for Logstash data via JSON requests.
  *
@@ -124,7 +130,7 @@ class LogstashLoader {
     $time = $req->time;
 
     // Contruct the query
-    $query = new stdClass;
+    $query = new stdClass();
     $query->from = $req->offset;
 
     $filter_string = ($this->config['filter_string'] == "")?
@@ -159,7 +165,7 @@ class LogstashLoader {
       }
       $req->search = $sanitized_search;
     }
-
+    
     $query->query->filtered->query->query_string->query =
         ($req->search == "")? "*" . $filter_string:
         "(".$req->search.")" . $filter_string;
@@ -167,7 +173,7 @@ class LogstashLoader {
         $this->config['primary_field'];
 
     if ($query->query->filtered->query->query_string->query == "*") {
-      unset($query->query->filtered->query);
+      unset($query->query->filtered->query->query_string);
       $query->query->filtered->query->match_all = new StdClass;
     }
 
@@ -177,7 +183,7 @@ class LogstashLoader {
     // Unless the user gives us exact times, compute relative
     // timeframe based on drop down
     if ($req->timeframe != "custom") {
-      $time = new stdClass;
+      $time = new stdClass();
       if($req->timeframe == 'all') {
         $time->from = date('c', strtotime("100 years ago"));
       } else {
@@ -261,7 +267,7 @@ class LogstashLoader {
     date_default_timezone_set($this->config['local_timezone']);
 
     // build the response
-    $return = new stdClass;
+    $return = new stdClass();
 
     //Store original query size to slice with
     $slice = $query->size;
