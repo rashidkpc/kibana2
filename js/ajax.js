@@ -66,10 +66,6 @@ function pageload(hash) {
     window.request.abort();
     delete window.segment;
   }
-
-  if (getcookie('username') != null)
-    $('#dynamic_menu').html(
-      '<a class="tab jlink" href="auth.php?logout">Logout</a>')
   //if hash value exists, run the ajax
   if (hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));

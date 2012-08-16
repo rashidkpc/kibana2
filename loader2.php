@@ -15,7 +15,9 @@ if (!defined('KIBANA_CONFIG_FILE')) {
   define('KIBANA_CONFIG_FILE', $config_path);
 }
 require_once KIBANA_CONFIG_FILE;
-
+if ($KIBANA_CONFIG['use_auth']){
+  require_once 'auth.php';
+}
 /**
  * Handle requests for Logstash data via JSON requests.
  *

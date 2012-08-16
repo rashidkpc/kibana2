@@ -14,6 +14,11 @@ if (!defined('KIBANA_CONFIG_FILE')) {
   define('KIBANA_CONFIG_FILE', $config_path);
 }
 require_once KIBANA_CONFIG_FILE;
+
+if ($KIBANA_CONFIG['use_auth']){
+
+  require_once 'auth.php';
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
@@ -69,7 +74,7 @@ require_once KIBANA_CONFIG_FILE;
     <div class="container-fluid">
       <form id='searchform' class="form-search form-horizontal" action="">
         <table class=formatting><tr>
-        <td width='1%'><center><img src='<?php echo $KIBANA_CONFIG['app_path'] ?>images/logo.png'></center></td>
+        <td width='1%'><center><img src='<?php echo $KIBANA_CONFIG['app_path'] ?>images/logo.png'></center><?php if($KIBANA_CONFIG['use_auth'] && $_SESSION['auth'] == 1)echo'<a href="auth.php?logout">Logout</a>';?></td>
         <td width='1%'>
         <select name="time" id=timeinput class="span2">
         <option value="15 minutes">Last 15m</option>
