@@ -67,8 +67,10 @@ $KIBANA_CONFIG = array(
     '@source',
   ),
 
-  //Configure users in users.php
   'use_auth' => true,
+
+  // Be careful, if you turn this on Kibana won't try to authenticate anyone
+  'external_auth' => true,
 
   // You probably don't want to touch anything below this line
   // unless you really know what you're doing

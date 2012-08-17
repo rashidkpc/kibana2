@@ -3,7 +3,7 @@
 //TODO: is this secure? It's been a while since rashidkpc did it and a lot has changed...
 session_start();
 
-//If there are no users, create an admin user with name admin and pass pass
+//If there are no users, create an admin user with name admin and pass pass TODO: what if we're using external auth?
 if(count(fetch_users())==0){
   $new_user=new stdClass();
   $new_user->name='admin';
@@ -29,27 +29,43 @@ if(isset($_GET['logout'])) {
 	exit;        
 }
 
-if( isset($name) || isset($pass) ) {
+if($KIBANA_CONFIG['external_auth']  && $_SESSION['auth'] != 1){
+  //If we've got this far, external auth has done its thing
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_URL, 'http://' . $KIBANA_CONFIG['elasticsearch_server'] . '/kibana/user/'.$_SERVER['REMOTE_USER']);
+  $result = json_decode(curl_exec($ch));
+  if ($result->exists){
+    $USER=$result->_source;
+    $_SESSION['auth'] = 1;
+    $_SESSION['user'] = $USER;
+    header('Location: index.php');
+  }else{
+    die('ERROR: user not known');
+  }
+}else{
+  if( isset($name) || isset($pass) ) {
 
-	if( empty($name) ) {
-		die ("ERROR: Please enter username!");
-	}
-	if( empty($pass) ) {
-		die ("ERROR: Please enter password!");
-	}
+    if( empty($name) ) {
+      die ("ERROR: Please enter username!");
+    }
+    if( empty($pass) ) {
+      die ("ERROR: Please enter password!");
+    }
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_URL, 'http://' . $KIBANA_CONFIG['elasticsearch_server'] . '/kibana/user/'.$name);
-	$result = json_decode(curl_exec($ch));
-	$USER=$result->_source;//TODO: seems to tolerate non-existant users, have a closer look at what's going on
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_URL, 'http://' . $KIBANA_CONFIG['elasticsearch_server'] . '/kibana/user/'.$name);
+    $result = json_decode(curl_exec($ch));
+    $USER=$result->_source;//TODO: seems to fail gracefully on non-existant users, have a closer look at what's going on
 
-	if( md5($pass . $USER->salt) == $USER->pass ) {
-		$_SESSION['auth'] = 1;
-		$_SESSION['user'] = $USER;
-		header('Location: index.php');
-	}
-} 
+    if( md5($pass . $USER->salt) == $USER->pass ) {
+      $_SESSION['auth'] = 1;
+      $_SESSION['user'] = $USER;
+      header('Location: index.php');
+    }
+  }
+}
 
 if($_SESSION['auth'] == 1) {
 

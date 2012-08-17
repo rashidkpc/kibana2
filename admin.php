@@ -65,8 +65,10 @@ if(!empty($_POST)){
 
 
 if(isset($_POST['new'])){
-  if(empty($formdata['name'])||empty($formdata['password'])||empty($formdata['password2'])){
-    echo 'required attribute not specified';//TODO: nice validating form, not just ugly errors
+  if(empty($formdata['name'])){
+    echo 'required attribute name not specified';
+  }elseif(!$KIBANA_CONFIG['external_auth'] && empty($formdata['password'])){
+    echo 'required attribute password not specified';
   }elseif(isset($USERS[$formdata['name']])){
     echo 'Username already taken';
   }else{
@@ -79,7 +81,7 @@ if(isset($_POST['new'])){
       $USERS[$formdata['name']]->pass=md5($formdata['password'].$USERS[$formdata['name']]->salt);
       $USERS[$formdata['name']]->admin=false;
       $USERS[$formdata['name']]->filter=$formdata['filter'];
-      if (! create_user($USERS[$formdata['name']])) echo 'Error creating default admin user';
+      if (! create_user($USERS[$formdata['name']])) echo 'Error creating user';
 
     }
   }
@@ -98,22 +100,27 @@ if(isset($_POST['new'])){
 foreach ($USERS as $u){
   echo '<form id="edituser_'.$u->name.'" method="post" action="admin.php">'.$u->name.
        '<input type="hidden" name="name" value="'.$u->name.'"><br />
-        Filter:<input name="filter" value="'.str_replace('"','&quot;',$u->filter).'"><br />
-        New Password:<input name="password" id="'.$u->name.'_password" type="password"><br />
-        Confirm:<input name="password2" type="password" equalTo="#'.$u->name.'_password"><br />
-        <input type="submit" value="Update"></form>';
+        Filter:<input name="filter" value="'.str_replace('"','&quot;',$u->filter).'"><br />';
+  if (!$KIBANA_CONFIG['external_auth']){
+    echo 'New Password:<input name="password" id="'.$u->name.'_password" type="password"><br />
+          Confirm:<input name="password2" type="password" equalTo="#'.$u->name.'_password"><br />';
+  }
+  echo'<input type="submit" value="Update"></form>';
 }
   //TODO: select admins from this interface
   //TODO: _ttl field could make temporary users easy, might be useful?
   //TODO: ability to delete users
   //TODO: sort users
+  //TODO: allow users to set their own passwords
   echo '<form id="newUserForm" method="post" action="admin.php">New user:
         <input type="hidden" name="new" value="true" ><br />
         Username:<input name="name" class="required"><br />
-        Filter:<input name="filter" value="'.$u->filter.'"><br />
-        New Password:<input name="password" id="new_password" type="password" class="required"><br />
-        Confirm:<input name="password2" type="password" equalTo="#new_password"><br />
-        <input type="submit" value="New User"></form>';
+        Filter:<input name="filter" value="'.$u->filter.'"><br />';
+    if (!$KIBANA_CONFIG['external_auth']){
+      echo 'New Password:<input name="password" id="new_password" type="password" class="required"><br />
+            Confirm:<input name="password2" type="password" equalTo="#new_password"><br />';
+    }
+    echo '<input type="submit" value="New User"></form>';
 
 ?>
 </body>
