@@ -15,10 +15,8 @@ if (!defined('KIBANA_CONFIG_FILE')) {
 }
 require_once KIBANA_CONFIG_FILE;
 
-if ($KIBANA_CONFIG['use_auth']){
+if ($KIBANA_CONFIG['use_auth']) require_once 'auth.php';
 
-  require_once 'auth.php';
-}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"

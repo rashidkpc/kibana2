@@ -117,8 +117,8 @@ foreach ($USERS as $u){
         Username:<input name="name" class="required"><br />
         Filter:<input name="filter" value="'.$u->filter.'"><br />';
     if (!$KIBANA_CONFIG['external_auth']){
-      echo 'New Password:<input name="password" id="new_password" type="password" class="required"><br />
-            Confirm:<input name="password2" type="password" equalTo="#new_password"><br />';
+      echo 'New Password:<input name="password" id="_new_password" type="password" class="required"><br />
+            Confirm:<input name="password2" type="password" equalTo="#_new_password"><br />';//_new is not a valid name; this prevents a clash of ids in the case of an unfortunately named user
     }
     echo '<input type="submit" value="New User"></form>';
 
