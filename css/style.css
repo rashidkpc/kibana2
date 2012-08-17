@@ -16,7 +16,7 @@ padding-right: 0px;
 }
 
 .navbar-inner {
-height: 70px;
+height: 75px;
 }
 
 .topbar {
@@ -108,7 +108,7 @@ color: #333;
 
 #feedlinks {
 position: absolute;
-top: 65px;
+top: 80px;
 right: 20px;
 }
 

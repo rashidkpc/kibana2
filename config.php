@@ -69,8 +69,10 @@ $KIBANA_CONFIG = array(
 
   'use_auth' => true,
 
-  // Be careful, if you turn this on Kibana won't try to authenticate anyone
-  'external_auth' => true,
+  // Be careful, if you turn this on Kibana won't try to authenticate anyone.
+  // However if it can't find a matching user account it will not grant access
+  // If you later turn it off, you'll be left with users with blank passwords
+  'external_auth' => false,
 
   // You probably don't want to touch anything below this line
   // unless you really know what you're doing

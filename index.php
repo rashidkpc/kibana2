@@ -55,7 +55,7 @@ if ($KIBANA_CONFIG['use_auth']) require_once 'auth.php';
   <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>css/jquery.ui.datepicker.css">
   <style type="text/css">
     body {
-    padding-top: 65px;
+    padding-top: 80px;
     padding-bottom: 40px;
     }
 
@@ -72,7 +72,8 @@ if ($KIBANA_CONFIG['use_auth']) require_once 'auth.php';
     <div class="container-fluid">
       <form id='searchform' class="form-search form-horizontal" action="">
         <table class=formatting><tr>
-        <td width='1%'><center><img src='<?php echo $KIBANA_CONFIG['app_path'] ?>images/logo.png'></center><?php if($KIBANA_CONFIG['use_auth'] && ! $KIBANA_CONFIG['external_auth'] && $_SESSION['auth'] == 1)echo'<a href="auth.php?logout">Logout</a>';?></td>
+        <td width='1%'><center><img src='<?php echo $KIBANA_CONFIG['app_path'] ?>images/logo.png'></center>
+        </td>
         <td width='1%'>
         <select name="time" id=timeinput class="span2">
         <option value="15 minutes">Last 15m</option>
@@ -92,7 +93,9 @@ if ($KIBANA_CONFIG['use_auth']) require_once 'auth.php';
         <td><div id=meta></div></td>
       </tr></table>
       </form>
-
+      <?php if($KIBANA_CONFIG['use_auth'] && $USER->admin && $_SESSION['auth'] == 1)echo'<a href="admin.php">Admin</a>';?>
+      <?php if($KIBANA_CONFIG['use_auth'] && ! $KIBANA_CONFIG['external_auth'] && $_SESSION['auth'] == 1)echo'<a href="auth.php?logout">Logout</a>';?>
+      
     </div>
     </div>
   </div>

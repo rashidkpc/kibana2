@@ -1,6 +1,7 @@
 <?php
 
 //TODO: is this secure? It's been a while since rashidkpc did it and a lot has changed...
+//TODO: How potected against injection attacks are we? 
 session_start();
 
 //If there are no users, create an admin user with name admin and pass pass TODO: what if we're using external auth?
