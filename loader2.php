@@ -166,6 +166,10 @@ class LogstashLoader {
       $req->search = $sanitized_search;
     }
     
+    $query->query = new stdClass();
+    $query->query->filtered = new stdClass();
+    $query->query->filtered->query = new stdClass();
+    $query->query->filtered->query->query_string = new stdClass();
     $query->query->filtered->query->query_string->query =
         ($req->search == "")? "*" . $filter_string:
         "(".$req->search.")" . $filter_string;
@@ -178,6 +182,9 @@ class LogstashLoader {
     }
 
     $query->size = $this->config['results_per_page'];
+
+    $query->sort = new stdClass();
+    $query->sort->{'@timestamp'} = new stdClass();
     $query->sort->{'@timestamp'}->order = 'desc';
 
     // Unless the user gives us exact times, compute relative
@@ -196,6 +203,8 @@ class LogstashLoader {
 
     // Check if we have a time range, if so filter
     if ($time != '') {
+      $query->query->filtered->filter = new stdClass();
+      $query->query->filtered->filter->range = new stdClass();
       $query->query->filtered->filter->range->{'@timestamp'} = $time;
       // Figure out which indices to search
       if ($this->config['smart_index']) {
@@ -208,8 +217,16 @@ class LogstashLoader {
     // Check the mode
     switch ($req->mode) {
       case 'countgraph':
+        if (!isset($query)) {
+          $query = new stdClass();
+        }
         unset($query->sort);
         $query->size = 0;
+
+        $query->facets = new stdClass();
+        $query->facets->histo1 = new stdClass();
+        $query->facets->histo1->date_histogram = new stdClass();
+
         $query->facets->histo1->date_histogram->field =
           "@timestamp";
         $query->facets->histo1->date_histogram->interval =
@@ -268,6 +285,7 @@ class LogstashLoader {
 
     // build the response
     $return = new stdClass();
+    $return->graph = new stdClass();
 
     //Store original query size to slice with
     $slice = $query->size;
@@ -286,6 +304,7 @@ class LogstashLoader {
           }
         }
       }
+
       $return->graph->interval = $req->interval;
     } else {
       $return->graph->interval =
@@ -345,6 +364,10 @@ class LogstashLoader {
         break;
 
       default:
+        if (!isset($result->hits)) {
+          $result->hits = new stdClass();
+        }
+
         $result->hits->hits = array_slice($result->hits->hits, 0, $slice);
         $base_fields = array_values(array_unique(array_merge(
           array('@message'),
@@ -354,6 +377,7 @@ class LogstashLoader {
           $this->config['default_fields'])));
         $return->page_count = count($result->hits->hits);
         $i=0;
+
         foreach ($result->hits->hits as $hitkey => $hit) {
           $i++;
           $hit_id = $hit->{'_id'};
@@ -383,6 +407,10 @@ class LogstashLoader {
     if (sizeof($req->fields) == 0) $req->fields = array('@message');
     $return->fields_requested = $req->fields;
     $return->elasticsearch_json = json_encode($query);
+
+    if (!isset($return->meta)) {
+      $return->meta = new stdClass();
+    }
 
     // Insert meta data for javascript
     $return->meta->per_page = $this->config['results_per_page'];
