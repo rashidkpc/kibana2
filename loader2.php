@@ -193,6 +193,9 @@ class LogstashLoader {
     $query->query->filtered->query->query_string->default_field =
         $this->config['primary_field'];
 
+    $query->query->filtered->query->query_string->default_operator =
+        $this->config['default_operator'];
+
     if ($query->query->filtered->query->query_string->query == "*") {
       unset($query->query->filtered->query);
       $query->query->filtered->query->match_all = new StdClass;
