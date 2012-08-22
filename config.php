@@ -76,8 +76,17 @@ $KIBANA_CONFIG = array(
   // you'll need to change primary_field to be '@message'
   'primary_field' => '_all',
 
+  //The default operator used if no explicit operator is specified. 
+  //For example, with a default operator of OR, the query capital of 
+  //Hungary is translated to capital OR of OR Hungary, 
+  //and with default operator of AND, the same query is translated 
+  //to capital AND of AND Hungary. The default value is OR.
+  'default_operator' => 'OR',
+
   // Default Elastic Search index to query
-  'default_index' => '_all',
+  'default_index' => 'logstash',
+
+  'index_suffix' => '',
 
   // default search settings
   'default_search' => array(

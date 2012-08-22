@@ -19,6 +19,7 @@ $(document).ready(function () {
   });
 
   // Handle AJAX errors
+  // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
     $('#meta').text("");
     if(xhr.statusText != 'abort') {
@@ -55,6 +56,34 @@ $(document).ready(function () {
       logGraph(window.graphdata,window.interval,window.hashjson.graphmode);
     }
   });
+
+  $.ajax({
+    url: window.APP.path + "loader2.php?getindices=1",
+    type: "GET",
+    data: {},
+    cache: false,
+    success: function (json) {
+        indices = JSON.parse(json);
+        if(indices.length > 1) {
+            $("#indexinput").empty();
+            for(var index in indices) {
+                $("#indexinput").append(new Option(indices[index], indices[index]));
+            }
+            $("#indexinput").chosen();
+            if(typeof window.hashjson.index != 'undefined') {
+                $("#indexinput").val(window.hashjson.index);
+                $("#indexinput").trigger("liszt:updated");
+            }
+            $('#indexinput').chosen().change(function () {
+                window.hashjson.index = $(this).val();
+            });
+        }
+        else {
+            window.hashjson.index = indices;
+            setHash(window.hashjson);
+        }
+    }
+  });
 });
 
 // This gets called every time the URL changes,
@@ -78,6 +107,8 @@ function pageload(hash) {
     $('#queryinput').val(window.hashjson.search);
     $('#fieldsinput').val(window.hashjson.fields);
     $('#timeinput').val(window.hashjson.timeframe);
+    $('#indexinput').val(window.hashjson.index);
+    $("#indexinput").trigger("liszt:updated");
 
     if(typeof window.hashjson.graphmode == 'undefined')
       window.hashjson.graphmode = 'count';
@@ -117,6 +148,10 @@ function getPage() {
     data: data,
     cache: false,
     success: function (json) {
+      if(json =="[]") {
+        setMeta(0,0,false);
+        return;
+      }
       // Make sure we're still on the same page
       if (sendhash == window.location.hash.replace(/^#/, '')) {
 
@@ -707,7 +742,7 @@ function mSearch(field, value) {
   window.hashjson.analyze_field = '';
   var glue = $('#queryinput').val() != "" ? " AND " : " ";
   window.hashjson.search = $('#queryinput').val() + glue + field + ":" + "\"" +
-    addslashes(value.toString()) + "\"";
+    addslashes(JSON.parse(value.toString())) + "\"";
   setHash(window.hashjson);
   scroll(0, 0);
 }
@@ -800,7 +835,7 @@ $(function () {
     else {
       window.hashjson.timeframe = $('#timeinput').val();
     }
-
+    window.hashjson.index = $('#indexinput').val();
 
     if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
       pageload(window.location.hash);
@@ -1218,7 +1253,8 @@ function resetAll() {
       '"fields":[],'+
       '"offset":0,'+
       '"timeframe":"15 minutes",'+
-      '"graphmode":"count"'+
+      '"graphmode":"count",'+
+      '"index":null'+
     '}'
   );
   setHash(window.hashjson);

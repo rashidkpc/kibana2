@@ -36,6 +36,7 @@ require_once KIBANA_CONFIG_FILE;
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery-ui-timepicker-addon.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/jquery.ui.accordion.js"></script>
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/json2.js"></script>
+  <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>js/lib/chosen.jquery.js"></script>
   <script type="text/javascript">
       var APP = {
         path: <?php echo json_encode($KIBANA_CONFIG['app_path']) ?>
@@ -47,9 +48,10 @@ require_once KIBANA_CONFIG_FILE;
   <script type="text/javascript" src="<?php echo $KIBANA_CONFIG['app_path'] ?>bootstrap/js/bootstrap-dropdown.js"></script>
   <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>bootstrap/css/bootstrap-responsive.min.css">
-  <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>css/style.css">
+  <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>css/chosen.css">
   <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>css/jquery-ui-1.8.16.custom.css">
   <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>css/jquery.ui.datepicker.css">
+  <link rel="stylesheet" href="<?php echo $KIBANA_CONFIG['app_path'] ?>css/style.css">
   <style type="text/css">
     body {
     padding-top: 65px;
@@ -70,6 +72,10 @@ require_once KIBANA_CONFIG_FILE;
       <form id='searchform' class="form-search form-horizontal" action="">
         <table class=formatting><tr>
         <td width='1%'><center><img src='<?php echo $KIBANA_CONFIG['app_path'] ?>images/logo.png'></center></td>
+        <td width='1%'>
+        <select data-placeholder="Choose an index" class="span2" id=indexinput name="index" style="display:none; width:400px; margin-top:5px" multiple tabindex="1">
+        </select>
+        </td>
         <td width='1%'>
         <select name="time" id=timeinput class="span2">
         <option value="15 minutes">Last 15m</option>

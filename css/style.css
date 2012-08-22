@@ -219,3 +219,7 @@ visibility: hidden;
 -o-user-select: none;
 user-select: none;
 }
+
+#indexinput_chzn {
+    margin-top: 5px;
+}
