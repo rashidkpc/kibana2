@@ -67,6 +67,12 @@ $KIBANA_CONFIG = array(
     '@source',
   ),
 
+  // Set the fields to display by default. If nothing, then just
+  // '@message' is displayed.
+  'default_display_fields' => array(
+	'@message',
+  ),
+
   // You probably don't want to touch anything below this line
   // unless you really know what you're doing
 

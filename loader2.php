@@ -404,7 +404,11 @@ class LogstashLoader {
         }
         //sort($return->all_fields);
     }
-    if (sizeof($req->fields) == 0) $req->fields = array('@message');
+    if (sizeof($req->fields) == 0 && $this->config['default_display_fields']) {
+        $req->fields = $this->config['default_display_fields'];
+    } else if (sizeof($req->fields) == 0) {
+        $req->fields = array('@message');
+    }
     $return->fields_requested = $req->fields;
     $return->elasticsearch_json = json_encode($query);
 
