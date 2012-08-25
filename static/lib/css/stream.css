@@ -1,0 +1,48 @@
+html, body {
+margin: 0;
+padding: 0;
+}
+
+#tweets {
+  width: 100%;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+table#tweets {
+	padding: 0;
+}
+
+#tweets tr {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 2px;
+}
+
+#status {
+padding-top: 5px;
+}
+
+#counter h3 {
+	margin-top: 0px;
+	color: #fff;
+	font-size: 32px;
+}
+
+#query h4 {
+	margin: 35px 0 10px 0;
+	color: #000;
+}
+
+#tweets td {
+    border: 0;
+}
+
+.author {
+    font-weight: bold
+}
+.date {
+    font-size: 10px;
+}
+
+.new {
+    background-color: #eee;
+}

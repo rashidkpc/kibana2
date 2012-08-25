@@ -1,0 +1,256 @@
+/* Dark Brown: #5a2100
+// Light Brown: #b04100
+// Orangeish: #fc6d19
+// Blue: #006363
+// Light Blue: #00b0af
+*/
+
+body {
+	font-family: proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.content {
+padding-left: 0px;
+padding-right: 0px;
+}
+
+.btn.tiny {
+  padding: 3px 5px 3px;
+  font-size: 10px;
+}
+
+.navbar-inner {
+	margin-top: 0px;
+	height: 45px;
+}
+
+.topbar {
+padding: 3px;
+}
+
+.jlink {
+cursor: pointer;
+}
+
+.positive { font-weight: bold; color: #5c8c5c; }
+.negative { font-weight: bold; color: #873535; }
+
+.pagelinks {
+	margin: 5px;
+}
+
+table.logs {
+width: 100%;
+}
+
+.well h5 {
+	margin: 0px;
+}
+
+#logs td {
+word-wrap: break-word;
+font-size: 11px;
+}
+
+#logs td.firsttd {
+white-space: nowrap;
+vertical-align: text-top;
+}
+
+#logs th {
+text-align: left;
+}
+
+#meta {
+text-align: right;
+width: 95px;
+color: #fff;
+vertical-align: middle;
+}
+
+#meta td {
+color: #fff;
+padding: 2px;
+font-size: 16px;
+line-height: 10px;
+text-align: right;
+}
+
+div.legend table, div.legend table td {
+width: auto;
+height: auto;
+line-height: auto;
+color: #000;
+margin: 0px;
+border: 0;
+padding: 0px;
+}
+
+div.legend table td.legendColorBox, div.legend table td.legendLabel {
+padding-left: 3px;
+}
+
+
+table.formatting {
+vertical-align: middle;
+}
+
+table.formatting td {
+margin-top: 0px;
+padding-left: 5px;
+}
+
+.navbar table.formatting .btn {
+margin-top: 0px;
+}
+
+#searchform {
+width: 100%;
+margin: 5px;
+}
+
+#searchform img {
+max-width: none;
+}
+
+#queryinput {
+width: 98%;
+font-size: 8pt;
+color: #333;
+}
+
+#feedlinks {
+position: absolute;
+top: 50px;
+right: 20px;
+}
+
+#feedlinks a, #feedlinks img {
+color: #000;
+font-size: .9em;
+text-align: right;
+vertical-align: middle;
+}
+
+#analyze {
+padding-top: 10px;
+}
+
+#fields a:hover {
+color: #A92C10;
+}
+
+#fields a.logfield_selected:hover {
+text-decoration: line-through;
+}
+
+a.logfield_selected {
+color: #A92C10;
+}
+
+#graph {
+height: 120px;
+width: 100%;
+}
+
+#graphheader {
+font-size: 10pt;
+vertical-align: text-bottom;
+margin: 0px;
+}
+
+table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
+cursor: pointer;
+}
+
+
+table.logdetails {
+margin-left: 10px;
+}
+
+tr.logrow:hover {
+background-color: #e8f7f7;
+}
+
+tr.showdetails td {
+border-top: 0px;
+}
+
+table.logdetails td{
+border: 0px;
+}
+
+.alt {
+background-color: #F5F5F5;
+}
+
+.small {
+	font-size: 0.7em;
+}
+
+table.logdetails th {
+font-size: 7pt;
+font-weight: normal;
+background-color: #F5F5F5;
+border-top: 0;
+border-bottom: 0;
+
+}
+
+tr.hidedetails {
+display: none;
+}
+
+td.logopts {
+background-color: #fff;
+white-space: nowrap;
+}
+
+.no_hover a:hover {
+background: #fff;
+}
+
+#ui-datepicker-div {
+font-size: 11px;
+}
+
+div.row-fluid > div.sidebar-collapsed {
+  margin-left:0px;
+}
+
+div.sidebar-collapsed #sbctl {
+  left:3px;
+}
+
+ul#analyze_list > li > a {
+padding-top: 2px;
+padding-bottom: 2px;
+padding-left: 3px;
+}
+
+dl {
+ width:100%;
+ overflow:hidden;
+}
+
+dt {
+ float:left;
+ width:20%;
+ clear: left;
+}
+dd {
+ float:left;
+ width:70%;
+}
+
+
+del {
+visibility: hidden;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+-o-user-select: none;
+user-select: none;
+}
