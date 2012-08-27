@@ -13,17 +13,21 @@ logstash >= 1.1.0
 elasticsearch >= 0.18.0  
 
 ## Installation
-Run:  
+Install:  
+  git clone --branch=kibana-ruby git@github.com:rashidkpc/Kibana.git
 	cd Kibana  
 	gem install bundler  
 	bundle install  
 
+Configure:  
 Set your elasticsearch server in KibanaConfig.rb:  
 	Elasticsearch = "elasticsearch:9200"  
 
-Run:
+Run:  
 	ruby kibana.rb  
 
+Use:  
+  Point your browser at http://localhost:5601
 
 ## FAQ
 Q: Why is there no last button?  
