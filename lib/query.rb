@@ -26,6 +26,7 @@ class Query
     else
       @question = {
         "query_string" => {
+          "default_operator" => KibanaConfig::Default_operator,
           "default_field" => KibanaConfig::Primary_field,
           "query" => question
         }
