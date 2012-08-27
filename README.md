@@ -1,3 +1,10 @@
+# HEY THERE
+This is the PHP version of Kibana. Development has shifted to the Ruby version. 
+It has all the same great features, but its even easier to setup, use and hack
+on. Find it here: https://github.com/rashidkpc/Kibana/tree/kibana-ruby
+
+IMPORTANT: The master branch will soon be replaced with the kibana-ruby branch
+
 # Kibana
 A brower based log analysis tool for Logstash and ElasticSearch  
 Copyright 2011 Rashid Khan <rashidkpc #logstash irc.freenode.net>  
