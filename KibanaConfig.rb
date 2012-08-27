@@ -14,7 +14,6 @@ module KibanaConfig
   # TODO: Not functional yet. Results to show per page
   Per_page = 50
 
-  # TODO: Not functional yet. 
   # You may wish to insert a default search which all user searches
   # must match. For example @source_host:www1 might only show results
   # from www1.

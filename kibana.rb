@@ -53,7 +53,6 @@ get '/api/search/:hash' do
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
-
   result  = KelasticMulti.new(query,indices)
 
   # Not sure this is required. This should be able to be handled without

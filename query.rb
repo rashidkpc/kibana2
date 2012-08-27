@@ -17,7 +17,11 @@ class Query
   attr_accessor :query,:from,:to
   def initialize(question, from = nil, to = nil)
     # Build query part of the filtered query
-    if (question == "" || question == "*")
+    question = question == "" ? "*" : question
+    question = KibanaConfig::Filter == "" ?
+      question : "(#{question}) AND #{KibanaConfig::Filter}"
+
+    if (question == "*")
       @question = { "match_all" => {}}
     else
       @question = {
