@@ -14,7 +14,6 @@ Dir['./lib/*.rb'].each{ |f| require f }
 configure do
   set :port, KibanaConfig::KibanaPort
   set :public_folder, Proc.new { File.join(root, "static") }
-
   enable :sessions
 end
 

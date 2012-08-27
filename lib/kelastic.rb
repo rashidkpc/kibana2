@@ -129,7 +129,7 @@ class KelasticSegment
     indices = indices.kind_of?(Array) ? indices : [indices]
     index = indices[segment]
     @url = "#{Kelastic.index_path(index)}/_search"
-    
+
     # TODO: This badly needs error handling for missing indices
     @response = Kelastic.run(@url,query)
 
@@ -265,7 +265,7 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      field[0,1] == '@' ? hit['_source'][field].to_s : hit['_source']['@fields'][field].to_s;
+      field[0,1] == '@' ? hit['_source'][field] : hit['_source']['@fields'][field];
     end
 
     # Very similar to flatten_response, except only returns an array of field
@@ -273,7 +273,12 @@ class KelasticResponse
     def collect_field_values(response,field)
       @hit_list = Array.new
       response['hits']['hits'].each do |hit|
-        @hit_list << get_field_value(hit,field)
+        fv = get_field_value(hit,field)
+        if fv.kind_of?(Array)
+          @hit_list = @hit_list + fv
+        else
+          @hit_list << fv
+        end
       end
       @hit_list
     end
