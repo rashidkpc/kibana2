@@ -2,7 +2,7 @@ require 'rubygems'
 require 'json'
 require 'base64'
 require 'time'
-require 'KibanaConfig.rb'
+require 'KibanaConfig'
 
 =begin
 = Class: ClientRequest

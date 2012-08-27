@@ -7,6 +7,9 @@ require 'rss/maker'
 require 'yaml'
 require 'faster_csv'
 
+$LOAD_PATH << '.'
+$LOAD_PATH << './lib'
+
 require 'KibanaConfig'
 Dir['./lib/*.rb'].each{ |f| require f }
 
@@ -240,4 +243,13 @@ get '/export/:hash/?:count?' do
     flat.each { |row| csv << row }
   end
   csv_string
+end
+
+# Make compatible with 1.8.7 and 1.9.3
+unless Kernel.respond_to?(:require_relative)
+  module Kernel
+    def require_relative(path)
+      require File.join(File.dirname(caller[0]), path.to_str)
+    end
+  end
 end
