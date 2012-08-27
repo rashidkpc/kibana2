@@ -121,7 +121,7 @@ function getPage() {
 
   //Get the data and display it
   window.request = $.ajax({
-    url: "/api/search/"+sendhash,
+    url: "api/search/"+sendhash,
     type: "GET",
     cache: false,
     success: function (json) {
@@ -257,7 +257,7 @@ function getGraph(interval) {
   window.segment = typeof window.segment === 'undefined' ? '' : window.segment;
   //Get the data and display it
   window.request = $.ajax({
-    url: "/api/graph/"+mode+"/"+interval+"/"+sendhash+"/"+window.segment,
+    url: "api/graph/"+mode+"/"+interval+"/"+sendhash+"/"+window.segment,
     type: "GET",
     cache: false,
     success: function (json) {
@@ -314,7 +314,7 @@ function getID() {
   var sendhash = window.location.hash.replace(/^#/, '');
   //Get the data and display it
   window.request = $.ajax({
-    url: "/api/id/"+window.hashjson.id+"/"+window.hashjson.index,
+    url: "api/id/"+window.hashjson.id+"/"+window.hashjson.index,
     type: "GET",
     cache: false,
     success: function (json) {
@@ -338,7 +338,7 @@ function getAnalysis() {
   var sendhash = window.location.hash.replace(/^#/, '');
   //Get the data and display it
   window.request = $.ajax({
-    url: "/api/analyze/"+window.hashjson.analyze_field+"/"+window.hashjson.mode+"/"+sendhash,
+    url: "api/analyze/"+window.hashjson.analyze_field+"/"+window.hashjson.mode+"/"+sendhash,
     type: "GET",
     cache: false,
     success: function (json) {
