@@ -3,6 +3,9 @@ This is the PHP version of Kibana. Development has shifted to the Ruby version.
 It has all the same great features, but its even easier to setup, use and hack
 on. Find it here: https://github.com/rashidkpc/Kibana/tree/kibana-ruby
 
+To clone the kibana-ruby branch use:   
+git clone --branch=kibana-ruby git@github.com:rashidkpc/Kibana.git
+
 IMPORTANT: The master branch will soon be replaced with the kibana-ruby branch
 
 # Kibana
