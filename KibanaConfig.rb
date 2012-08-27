@@ -1,5 +1,4 @@
 module KibanaConfig
-	attr_accessor :elasticsearch
   # Your elastic search server
   Elasticsearch = "elasticsearch:9200"
 

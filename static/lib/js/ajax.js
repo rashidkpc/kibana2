@@ -462,10 +462,18 @@ function getAnalysis() {
           break;
         }
 
-        $("#logs").delegate("table.analysis tr td i", "click",
+        $("#logs").delegate("table.analysis tr td i.search", "click",
           function () {
             mSearch(
               field, $(this).parents().eq(1).children().eq(1).text()
+            );
+          }
+        );
+
+        $("#logs").delegate("table.analysis tr td i.rescore", "click",
+          function () {
+            mSearch(
+              field, $(this).parents().eq(1).children().eq(1).text(), 'analysis'
             );
           }
         );
@@ -510,7 +518,9 @@ function analysisTable(resultjson) {
           object.trend + '</span>';
       }
     }
-    metric['Search'] = "<i class='icon-search icon-large jlink'></i>";
+    metric['Action'] =  "<i class='search icon-search icon-large jlink'></i> " +
+                        "<i class='rescore icon-cog icon-large jlink'></i>";
+
     tblArray[i] = metric;
     i++;
   }
@@ -747,9 +757,12 @@ function details_table(objid,theme) {
 }
 
 
-function mSearch(field, value) {
-  window.hashjson.mode = '';
-  window.hashjson.analyze_field = '';
+function mSearch(field, value, mode) {
+  if (mode === undefined) mode = '';
+  if (mode != 'analysis') {
+    window.hashjson.mode = mode;
+    window.hashjson.analyze_field = '';
+  }
   var glue = $('#queryinput').val() != "" ? " AND " : " ";
   window.hashjson.search = $('#queryinput').val() + glue + field + ":" + "\"" +
     addslashes(value.toString()) + "\"";
