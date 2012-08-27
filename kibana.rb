@@ -57,6 +57,7 @@ get '/api/search/:hash' do
   # server communication
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}
+  result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
 
   JSON.generate(result.response)
 end

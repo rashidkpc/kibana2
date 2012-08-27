@@ -14,6 +14,10 @@ module KibanaConfig
   # TODO: Not functional yet. Results to show per page
   Per_page = 50
 
+  # Change which fields are shown by default. Must be set as an array
+  # Default_fields = ['vhost','response','request']
+  Default_fields = ['@message']
+
   # You may wish to insert a default search which all user searches
   # must match. For example @source_host:www1 might only show results
   # from www1.
@@ -27,7 +31,7 @@ module KibanaConfig
 
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many
-  # indices. Use this to set that 'too many' number. 
+  # indices. Use this to set that 'too many' number.
   Smart_index_limit = 60
 
   # When using analyze, use this many of the most recent

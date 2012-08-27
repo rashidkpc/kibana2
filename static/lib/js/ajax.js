@@ -5,7 +5,6 @@ $(document).ready(function () {
   // I'll make this configurable with a template.
   var d = new Date()
   window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
-  window.default_fields = new Array('@message')
 
   $("#resetall").click(function () {
     window.location.hash = '#';
@@ -94,9 +93,6 @@ function pageload(hash) {
       getID();
       break;
     default:
-      if (window.hashjson.fields.length == 0) {
-        window.hashjson.fields = window.default_fields
-      }
       $('#feedlinks').html(feedLinks(window.hashjson));
       getPage();
       break;
@@ -140,8 +136,7 @@ function getPage() {
 
         // Determine fields to be displayed
         if (window.hashjson.fields.length == 0) {
-          window.hashjson.fields = window.default_fields
-          //fields = window.default_fields
+          window.hashjson.fields = resultjson.kibana.default_fields
         };
         //console.log(window.default_fields)
         fields = window.hashjson.fields
