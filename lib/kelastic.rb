@@ -2,8 +2,8 @@ require 'rubygems'
 require 'json'
 require 'time'
 require 'curb'
-require 'query'
-require 'KibanaConfig'
+require 'lib/query.rb'
+require 'KibanaConfig.rb'
 
 =begin
 = Class: Kelastic

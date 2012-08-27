@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'json'
-require 'KibanaConfig'
+require 'KibanaConfig.rb'
 
 =begin
 = Class: Query

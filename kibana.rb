@@ -1,15 +1,14 @@
 require 'rubygems'
 require 'sinatra'
 require 'json'
-require 'query'
-require 'kelastic'
-require 'clientrequest'
 require 'time'
 require 'date'
 require 'rss/maker'
 require 'yaml'
 require 'faster_csv'
+
 require 'KibanaConfig'
+Dir['./lib/*.rb'].each{ |f| require f }
 
 
 configure do
