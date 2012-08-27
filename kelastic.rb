@@ -45,9 +45,17 @@ class Kelastic
     end
 
     def index_range(from,to)
-      requested = date_range(from,to).map{ |date| date.strftime("logstash-%Y.%m.%d") }
-      intersection = requested & all_indices
-      intersection.sort.reverse
+      if KibanaConfig::Smart_index == true
+        requested = date_range(from,to).map{ |date| date.strftime("logstash-%Y.%m.%d") }
+        intersection = requested & all_indices
+        if intersection.length <= KibanaConfig::Smart_index_limit
+          intersection.sort.reverse
+        else
+          KibanaConfig::Default_index
+        end
+      else
+        KibanaConfig::Default_index
+      end
     end
 
     # TODO: Verify this index exists?
@@ -107,6 +115,7 @@ end
 =begin
 = Class: KelasticSegment
   - Query a specific index in an array of indices
+  - Return the position of the next segment if one exists
 == Parameters:
   query::   The query object to send to ES
   indices:: An array of indices to query across
@@ -116,11 +125,13 @@ class KelasticSegment
  attr_accessor :response,:url
   def initialize(query,indices,segment)
 
+    # Make sure we're passed an array, if not, make one
+    indices = indices.kind_of?(Array) ? indices : [indices]
     index = indices[segment]
     @url = "#{Kelastic.index_path(index)}/_search"
+    
     # TODO: This badly needs error handling for missing indices
     @response = Kelastic.run(@url,query)
-    #@response = JSON.parse(RestClient.post @url, query.to_s)
 
     @response['kibana'] = {
       "index" => indices,

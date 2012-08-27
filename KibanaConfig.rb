@@ -19,14 +19,12 @@ module KibanaConfig
   # from www1.
   Filter = ''
 
-  # TODO: Not functional yet. (Smart indexing is always on right now) 
   # When searching, Kibana will attempt to only search indices
   # that match your timeframe, to make searches faster. You can
   # turn this behavior off if you use something other than daily
   # indexing
   Smart_index = true
 
-  # TODO: Not functional yet. (Smart indexing is always on right now) 
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many
   # indices. Use this to set that 'too many' number. 
@@ -59,7 +57,6 @@ module KibanaConfig
   # you'll need to change primary_field to be '@message'
   Primary_field = '_all'
 
-  # TODO: Make this functional Re: smart_index
   # Default Elastic Search index to query
   Default_index = '_all'
 
