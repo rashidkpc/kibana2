@@ -50,6 +50,7 @@ width: 100%;
 #logs td {
 word-wrap: break-word;
 font-size: 11px;
+vertical-align: text-top;
 }
 
 #logs td.firsttd {
