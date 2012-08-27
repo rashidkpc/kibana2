@@ -108,6 +108,7 @@ class Kelastic
     end
 
     def run(url,query)
+      puts url
       c = Curl::Easy.http_post(url, query.to_s) do |curl|
         curl.headers['Accept'] = 'application/json'
         curl.headers['Content-Type'] = 'application/json'
@@ -201,7 +202,7 @@ class KelasticMulti
         0 : (offset - response['hits']['total'])
 
       index = indices[i]
-      @url = "http://#{Kelastic.index_path(index)}/_search"
+      @url = "#{Kelastic.index_path(index)}/_search"
       segment_response = Kelastic.run(@url,query)
 
       # Concatonate the hits array
