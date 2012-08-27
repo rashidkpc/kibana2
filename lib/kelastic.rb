@@ -17,7 +17,7 @@ class Kelastic
 	attr_accessor :response,:url
   def initialize(query,index)
 
-    @url = "http://#{KibanaConfig::Elasticsearch}/#{index}/_search"
+    @url = "http://#{Kelastic.server}/#{index}/_search"
     # TODO: This badly needs error handling for missing indices
   	@response = Kelastic.run(@url,query)
 
@@ -33,7 +33,7 @@ class Kelastic
 
   class << self
     def all_indices
-      url = "http://#{KibanaConfig::Elasticsearch}/_status"
+      url = "http://#{Kelastic.server}/_status"
       c = Curl::Easy.new(url)
       c.perform
       @status = JSON.parse(c.body_str)
@@ -58,13 +58,26 @@ class Kelastic
       end
     end
 
+    def server
+      list = KibanaConfig::Elasticsearch
+      if list.kind_of?(Array)
+        $eslb ||= 0
+        $eslb = $eslb < list.length ? $eslb : 0
+        server = list[$eslb]
+        $eslb += 1
+        server
+      else
+        list
+      end
+    end
+
     # TODO: Verify this index exists?
     def current_index
       (Time.now).strftime("logstash-%Y.%m.%d")
     end
 
     def mapping(index)
-      url = "http://#{KibanaConfig::Elasticsearch}/#{index}/_mapping"
+      url = "http://#{Kelastic.server}/#{index}/_mapping"
       c = Curl::Easy.new(url)
       c.perform
       JSON.parse(c.body_str)
@@ -101,9 +114,9 @@ class Kelastic
 
     def index_path(index)
       if KibanaConfig::Type != ''
-        path = "http://#{KibanaConfig::Elasticsearch}/#{index}/#{KibanaConfig::Type}"
+        path = "http://#{Kelastic.server}/#{index}/#{KibanaConfig::Type}"
       else
-        path = "http://#{KibanaConfig::Elasticsearch}/#{index}"
+        path = "http://#{Kelastic.server}/#{index}"
       end
       path
     end
