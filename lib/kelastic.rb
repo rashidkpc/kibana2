@@ -292,9 +292,9 @@ class KelasticResponse
       response['hits']['hits'].each do |hit|
         fv = get_field_value(hit,field)
         if fv.kind_of?(Array)
-          @hit_list = @hit_list + fv
+          @hit_list = @hit_list + fv.map(&:to_s)
         else
-          @hit_list << fv
+          @hit_list << fv.to_s
         end
       end
       @hit_list
