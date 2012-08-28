@@ -6,6 +6,7 @@ require 'curb'
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'query'
+require 'compat'
 require 'KibanaConfig'
 
 =begin
@@ -108,7 +109,6 @@ class Kelastic
     end
 
     def run(url,query)
-      puts url
       c = Curl::Easy.http_post(url, query.to_s) do |curl|
         curl.headers['Accept'] = 'application/json'
         curl.headers['Content-Type'] = 'application/json'

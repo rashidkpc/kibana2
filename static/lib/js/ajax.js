@@ -716,24 +716,40 @@ function details_table(objid,theme) {
   obj_fields = get_object_fields(obj);
   str = "<table class='"+theme+"'>" +
     "<tr><th>Field</th><th>Action</th><th>Value</th></tr>";
-  i = 1;
+
+  var field = '';
+  var field_id = '';
+  var value = '';
+  var orig = '';
+
+  var i = 1;
   for (index in obj_fields) {
     field = obj_fields[index];
     field_id = field.replace('@', 'ATSYM');
     value = get_field_value(obj,field);
-    if (!(field.match(/^@cabin_/))) {
-      trclass = (i % 2 == 0) ? 'class=alt' : '';
-      str += "<tr " + trclass + ">" +
-        "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
-        "<td style='width: 60px'>" +
-        "<i class='jlink icon-large icon-search' id=findthis_"+objid+"_"+field_id+"></i> " +
-        "<i class='jlink icon-large icon-ban-circle' id=notthis_"+objid+"_"+field_id+"></i> " +
-        "</td>" +
-        '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
-        xmlEnt(value) + "</span>" +
-        "</td></tr>";
-      i++;
+    orig = value
+
+    /*
+    try {
+      var json = JSON.parse(value);
+      value = JSON.stringify(value, undefined, 2);
+      console.log(json);
+    } catch(e) {
+      value = orig
     }
+    */
+
+    trclass = (i % 2 == 0) ? 'class=alt' : '';
+    str += "<tr " + trclass + ">" +
+      "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
+      "<td style='width: 60px'>" +
+      "<i class='jlink icon-large icon-search' id=findthis_"+objid+"_"+field_id+"></i> " +
+      "<i class='jlink icon-large icon-ban-circle' id=notthis_"+objid+"_"+field_id+"></i> " +
+      "</td>" +
+      '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
+      xmlEnt(value) + "</span>" +
+      "</td></tr>";
+    i++;
 
     $("body").delegate(
       "#findthis_"+objid+"_"+field_id, "click", function (objid) {
