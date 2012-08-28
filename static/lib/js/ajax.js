@@ -668,15 +668,16 @@ function details_table(objid,theme) {
     value = get_field_value(obj,field);
     orig = value
 
-    /*
-    try {
-      var json = JSON.parse(value);
-      value = JSON.stringify(value, undefined, 2);
-      console.log(json);
-    } catch(e) {
-      value = orig
+    if (isNaN(value)) {
+      try {
+        var json = JSON.parse(value);
+        value = JSON.stringify(json,null,4);
+        console.log(value);
+      } catch(e) {
+        value = orig
+      }
     }
-    */
+
 
     trclass = (i % 2 == 0) ? 'class=alt' : '';
     str += "<tr " + trclass + ">" +
@@ -1352,10 +1353,12 @@ function bind_clicks() {
   );
 
   // Go back to the logs
-  $("#back_to_logs").click(function () {
-    window.hashjson.mode = '';
-    window.hashjson.graphmode = 'count';
-    window.hashjson.analyze_field = '';
-    setHash(window.hashjson);
-  });
+  $("#logs").delegate("button#back_to_logs", "click",
+    function () {
+      window.hashjson.mode = '';
+      window.hashjson.graphmode = 'count';
+      window.hashjson.analyze_field = '';
+      setHash(window.hashjson);
+    });
 }
+
