@@ -6,20 +6,8 @@ $(document).ready(function () {
   var d = new Date()
   window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
 
-  $("#resetall").click(function () {
-    window.location.hash = '#';
-  });
-
-  $('#timeinput').change(function () {
-    window.hashjson.timeframe = $(this).val();
-    if (window.hashjson.timeframe == "custom") {
-      //Initialize the date picker with a 15 minute window into the past
-      var d = new Date()
-      var startDate = new Date(d - (15 * 60 * 1000));
-      renderDateTimePicker(
-        startDate.getTime(), d.getTime());
-    }
-  });
+  // Bind all click/change/whatever handlers
+  bind_clicks()
 
   // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
@@ -34,20 +22,6 @@ $(document).ready(function () {
         "</strong> from: " + settings.url);
       //console.log(xhr);
     }
-  });
-
-  $('#sbctl').click(function () {
-    var sb = $('#sidebar');
-    if (sb.is(':visible')) {
-      sbctl('hide');
-    } else {
-      sbctl('show');
-    }
-  });
-
-  $("body").delegate(
-    ".mfield", "click", function () {
-      mFields($(this).text());
   });
 
   // Whenever the URL changes, fire this.
@@ -366,13 +340,6 @@ function getAnalysis() {
             "I'm not able to analyze <strong>" + field + "</strong>. " +
             "Statistical analysis is only available for fields " +
             "that are stored a number (eg float, int) in ElasticSearch");
-
-          $("#back_to_logs").click(function () {
-            window.hashjson.mode = '';
-            window.hashjson.graphmode = 'count';
-            window.hashjson.analyze_field = '';
-            setHash(window.hashjson);
-          });
           return;
         }
 
@@ -390,13 +357,6 @@ function getAnalysis() {
             '</button>',
             "Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
-
-          $("#back_to_logs").click(function () {
-            window.hashjson.mode = '';
-            window.hashjson.graphmode = 'count';
-            window.hashjson.analyze_field = '';
-            setHash(window.hashjson);
-          });
           return;
         }
 
@@ -468,29 +428,6 @@ function getAnalysis() {
           getGraph(window.interval);
           break;
         }
-
-        $("#logs").delegate("table.analysis tr td i.search", "click",
-          function () {
-            mSearch(
-              field, $(this).parents().eq(1).children().eq(1).text()
-            );
-          }
-        );
-
-        $("#logs").delegate("table.analysis tr td i.rescore", "click",
-          function () {
-            mSearch(
-              field, $(this).parents().eq(1).children().eq(1).text(), 'analysis'
-            );
-          }
-        );
-
-        $("#back_to_logs").click(function () {
-          window.hashjson.mode = '';
-          window.hashjson.graphmode = 'count';
-          window.hashjson.analyze_field = '';
-          setHash(window.hashjson);
-        });
       }
     }
   });
@@ -1358,4 +1295,67 @@ function round_interval (interval) {
     case (interval <= 2700000): return 1800000;
     default:                    return 3600000;
   }
+}
+
+function bind_clicks() {
+
+  // Side bar expand/collapse
+  $('#sbctl').click(function () {
+    var sb = $('#sidebar');
+    if (sb.is(':visible')) {
+      sbctl('hide');
+    } else {
+      sbctl('show');
+    }
+  });
+
+  // Column selection
+  $("body").delegate(
+    ".mfield", "click", function () {
+      mFields($(this).text());
+  });
+
+  // Reset button
+  $("#resetall").click(function () {
+    window.location.hash = '#';
+  });
+
+
+  // Time changes
+  $('#timeinput').change(function () {
+    window.hashjson.timeframe = $(this).val();
+    if (window.hashjson.timeframe == "custom") {
+      //Initialize the date picker with a 15 minute window into the past
+      var d = new Date()
+      var startDate = new Date(d - (15 * 60 * 1000));
+      renderDateTimePicker(
+        startDate.getTime(), d.getTime());
+    }
+  });
+
+  // Analysis table search
+  $("#logs").delegate("table.analysis tr td i.search", "click",
+    function () {
+      mSearch(
+        window.hashjson.analyze_field, $(this).parents().eq(1).children().eq(1).text()
+      );
+    }
+  );
+
+  // Analysis table rescore
+  $("#logs").delegate("table.analysis tr td i.rescore", "click",
+    function () {
+      mSearch(
+        window.hashjson.analyze_field, $(this).parents().eq(1).children().eq(1).text(), 'analysis'
+      );
+    }
+  );
+
+  // Go back to the logs
+  $("#back_to_logs").click(function () {
+    window.hashjson.mode = '';
+    window.hashjson.graphmode = 'count';
+    window.hashjson.analyze_field = '';
+    setHash(window.hashjson);
+  });
 }
