@@ -1,0 +1,15 @@
+#!/bin/bash 
+
+# Author - Matt Mencel - 2012
+# Borrowed heavily from Patrick McKenzie's example http://www.kalzumeus.com/2010/01/15/deploying-sinatra-on-ubuntu-in-which-i-employ-a-secretary/
+#
+# kibana-daemon       Startup script for the Kibana Web UI running on sinatra 
+#
+## Copy to /etc/init.d/kibana and make it executable
+## Add to system startup through chkconfig (CentOS/RHEL) or Upstart (Ubuntu)
+
+
+ruby /var/www/sinatra/Kibana/kibana-daemon.rb $1
+RETVAL=$?
+
+exit $RETVAL
