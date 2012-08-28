@@ -113,7 +113,12 @@ class Kelastic
         curl.headers['Accept'] = 'application/json'
         curl.headers['Content-Type'] = 'application/json'
       end
-      JSON.parse(c.body_str)
+      parsed = JSON.parse(c.body_str)
+      parsed['kibana'] = {}
+      if c.response_code == 500
+        parsed['kibana']['error'] = "Invalid query"
+      end
+      parsed
     end
 
     def index_path(index)
@@ -185,6 +190,10 @@ class KelasticMulti
     @url = "#{Kelastic.index_path(index)}/_search"
     # TODO: This badly needs error handling for missing indices
     @response = Kelastic.run(@url,query)
+    if @response['kibana'].has_key?("error")
+      return @response
+    end
+
 
     # Store the original values for reference
     target = query.query['size']
@@ -203,6 +212,10 @@ class KelasticMulti
 
       index = indices[i]
       @url = "#{Kelastic.index_path(index)}/_search"
+      if @response['kibana'].has_key?("error")
+        return @response
+      end
+
       segment_response = Kelastic.run(@url,query)
 
       # Concatonate the hits array
@@ -241,6 +254,9 @@ class KelasticMultiFlat
     @url = "#{Kelastic.index_path(index)}/_search"
     # TODO: This badly needs error handling for missing indices
     @response = Kelastic.run(@url,query)
+    if @response['kibana'].has_key?("error")
+      return @response
+    end
 
     @response['kibana'] = {
       "index" => index,

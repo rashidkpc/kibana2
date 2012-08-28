@@ -127,6 +127,13 @@ function getPage() {
         //Parse out the result
         window.resultjson = JSON.parse(json);
 
+        if (typeof window.resultjson.kibana.error !== 'undefined') {
+          setMeta('0','',false);
+          showError('No logs matched',"Sorry, I couldn't find anything for " +
+            "that query. Double check your spelling and syntax.");
+          return;
+        }
+
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.index+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
