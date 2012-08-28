@@ -111,7 +111,7 @@ function getPage() {
   window.inprogress = true;
 
   // Show the user an animated loading thingy
-  setMeta('','','loading');
+  setMeta('loading');
 
   var sendhash = window.location.hash.replace(/^#/, '');;
 
@@ -128,7 +128,7 @@ function getPage() {
         window.resultjson = JSON.parse(json);
 
         if (typeof window.resultjson.kibana.error !== 'undefined') {
-          setMeta('0','',false);
+          setMeta(0);
           showError('No logs matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
           return;
@@ -222,7 +222,7 @@ function getPage() {
           pageLinks();
 
           // Populate hit and total
-          setMeta(window.resultjson.hits.total,window.resultjson.total,false);
+          setMeta(window.resultjson.hits.total);
 
           // Create and populate graph
           $('#graph').html(
@@ -239,7 +239,7 @@ function getPage() {
         } else {
 
           // Populate hits and total
-          setMeta(window.resultjson.hits.total,window.resultjson.total,false);
+          setMeta(window.resultjson.hits.total);
 
           showError('No logs matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
@@ -277,7 +277,7 @@ function getGraph(interval) {
           window.graphhits = graphjson.hits.total
         }
 
-        setMeta(window.graphhits,null,false);
+        setMeta(window.graphhits);
 
         // Display graph data
         logGraph(
@@ -323,7 +323,7 @@ function getID() {
       window.resultjson = JSON.parse(json)
       hit = resultjson.hits.hits[0]
       blank_page();
-      setMeta('1','','');
+      setMeta(1);
 
       str = details_table(0, 'table table-bordered');
       $('#graph').html("<h2>Details for log ID: "+hit._id+" in "+hit._index+"</h2><br>"+str);
@@ -335,7 +335,7 @@ function getID() {
 }
 
 function getAnalysis() {
-  setMeta('','','loading');
+  setMeta('loading');
   //generate the parameter for the php script
   var sendhash = window.location.hash.replace(/^#/, '');
   //Get the data and display it
@@ -358,7 +358,7 @@ function getAnalysis() {
         $('#fields').html('');
 
         if(typeof resultjson.error !== 'undefined') {
-          setMeta(0,0,false);
+          setMeta(0);
           showError('Statistical analysis unavailable for '+field +
             ' <button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
@@ -383,7 +383,7 @@ function getAnalysis() {
         )
 
         if(resultjson.hits.total == 0) {
-          setMeta(resultjson.hits.total,'',false);
+          setMeta(resultjson.hits.total);
           showError('No logs matched '+
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
@@ -400,7 +400,7 @@ function getAnalysis() {
           return;
         }
 
-        setMeta(resultjson.hits.total,'',false);
+        setMeta(resultjson.hits.total);
         switch (window.hashjson.mode) {
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
@@ -534,23 +534,18 @@ function analysisTable(resultjson) {
   return tblArray;
 }
 
-function setMeta(hits, indexed, mode) {
-  var metastr = "";
-  if ( mode == 'loading' ) {
-    metastr += '<img src=/images/ajax-loader.gif>';
+function setMeta(hits, mode) {
+  if ( hits == 'loading' ) {
+    $('#meta').html('<img src=/images/ajax-loader.gif>');
   } else {
-    metastr = '<table class=formatting>' +
-      "<tr><td></td><td>" + addCommas(hits) + " <span class=small>hits</span></td></tr>" +
-      "<!-- <tr><td>Indexed</td><td>" + addCommas(indexed) + "</td></tr> -->" +
-      "</table>";
+    $('#meta').html(addCommas(hits) + " <span class=small>hits</span></td></tr>");
   }
-  $('#meta').html(metastr);
 }
 
 function pageLinks() {
   // Pagination
-  var perpage = 50;
-  //var perpage = window.resultjson.meta.per_page
+  //var perpage = 50;
+  var perpage = window.resultjson.kibana.per_page
   var str = "<center>";
   if (window.hashjson.offset - perpage >= 0) {
     str += "<i class='firstpage jlink icon-circle-arrow-left'></i> " +

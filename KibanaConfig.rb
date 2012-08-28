@@ -12,7 +12,7 @@ module KibanaConfig
   # for all.
   Type = ''
 
-  # TODO: Not functional yet. Results to show per page
+  # Results to show per page
   Per_page = 50
 
   # Change which fields are shown by default. Must be set as an array

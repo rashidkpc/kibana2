@@ -114,7 +114,9 @@ class Kelastic
         curl.headers['Content-Type'] = 'application/json'
       end
       parsed = JSON.parse(c.body_str)
-      parsed['kibana'] = {}
+      parsed['kibana'] = {
+        'per_page' => KibanaConfig::Per_page
+      }
       if c.response_code == 500
         parsed['kibana']['error'] = "Invalid query"
       end
@@ -155,9 +157,7 @@ class KelasticSegment
     # TODO: This badly needs error handling for missing indices
     @response = Kelastic.run(@url,query)
 
-    @response['kibana'] = {
-      "index" => indices,
-    }
+    @response['kibana']['index'] = indices
 
     # If there are still indices left, tell the browser which one to request
     if (segment < indices.length - 1)
@@ -226,9 +226,7 @@ class KelasticMulti
       i += 1
     end
 
-    @response['kibana'] = {
-      "index" => indices,
-    }
+    @response['kibana']['index'] = indices
 
   end
 
@@ -258,9 +256,7 @@ class KelasticMultiFlat
       return @response
     end
 
-    @response['kibana'] = {
-      "index" => index,
-    }
+    @response['kibana']['index'] = index
 
   end
 

@@ -65,16 +65,9 @@ text-align: left;
 #meta {
 text-align: right;
 width: 95px;
+font-size: 16px;
 color: #fff;
 vertical-align: middle;
-}
-
-#meta td {
-color: #fff;
-padding: 2px;
-font-size: 16px;
-line-height: 10px;
-text-align: right;
 }
 
 div.legend table, div.legend table td {
