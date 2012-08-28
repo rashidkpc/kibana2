@@ -6,6 +6,7 @@ require 'curb'
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'query'
+require 'compat'
 require 'KibanaConfig'
 
 =begin
@@ -108,7 +109,6 @@ class Kelastic
     end
 
     def run(url,query)
-      puts url
       c = Curl::Easy.http_post(url, query.to_s) do |curl|
         curl.headers['Accept'] = 'application/json'
         curl.headers['Content-Type'] = 'application/json'
@@ -292,9 +292,9 @@ class KelasticResponse
       response['hits']['hits'].each do |hit|
         fv = get_field_value(hit,field)
         if fv.kind_of?(Array)
-          @hit_list = @hit_list + fv
+          @hit_list = @hit_list + fv.map(&:to_s)
         else
-          @hit_list << fv
+          @hit_list << fv.to_s
         end
       end
       @hit_list

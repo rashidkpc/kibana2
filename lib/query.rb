@@ -1,8 +1,10 @@
 require 'rubygems'
 require 'json'
 
+$LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'KibanaConfig'
+require 'compat'
 
 =begin
 = Class: Query

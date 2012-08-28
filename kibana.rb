@@ -5,14 +5,14 @@ require 'time'
 require 'date'
 require 'rss/maker'
 require 'yaml'
-require 'faster_csv'
 
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
 
 require 'KibanaConfig'
 Dir['./lib/*.rb'].each{ |f| require f }
-
+ruby_18 { require 'fastercsv' }
+ruby_19 { require 'csv' }
 
 configure do
   set :port, KibanaConfig::KibanaPort
@@ -220,8 +220,8 @@ get '/rss/:hash/?:count?' do
       i = m.items.new_item
       hash    = IDRequest.new(hit['_id'],hit['_index'].split('-')[1]).hash
       i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
-      i.link  = link_to("/##{hash}")
       i.date  = KelasticResponse.get_field_value(hit,'@timestamp')
+      i.link  = link_to("/##{hash}")
       i.description = "<pre>#{hit.to_yaml}</pre>"
     end
   end
@@ -239,17 +239,16 @@ get '/export/:hash/?:count?' do
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
-  csv_string = FasterCSV.generate({:col_sep => sep}) do |csv|
-    flat.each { |row| csv << row }
-  end
-  csv_string
-end
 
-# Make compatible with 1.8.7 and 1.9.3
-unless Kernel.respond_to?(:require_relative)
-  module Kernel
-    def require_relative(path)
-      require File.join(File.dirname(caller[0]), path.to_str)
+  if RUBY_VERSION < "1.9"
+    FasterCSV.generate({:col_sep => sep}) do |file|
+      flat.each { |row| file << row }
+    end
+  else
+    CSV.generate({:col_sep => sep}) do |file|
+      flat.each { |row| file << row }
     end
   end
+
 end
+
