@@ -180,8 +180,8 @@ get '/api/stream/:hash/?:from?' do
   # Calculate 'from'  and 'to' based on last event in stream.
   from = params[:from].nil? ? Time.now - (10 + delay) : Time.parse("#{params[:from]}+0:00")
 
-  # ES's range filter is inclusive. +9 should give us a 10 second window
-  to = Time.now - delay
+  # ES's range filter is inclusive. delay-1 should give us the correct window
+  to = Time.now - (delay - 1)
 
   # Build and execute
   req     = ClientRequest.new(params[:hash])
