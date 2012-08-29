@@ -60,9 +60,6 @@ function getStream() {
       window.i++;
       var fields = window.hashjson.fields
       var has_time = false;
-
-      var got_log = false
-
       var header = "";
       var str = "";
       var id = "";
@@ -76,8 +73,6 @@ function getStream() {
           has_time = true;
         }
         if ($('#logrow_' + id).length == 0) {
-          got_log = true
-          since = 0;
           str += "<tr id=logrow_" + id + ">";
           i++;
           str += "<td style='white-space:nowrap;'>" +
@@ -105,9 +100,6 @@ function getStream() {
         window.hasHead = true;
         $('#tweets thead').html(header)
       }
-    }
-    if(!(got_log) && window.last_time != "") {
-      window.last_time = ISODateString(Date.parse(window.last_time) + 10000) + "Z";
     }
   });
 }
