@@ -181,7 +181,7 @@ get '/api/stream/:hash/?:from?' do
   from = params[:from].nil? ? Time.now - (10 + delay) : Time.parse("#{params[:from]}+0:00")
 
   # ES's range filter is inclusive. +9 should give us a 10 second window
-  to = from + 9
+  to = Time.now - 10
 
   # Build and execute
   req     = ClientRequest.new(params[:hash])
