@@ -5,6 +5,7 @@ require 'time'
 require 'date'
 require 'rss/maker'
 require 'yaml'
+require 'tzinfo'
 
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
@@ -252,3 +253,6 @@ get '/export/:hash/?:count?' do
 
 end
 
+get '/js/timezone.js' do
+  erb :timezone
+end

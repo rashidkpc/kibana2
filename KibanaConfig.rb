@@ -15,6 +15,12 @@ module KibanaConfig
   # Results to show per page
   Per_page = 50
 
+  # Timezone. Leave this set to 'user' to have the user's browser autocorrect.
+  # Otherwise, set a timezone string
+  # Examples: 'UTC', 'America/Phoenix', 'Europe/Athens', MST
+  # You can use `date +%Z` on linux to get your timezone string
+  Timezone = 'user'
+
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['vhost','response','request']
   Default_fields = ['@message']

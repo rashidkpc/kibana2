@@ -1,7 +1,5 @@
 jQuery(document).ready(function() {
   window.i = 0;
-  var d = new Date();
-  window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
   $.history.init(pageload);
 
   $("#pause_stream").click(function () {

@@ -1,11 +1,5 @@
 $(document).ready(function () {
 
-  // Don't like this, not sure there's any other way to do it.
-  // I suppose I can blame limitations in flot?
-  // I'll make this configurable with a template.
-  var d = new Date()
-  window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
-
   // Bind all click/change/whatever handlers
   bind_clicks()
 
@@ -1360,4 +1354,3 @@ function bind_clicks() {
       setHash(window.hashjson);
     });
 }
-
