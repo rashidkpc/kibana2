@@ -14,8 +14,8 @@ elasticsearch >= 0.18.0
 
 ## Installation
 Install:  
-  git clone --branch=kibana-ruby git@github.com:rashidkpc/Kibana.git  
-	cd Kibana  
+  git clone --branch=kibana-ruby https://github.com/rashidkpc/Kibana.git	
+  cd Kibana  
 	gem install bundler  
 	bundle install  
 
