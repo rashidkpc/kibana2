@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'json'
+require 'tzinfo'
 
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'

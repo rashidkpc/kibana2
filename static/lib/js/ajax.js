@@ -91,7 +91,6 @@ function getPage() {
     success: function (json) {
       // Make sure we're still on the same page
       if (sendhash == window.location.hash.replace(/^#/, '')) {
-
         //Parse out the result
         window.resultjson = JSON.parse(json);
 
@@ -918,11 +917,12 @@ function renderDateTimePicker(from, to, force) {
       $('#timeinput').change();
     });
 
+    //tz_string = window.tOffset == 0 ? "+0" : window.tOffset
     // Give user a nice interface for selecting time ranges
     $("#timechange").click(function () {
       var time = {
-        "from": ISODateString(Date.parse($('#timefrom').val())),
-        "to": ISODateString(Date.parse($('#timeto').val()))
+        "from": ISODateString(Date.parse($('#timefrom').val())) + int_to_tz(window.tOffset),
+        "to": ISODateString(Date.parse($('#timeto').val())) + int_to_tz(window.tOffset)
       };
       window.hashjson.offset = 0;
       window.hashjson.time = time;
@@ -932,6 +932,28 @@ function renderDateTimePicker(from, to, force) {
   }
 }
 
+// WTF. Has to be a better way to do this. Hi Tyler.
+function int_to_tz(offset) {
+  hour = offset / 1000 / 3600
+  var str = ""
+  if (hour == 0) {
+    str = "+0000"
+  }
+  if (hour < 0) {
+    if (hour > -10)
+      str = "-0" + (hour * -100)
+    else
+      str = "-" + (hour * -100)
+  }
+  if (hour > 0) {
+    if (hour < 10)
+      str = "+0" + (hour * 100)
+    else
+      str = "+" + (hour * 100)
+  }
+  str = str.substring(0,3) + ":" + str.substring(3);
+  return str
+}
 
 // Big horrible function for creating graphs
 function logGraph(data, interval, metric) {
@@ -979,9 +1001,9 @@ function logGraph(data, interval, metric) {
         intset = true;
         var time = {
           "from": ISODateString(
-            parseInt(ranges.xaxis.from.toFixed(0))),
+            parseInt(ranges.xaxis.from.toFixed(0)))+int_to_tz(window.tOffset),
           "to": ISODateString(
-            parseInt(ranges.xaxis.to.toFixed(0)))
+            parseInt(ranges.xaxis.to.toFixed(0)))+int_to_tz(window.tOffset)
         };
         window.hashjson.offset = 0;
         window.hashjson.time = time;
