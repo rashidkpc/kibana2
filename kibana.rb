@@ -42,6 +42,10 @@ helpers do
 
 end
 
+use Rack::Auth::Basic, "Restircted Area" do |username, password|
+  [username, password] == ['admin', 'admin']
+end
+
 get '/' do
   send_file File.join(settings.public_folder, 'index.html')
 end
