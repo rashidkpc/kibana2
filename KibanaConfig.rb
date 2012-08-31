@@ -19,7 +19,7 @@ module KibanaConfig
   # Otherwise, set a timezone string
   # Examples: 'UTC', 'America/Phoenix', 'Europe/Athens', MST
   # You can use `date +%Z` on linux to get your timezone string
-  Timezone = 'UTC'
+  Timezone = 'user'
 
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['vhost','response','request']

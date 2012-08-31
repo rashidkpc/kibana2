@@ -230,6 +230,7 @@ get '/rss/:hash/?:count?' do
 end
 
 get '/export/:hash/?:count?' do
+
   count = KibanaConfig::Export_show
   # TODO: Make the count number above/below functional w/ hard limit setting
   # count = params[:count].nil? ? 20000 : params[:count].to_i
@@ -240,6 +241,9 @@ get '/export/:hash/?:count?' do
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
+
+  headers "Content-Disposition" => "attachment;filename=Kibana_#{Time.now.to_i}.csv",
+    "Content-Type" => "application/octet-stream"
 
   if RUBY_VERSION < "1.9"
     FasterCSV.generate({:col_sep => sep}) do |file|
