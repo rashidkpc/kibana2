@@ -221,7 +221,7 @@ get '/rss/:hash/?:count?' do
       i = m.items.new_item
       hash    = IDRequest.new(hit['_id'],hit['_index'].split('-')[1]).hash
       i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
-      i.date  = KelasticResponse.get_field_value(hit,'@timestamp')
+      i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
       i.link  = link_to("/##{hash}")
       i.description = "<pre>#{hit.to_yaml}</pre>"
     end
