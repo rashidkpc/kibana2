@@ -394,7 +394,7 @@ function getAnalysis() {
           getGraph(window.interval);
           break;
         case 'mean':
-          var title = '<h2>Stastical analysis of <strong>' +
+          var title = '<h2>Statistical analysis of <strong>' +
             window.hashjson.analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
