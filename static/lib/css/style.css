@@ -32,6 +32,13 @@ padding: 3px;
 cursor: pointer;
 }
 
+i.jlink {
+  width: 1em;
+  height: 1em;
+  display:inline-block;
+  cursor: pointer;
+}
+
 .positive { font-weight: bold; color: #5c8c5c; }
 .negative { font-weight: bold; color: #873535; }
 

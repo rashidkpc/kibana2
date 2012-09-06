@@ -474,7 +474,6 @@ function setMeta(hits, mode) {
 
 function pageLinks() {
   // Pagination
-  //var perpage = 50;
   var perpage = window.resultjson.kibana.per_page
   var str = "<center>";
   if (window.hashjson.offset - perpage >= 0) {
@@ -490,21 +489,6 @@ function pageLinks() {
   str += "</center>";
 
   $('.pagelinks').html(str);
-
-  $(".nextpage").click(function () {
-    window.hashjson.offset = window.hashjson.offset + perpage;
-    setHash(window.hashjson);
-  });
-
-  $(".prevpage").click(function () {
-    window.hashjson.offset = window.hashjson.offset - perpage;
-    setHash(window.hashjson);
-  });
-
-  $(".firstpage").click(function () {
-    window.hashjson.offset = 0;
-    setHash(window.hashjson);
-  });
 }
 
 // This is very ugly
@@ -1214,7 +1198,7 @@ function addslashes(str) {
 
 function showError(title,text) {
   blank_page();
-  $('#graph').html("<h2>"+title+"</h2>"+text);
+  $('#logs').html("<h2>"+title+"</h2>"+text);
 
   // We have to use hashjson's time here since we won't
   // get a resultjson on error, usually
@@ -1375,4 +1359,23 @@ function bind_clicks() {
       window.hashjson.analyze_field = '';
       setHash(window.hashjson);
     });
+
+
+  $("div.pagelinks").delegate("i.nextpage", "click",
+    function () {
+      window.hashjson.offset = window.hashjson.offset + window.resultjson.kibana.per_page;
+      setHash(window.hashjson);
+    });
+
+  $("div.pagelinks").delegate("i.prevpage", "click",
+    function () {
+      window.hashjson.offset = window.hashjson.offset - window.resultjson.kibana.per_page;
+      setHash(window.hashjson);
+  });
+
+  $("div.pagelinks").delegate("i.firstpage", "click",
+    function () {
+      window.hashjson.offset = 0;
+      setHash(window.hashjson);
+  });
 }
