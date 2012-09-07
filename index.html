@@ -32,11 +32,11 @@
 
   <body>
 
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
+
         <div class="container">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -53,14 +53,33 @@
         </div>
       </div>
     </div>
-
+    <div class="hugeotron masthead">
+      <div class="container">
+        <h1>Kibana</h1>
+        <p>Make sense of a mountain of logs</p>
+        <p>
+        <p><a class="btn btn-success btn-large" href=intro.html>Get Started &raquo;</a> </p>
+        
+      </div>
+    </div>
+    <div class="bs-docs-social">
+      <div class="container">
+        <ul class="bs-docs-social-buttons">
+          <li>
+            <iframe class="github-btn" height="20px" frameborder="0" width="100px" scrolling="0" allowtransparency="true" src="http://ghbtns.com/github-btn.html?user=rashidkpc&repo=Kibana&type=watch&count=true"></iframe>
+          </li>
+          <li>
+            <iframe class="github-btn" height="20px" frameborder="0" width="98px" scrolling="0" allowtransparency="true" src="http://ghbtns.com/github-btn.html?user=rashidkpc&repo=Kibana&type=fork&count=true"></iframe>
+          </li>
+        </ul>
+      </div>
+    </div>
     <div class="container">
-
-      <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit">
-        <img src=images/kibana_banner.png style='padding-bottom: 20px;'>
-        <p>You have logs. Billions of lines of data. You shipped, dated it, parsed it and stored it. Now what do you do with it? <strong>Now you make sense of it.</strong> Kibana helps you do that. Kibana is an alternative browser based interface for <a href=http://logstash.net>Logstash</a> and <a href=http://www.elasticsearch.org>ElasticSearch</a> that allows you to efficiently search, graph, analyze and otherwise make sense of a mountain of logs. </p>
-        <p><a class="btn btn-success btn-large" href=intro.html>Getting Started &raquo;</a> </p>
+      <div class="row">
+        <div class="span12">
+          <p>You have logs. Billions of lines of data. You shipped, dated it, parsed it and stored it. Now what do you do with it? <strong>Now you make sense of it.</strong> Kibana helps you do that. Kibana is a browser based interface for <a href=http://logstash.net>Logstash</a> and <a href=http://www.elasticsearch.org>ElasticSearch</a> that allows you to efficiently search, graph, analyze and otherwise make sense of a mountain of logs. </p>
+            
+        </div>
       </div>
 
       <!-- Example row of columns -->
@@ -81,13 +100,13 @@
         <div class="span3">
           <h2>Score <img src=images/icons/glyphicons_289_podium.png></h2>
           <img src=images/score.png class=thumbnail>
-          <p>Score, count and trend fields to find patterns. Find the most common values and see how they've changed over time.</p>
+          <p>Score, trend and average fields to find patterns. Find the most common values and see how they've changed over time.</p>
           <p><a class="btn" href="about.html#analyze">Learn more &raquo;</a></p>
         </div>
         <div class="span3">
           <h2>Stream <img src=images/icons/glyphicons_008_film.png></h2>
           <img src=images/stream.png class=thumbnail>
-          <p>Create dashboards from searches to view events in real time, as they happen. Or create an RSS feed and get updates at any interval.</p>
+          <p>Create dashboards from searches to view events in real time, as they happen. Or create an RSS feed and get updates at any interval. Export a CSV and use your favorite spreadsheet application to work with your data</p>
           <p><a class="btn" href="about.html#andmore">Learn more &raquo;</a></p>
         </div>
       </div>
