@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Kibana. Search it, score it, prove it.</title>
+    <title>Kibana. Make sense of a mountain of logs.</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -12,9 +12,11 @@
     <![endif]-->
 
     <!-- Le styles -->
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
+    <link href='http://fonts.googleapis.com/css?family=Tienne:400,900,700' rel='stylesheet' type='text/css'>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap.responsive.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+
     <style type="text/css">
       body {
         padding-top: 25px;
@@ -31,7 +33,6 @@
   </head>
 
   <body>
-
     <div class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
 
@@ -41,7 +42,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="index.html">Kibana</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li class="active"><a href="index.html">Home</a></li>
@@ -55,11 +55,18 @@
     </div>
     <div class="hugeotron masthead">
       <div class="container">
-        <h1>Kibana</h1>
-        <p>Make sense of a mountain of logs</p>
+        <h1><img src='images/header.png'></h1>
+
+
+        <p>Make sense of a mountain of logs <span class="badge badge-important">Now in Ruby!</span></p>
         <p>
-        <p><a class="btn btn-success btn-large" href=intro.html>Get Started &raquo;</a> </p>
-        
+        <p><a class="btn btn-success btn-large" href=intro.html>Get Started &raquo;</a></p>
+        <ul class="masthead-links">
+          <li><a href="http://github.com/rashidkpc/Kibana">GitHub project</a></li>
+          <li><a href="http://logstash.net">Logstash</a></li>
+          <li><a href="http://elasticsearch.com/">ElasticSearch</a></li>
+          <li></li>
+        </ul>
       </div>
     </div>
     <div class="bs-docs-social">
@@ -71,17 +78,76 @@
           <li>
             <iframe class="github-btn" height="20px" frameborder="0" width="98px" scrolling="0" allowtransparency="true" src="http://ghbtns.com/github-btn.html?user=rashidkpc&repo=Kibana&type=fork&count=true"></iframe>
           </li>
+          <li>
+
+          </li>
         </ul>
       </div>
     </div>
     <div class="container">
       <div class="row">
-        <div class="span12">
-          <p>You have logs. Billions of lines of data. You shipped, dated it, parsed it and stored it. Now what do you do with it? <strong>Now you make sense of it.</strong> Kibana helps you do that. Kibana is a browser based interface for <a href=http://logstash.net>Logstash</a> and <a href=http://www.elasticsearch.org>ElasticSearch</a> that allows you to efficiently search, graph, analyze and otherwise make sense of a mountain of logs. </p>
-            
+        <div class="span9">
+          <div class="container">
+            <div class='row'>
+              <div class='span9'>
+                <h1>Every event <small>under one roof</small></h1>
+                <p>You have logs. Billions of lines of data. You shipped, dated it, parsed it and stored it. And you used <a href=http://logstash.net>Logstash</a> to do it. Now what do you do with it? <strong>Now you make sense of it.</strong> See everything you want, and nothing you don't. Chart it and rank it and play with the numbers. Kibana helps you do that. Kibana is a highly scalable interface for <a href=http://logstash.net>Logstash</a> and <a href=http://www.elasticsearch.org>ElasticSearch</a> that allows you to efficiently search, graph, analyze and otherwise make sense of a mountain of logs. </p>
+              </div>
+            </div>
+            <div class='row'>
+              <div class='span9'>
+                <h1>Be easy <small>Be familiar</small></h1>
+                <p>Kibana wants to be your friendly face in an unfamiliar land. Thats why its built on modern technologies you've heard of <strong>and like</strong>. The stuff you touch is Twitter's <a href='http://twitter.github.com/bootstrap/'>Bootstrap</a>, so it looks good, like every other Boostrap app. It's all written in Ruby and Javascript and the whole shebang runs atop the totally excellent <a href='http://sinatrarb.com'>Sinatra</a> framework, so you can run it stand alone, or on your choice of Rack server.</p>
+              </div>
+            </div>
+            <div class='row'>
+              <div class='span9'>
+                <h1>Scale like crazy <small>and be quick about it</small></h1>
+                <p>Go ahead, spread your log parsing infrastructure out. Spin up a single Elasticsearch instance, or a huge cluster. Then bring it all back together with Kibana. Kibana will load balance against your Elasticsearch cluster. Logstash's daily rolling indicies let you scale to huge datasets, while Kibana's squential querying gets you most relevant data quickly, with more as it becomes available. Elasticsearch 19.5's swanky new <code>index.store.compress.stored</code> compression setting means you can store more events and retrieve them faster than ever before.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='span3'>
+          <img src="images/g3962.png">
+          <script src="http://widgets.twimg.com/j/2/widget.js"></script>
+          <script>
+            new TWTR.Widget({
+              version: 2,
+              type: 'search',
+              search: 'kibana AND logstash',
+              interval: 2000,
+              title: '',
+              subject: '',
+              height: 250,
+              theme: {
+                shell: {
+                  background: '#ffffff',
+                  color: '#ffffff'
+                },
+                tweets: {
+                  background: '#ffffff',
+                  color: '#444444',
+                  links: '#0088CC'
+                }
+              },
+              features: {
+                scrollbar: false,
+                loop: true,
+                live: true,
+                hashtags: true,
+                timestamp: true,
+                avatars: true,
+                toptweets: true,
+                behavior: 'default'
+              }
+            }).render().start();
+          </script>
+
         </div>
       </div>
-
+    </div>
+    <div class="container">
       <!-- Example row of columns -->
       <div class="row">
         <div class="span3">

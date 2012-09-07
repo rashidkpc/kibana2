@@ -1,5 +1,9 @@
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
 .hero-unit h2 {
-font-size: 30px;
+    font-size: 30px;
 }
 
 .jumbotron h1{
@@ -14,14 +18,18 @@ padding-bottom: 20px;
 margin-bottom: 10px;
 }
 
+div.timeline-header {
+    display: none;
+}
 
 .subhead {
     border-bottom: 1px solid #DDDDDD;
     text-align: left;
 }
+
 .hugeotron {
-	  background: url("../images/IMGP5996cards.jpg") repeat scroll center center transparent;
-		background-size: 100%;	 
+	background: url("../images/IMGP5996cards.jpg") repeat scroll center center transparent;
+	background-size: 100%;
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2) inset, 0 -3px 7px rgba(0, 0, 0, 0.2) inset;
     color: #FFFFFF;
     padding: 40px 0;
@@ -32,12 +40,36 @@ margin-bottom: 10px;
 
 .hugeotron p {
 	font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.hugeotron a {
+    -moz-transition: all 0.2s ease-in-out 0s;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.masthead .btn {
+    -moz-transition: none 0s ease 0s;
+    border: 0 none;
+    border-radius: 6px 6px 6px 6px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 1px 5px rgba(0, 0, 0, 0.25);
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: 200;
+    padding: 14px 24px;
 }
 
 .masthead h1 {
+    font-family: 'Judson';
     font-size: 120px;
     letter-spacing: -2px;
     line-height: 1;
+    margin-bottom: 0px;
+    font-weight: normal;
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Tienne', serif;
 }
 
 .hugeotron .container {
@@ -45,11 +77,27 @@ margin-bottom: 10px;
     z-index: 2;
 }
 
+.masthead-links {
+    list-style: none outside none;
+    margin: 0;
+}
+
+.masthead-links li {
+    color: rgba(255, 255, 255, 0.25);
+    display: inline;
+    padding: 0 10px;
+}
+
+.masthead-links a {
+    color: #ccc;
+}
+
 .bs-docs-social {
     background-color: #F5F5F5;
     border-bottom: 1px solid #DDDDDD;
     border-top: 1px solid #FFFFFF;
     padding: 0px 0;
+    margin-bottom: 30px;
     text-align: left;
 }
 

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Kibana. Search it, score it, prove it.</title>
+    <title>Kibana. Make sense of a mountain of logs.</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -13,7 +13,8 @@
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap.responsive.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
+    <link href='http://fonts.googleapis.com/css?family=Tienne:400,900,700' rel='stylesheet' type='text/css'>
     <link href="css/style.css" rel="stylesheet">
     <style type="text/css">
       body {
@@ -41,7 +42,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="index.html">Kibana</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="index.html">Home</a></li>
@@ -63,8 +63,10 @@
     </header>
 
     <section id="search">
-        <div class="page-header">
-            <h1>Search <small> Find one event or one million. </small></h1>
+        <div class="row">
+            <div class="span12">
+                <h1>Search <small> Find one event or one million. </small></h1>
+            </div>
         </div>
         <div class="row">
         <div class="span6">
@@ -80,16 +82,20 @@
             <h3>Or Get Fancy <small>Use Lucene to get it just right</small></h3>
             <p>Search for every event containing chips AND dip OR salted peanuts. Round brackets let us group terms, double quotes group terms into whole phrases. <strong>Important:</strong> Operators such as AND and/or OR must be CAPITALIZED <p>
             <pre>(chips AND dip) OR "salted peanuts"</pre>
-            <p>Find every log with "nachos" in the snack field</p> 
+            <p>Find every log with "nachos" in the snack field</p>
             <pre>snack:"nachos"</pre>
             <p>We can also search numerical ranges. Such as finding every log with anything in the snack field, and with more than 300 calories.</p>
             <pre>snack:* AND calories:[300 TO *]</pre>
         </div>
     </section>
 
+    <hr class='soften'>
+
     <section id="columnize">
-        <div class="page-header">
-            <h1>Columnize <small> You found them, now make them look good.</small></h1>
+         <div class="row">
+            <div class="span12">
+                <h1>Columnize <small> You found them, now make them look good.</small></h1>
+            </div>
         </div>
         <div class="row">
         <div class="span6">
@@ -105,9 +111,13 @@
         </div>
     </section>
 
+    <hr class='soften'>
+
     <section id="graph">
-        <div class="page-header">
-            <h1>Graph and interact <small> Steep mountains, shallow valleys and sheer cliffs</small></h1>
+        <div class="row">
+            <div class="span12">
+                <h1>Graph and interact <small> Steep mountains, shallow valleys</small></h1>
+            </div>
         </div>
         <div class="row">
         <div class="span6">
@@ -121,9 +131,13 @@
         </div>
     </section>
 
+    <hr class='soften'>
+
     <section id="analyze">
-        <div class="page-header">
-            <h1>Score and trend <small> Numbers matter too</small></h1>
+        <div class="row">
+            <div class="span12">
+                <h1>Score and trend <small> Numbers matter too</small></h1>
+            </div>
         </div>
         <div class="row">
         <div class="span6">
@@ -137,14 +151,18 @@
         </div>
     </section>
 
+    <hr class='soften'>
+
     <section id="andmore">
-        <div class="page-header">
-            <h1>And more <small> Order now! Oh wait, its free.</small></h1>
+        <div class="row">
+            <div class="span12">
+                <h1>And more <small> Order now! Oh wait, its free.</small></h1>
+            </div>
         </div>
         <div class="row">
         <div class="span4">
             <h3>RSS Feeds </h3>
-            <p>Turn any search into a live RSS feed with the click of a button</p>
+            <p>Turn any search into a live RSS feed with the click of a button. Records link back to individual events that you can use build new queries</p>
         </div>
         <div class="span4">
             <h3>Streaming Dashboards</h3>
@@ -152,7 +170,7 @@
         </div>
         <div class="span4">
             <h3>And its pretty quick too</h3>
-            <p>Logstash breaks your elasticsearch data into daily indices. Kibana searches only the indices matched by your timeframe to try to give you results as fast as possible</p>
+            <p>Logstash breaks your elasticsearch data into daily indices. Kibana searches only the indices matched by your timeframe to try to give you results as fast as possible. </p>
         </div>
     </section>
 
@@ -164,7 +182,7 @@
 
     </footer>
 
-    </div> 
+    </div>
 
   </body>
 
