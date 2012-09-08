@@ -106,7 +106,7 @@
             <p>Normally, Kibana will show you Logstash's @message field, since @message contains your unparsed event.</p>
             <h3>Get to know it</h3>
             <p>Click on an event to expand a details pane with all of your fields laid out nicely</p>
-            <h3>Get the right stuff <small>Because unparsed logs are confusing</small></h3>
+            <h3>Get specific <small>Unparsed logs are confusing</small></h3>
             <p>But if you wanted unparsed events you'd still be using tail and grep and grinding corn with a rock against another rock. Select some fields from the "Show Fields" section on the left to columnize your data and view and compare only the fields you really need. <p>
         </div>
     </section>
@@ -121,13 +121,14 @@
         </div>
         <div class="row">
         <div class="span6">
-            <h2>See it <small>A roller coaster, of love. </small></h2>
-            <p>Kibana graphs the occurences of logs that match your search.</p>
-            <h3>Poke it</h3>
+            <h2>See it</h2>
+            <p>Kibana charts occurances of your search over time. It can also charge the average of Elasticsearch fields stored as numbers</p>
+            <h2>Poke it</h2>
             <p>Click and drag the graph to select time segments and narrow down your search. Hover over bars for exact counts.</p>
         </div>
         <div class="span6">
-            <p><a href=images/screenshots/justgraphss.png class=thumbnail><img src=images/screenshots/justgraphss.png></a></p>
+            <p><a href="images/screenshots/justgraphss.png" class=thumbnail><img src="images/screenshots/justgraphss.png"></a></p>
+            <p><a href="images/screenshots/justgraphss2.png" class=thumbnail><img src="images/screenshots/justgraphss2.png"></a></p>
         </div>
     </section>
 
@@ -136,13 +137,13 @@
     <section id="analyze">
         <div class="row">
             <div class="span12">
-                <h1>Score and trend <small> Numbers matter too</small></h1>
+                <h1>Score, trend and calculate <small> Numbers matter too</small></h1>
             </div>
         </div>
         <div class="row">
         <div class="span6">
             <h2>Lets do the math</h2>
-            <p>Kibana can count things up for you. See the top values for any field. Identify popular webpages or common errors.</p>
+            <p>Kibana can count things up for you. See the top values for any field. Identify popular webpages or common errors.</p> Kibana's statistical mode will chart average values and provide you with the minimum, maximum, mean and further useful analysis of numerical fields.
             <h3>Change is good <small> Except when it isn't</small></h3>
             <p>Just knowing total is useful, but sometimes we need to know how things are changing. The trend button can identify the biggest changes in values by scoring counts at the beginning and end of your selected time frame and ranking by that change.</p>
         </div>
