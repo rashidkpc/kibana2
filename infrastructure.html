@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Kibana. Make sense of a mountain of logs.</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro">
+    <link href='http://fonts.googleapis.com/css?family=Tienne:400,900,700' rel='stylesheet' type='text/css'>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="intro.html">Installation</a></li>
+              <li><a href="contact.html">Support</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+    <header id="overview" class="jumbotron">
+        <h1>The Metric Network</h1>
+        <p class="lead">Kibana: Part of this complete <strike>breakfast</strike> metrics solution</p>
+    </header>
+
+    <section id="intro">
+        <div class="row">
+          <div class="span8">
+            <p><img src="images/metrics.png"></p>
+          </div>
+          <div class="span4">
+            
+            <p>Kibana is complemented by a range of free and open-source tools that can help you aggregate and deliver metrics, analytics and vital performance data. Here you'll find a log analysis infrastructure that can be dropped directly into an existing centralized syslog system, without affecting legacy applications.</p>
+            <h3>Parts List <small>Your analytics pantry</small></h4>
+            <ul>
+              <li><a href="http://www.balabit.com/network-security/syslog-ng">Syslog-ng</a> - Syslogd</li>
+              <li><a href="http://logstash.net">Logstash</a> - Powerful log pipeline</li>
+              <li><a href="http://www.rabbitmq.com">RabbitMQ</a> or <a href="http://redis.io">Redis</a> - For queuing messages</li>
+              <li><a href="http://elasticsearch.org">Elasticsearch</a> - Full text document storage and search</li>
+              <li><a href="http://graphite.wikidot.com/">Graphite</a> - From Orbitz, Scalable real-time graphing</li>
+              <li><a href="http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/">Statsd</a> - From Etsy, counts occurrences of fields and ships to graphite</li>
+              <li><a href="https://github.com/rashidkpc/graphital">Graphital</a> - A ruby daemon to send host level performance data to graphite</li>
+              <li><a href="http://kibana.org">Kibana</a> - A browser based log analysis front end for Logstash and Elasticsearch </li>
+            </ul>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="span12">
+            <h2>How it all fits together <small>Like a well oiled, uh, something that gets oiled.</small></h2>
+            <h4>The setup <small>Getting your logs into Logstash</small></h4>
+            <ul>
+              <li>Network nodes log to <strong>syslog</strong>, in this case <a href="http://www.balabit.com/network-security/syslog-ng">Syslog-ng</a>. </li>
+              <li><a href="http://www.balabit.com/network-security/syslog-ng">Syslog-ng</a> delivers logs to a centralized syslog server, also <a href="http://www.balabit.com/network-security/syslog-ng">Syslog-ng</a>. The central syslog server has 2 outputs:</li>
+              <ul>
+                <li>File</li>
+                <li><strong>TCP</strong> to <a href="http://logstash.net">Logstash</a></li>
+              </ul>
+              <strong>TCP</strong> is used to forward events to <a href="http://logstash.net">Logstash</a> and to allow for seperation of the <a href="http://logstash.net">Logstash</a> instance if needed. <a href="http://logstash.net">Logstash</a> could also simply read the files that are outputted by syslog-ng. Why not just archive everything in <a href="http://elasticsearch.org">Elasticsearch</a>? That's an option, however flat files allow for longer historical retention; Compressed flat files are 10% or less of the size of Elasticsearch documents.
+              <li><a href="http://logstash.net">Logstash</a> uses an <strong>AMQP</strong> output to a <a href="http://www.rabbitmq.com">RabbitMQ</a> exchanged named 'Logstash'. At this stage, <a href="http://logstash.net">Logstash</a>'s only role is to queue logs for processing by a filtering cluster. Without significant volume logs could be processed/filtered at this level.</li>
+              <li>Queuing, with <a href="http://www.rabbitmq.com">RabbitMQ</a> or Redis, allows for horizontal scaling as needed.</li>
+            </ul>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="span8">
+            <h4>The real work <small>So I'm here, whats goin on?</small></h4>
+            <ul>
+              <li>
+                A cluster of <a href="http://logstash.net">Logstash</a> filter workers pull input from <a href="http://www.rabbitmq.com">RabbitMQ</a>. The <a href="http://logstash.net">Logstash</a> filters are the heavy lifters; they process syslog messages into easy to analyze fields. For example, a web server log line might use grok to break the event down into request, response, client and agent. The process of breaking an event into pieces is usually handled by <a href="http://logstash.net">Logstash</a>'s grok filter, but <a href="http://logstash.net">Logstash</a> has lots of useful filters for working with events.</li>
+              <li>Logstash has 2 outputs at this level:
+                <ul>
+                  <li>Full events are sent to a second <a href="http://www.rabbitmq.com">RabbitMQ</a> exchange called 'Elasticsearch'</li>
+                  <li>Selected fields are sent to Statsd (more on this in the Pretty Lines section)</li>
+                </ul>
+              </li>
+              <li>
+                Logstash pulls from the 'Elasticsearch' exchange and indexes events into their final resting place, <a href="http://elasticsearch.org">Elasticsearch</a>. 
+              </li>
+              <li>
+                <a href="http://kibana.org">Kibana</a> talks to Elasticsearch and presents a friendly face to the recently parsed event data
+              </li>
+            </ul>
+          </div>
+          <div class="span4">
+            <div class="alert alert-info">
+              <strong>Why the 2nd AMQP exchange?</strong><p> Why don't the <a href="http://logstash.net">Logstash</a> filter workers write directly to Elasticsearch? Good question. The answer involves pretty lines. <a href="http://logstash.net">Logstash</a> will stop reading from the 'Logstash' <strong>AMQP</strong> exchange if it can't write to <a href="http://elasticsearch.org">Elasticsearch</a>, such as when it's under heavy load. When this happens, filtering can't happen, and the real-time data that Statsd relies on can not be delivered.</p>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="span5">
+            <img src="images/graphite_stat.png">
+          </div>
+          <div class="span7">
+            <h4>Pretty lines <small>powered by Graphite</small></h4>
+            <ul>
+              <li>The other Logstash filter output: <a href="http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/">Statsd</a></li>
+              <li>Logstash picks out some key fields from events, such the HTTP 'response' field, and fires them off to statsd</li>
+              <li><a href="http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/">Statsd</a> counts up the occurences of each unique value it recieves and sends the totals onto <a href="http://graphite.wikidot.com/">Graphite</a>.</li>
+              <li><a href="http://graphite.wikidot.com/">Graphite</a> charts values and displays them as time series data to which can be applied apply filters and functions</li>
+              <li><strong>A world away from log processing</strong>: <a href="https://github.com/rashidkpc/graphital">Graphital</a> is collecting host level vitals and providing them to Graphite</li>
+              <li><a href="http://graphite.wikidot.com/">Graphite</a> allows for dragging and dropping of graphs on top of each other. <a href="http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/">Statsd</a> output can be directly compared to host level vital signs to correlate events</li>
+            </ul> 
+          </div>
+        </div>
+    </section>
+    <hr>
+    <footer>
+      <p>&copy; Rashid Khan 2012. Visual style provided by <a href=http://twitter.github.com/bootstrap>Twitter Bootstrap</a>. Icons provided by <a href=http://www.glyphicons.com>Glyphicons</a>. </p>
+
+    </footer>
+
+    </div>
+
+  </body>
+
+</html>
