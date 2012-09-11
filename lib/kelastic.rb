@@ -77,7 +77,11 @@ class Kelastic
 
     # TODO: Verify this index exists?
     def current_index
-      (Time.now.utc).strftime("logstash-%Y.%m.%d")
+      if KibanaConfig::Smart_index == true
+        (Time.now.utc).strftime("logstash-%Y.%m.%d")
+      else
+        KibanaConfig::Default_index
+      end
     end
 
     def mapping(index)
