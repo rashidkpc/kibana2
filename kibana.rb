@@ -94,14 +94,27 @@ get '/api/analyze/:field/trend/:hash' do
   limit = KibanaConfig::Analyze_limit
   show  = KibanaConfig::Analyze_show
   req           = ClientRequest.new(params[:hash])
-  query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
+
   query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
-  indices_begin = Kelastic.index_range(req.from,req.to).reverse
   indices_end   = Kelastic.index_range(req.from,req.to)
-  result_begin  = KelasticMulti.new(query_begin,indices_begin)
   result_end    = KelasticMulti.new(query_end,indices_end)
-  count_begin   = KelasticResponse.count_field(result_begin.response,params[:field])
+
+  # Oh snaps. too few results for full limit analysis, rerun with less
+  if (result_end.response['hits']['hits'].length < limit)
+    limit         = (result_end.response['hits']['hits'].length / 2).to_i
+    query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+    indices_end   = Kelastic.index_range(req.from,req.to)
+    result_end    = KelasticMulti.new(query_end,indices_end)
+  end
+
   count_end     = KelasticResponse.count_field(result_end.response,params[:field])
+
+  query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
+  indices_begin = Kelastic.index_range(req.from,req.to).reverse
+  result_begin  = KelasticMulti.new(query_begin,indices_begin)
+  count_begin   = KelasticResponse.count_field(result_begin.response,params[:field])
+
+
 
   # Not sure this is required. This should be able to be handled without
   # server communication
