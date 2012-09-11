@@ -77,7 +77,7 @@ class Kelastic
 
     # TODO: Verify this index exists?
     def current_index
-      (Time.now).strftime("logstash-%Y.%m.%d")
+      (Time.now.utc).strftime("logstash-%Y.%m.%d")
     end
 
     def mapping(index)
