@@ -637,31 +637,29 @@ function details_table(objid,theme) {
   var field_id = '';
   var value = '';
   var orig = '';
+  var buttons = '';
 
   var i = 1;
   for (index in obj_fields) {
     field = obj_fields[index];
     field_id = field.replace('@', 'ATSYM');
     value = get_field_value(obj,field);
-    orig = value
+    buttons = "<i class='jlink icon-large icon-search' id=findthis_"+objid+"_"+field_id+"></i> " +
+              "<i class='jlink icon-large icon-ban-circle' id=notthis_"+objid+"_"+field_id+"></i> ";
 
     if (isNaN(value)) {
       try {
         var json = JSON.parse(value);
         value = JSON.stringify(json,null,4);
+        buttons = "";
       } catch(e) {
-        value = orig
       }
     }
-
 
     trclass = (i % 2 == 0) ? 'class=alt' : '';
     str += "<tr " + trclass + ">" +
       "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
-      "<td style='width: 60px'>" +
-      "<i class='jlink icon-large icon-search' id=findthis_"+objid+"_"+field_id+"></i> " +
-      "<i class='jlink icon-large icon-ban-circle' id=notthis_"+objid+"_"+field_id+"></i> " +
-      "</td>" +
+      "<td style='width: 60px'>" + buttons + "</td>" +
       '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
       xmlEnt(value) + "</span>" +
       "</td></tr>";
@@ -1263,8 +1261,14 @@ function get_all_fields(json) {
 function get_field_value(object,field) {
   value = field.charAt(0) == '@' ?
     object['_source'][field] : object['_source']['@fields'][field];
+
   if(typeof value === 'undefined')
-    value = '-'
+    return '-'
+  if($.isArray(value))
+    return value.toString();
+  if(typeof value === 'object' && value != null)
+    return JSON.stringify(value,null,4)
+
   return value.toString();
 }
 
