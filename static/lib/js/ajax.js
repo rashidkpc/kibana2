@@ -108,10 +108,6 @@ function getPage() {
 
         $('#graphheader,#graph').text("");
 
-
-        //console.log(window.default_fields)
-        //fields = window.hashjson.fields
-
         // Make sure we get some results before doing anything
         if (resultjson.hits.total > 0) {
 
@@ -121,13 +117,16 @@ function getPage() {
           var analyzestr =
             '<ul id=analyze_list class="nav nav-pills nav-stacked">';
           var afield = ''; // Adjusted field name, removing @
-          var selected_class = 'logfield_selected'
+          var selected_class = "logfield_selected"
 
           // Determine fields to be displayed
           if (window.hashjson.fields.length == 0) {
-            fields = resultjson.kibana.default_fields
-            selected_class = ''
-          };
+            fields = resultjson.kibana.default_fields;
+            selected_class = '';
+          } else {
+            fields = window.hashjson.fields
+          }
+          //console.log(window.default_fields)
 
           for (var index in fields) {
             afield = window.all_fields[index].toString().replace(
@@ -154,7 +153,7 @@ function getPage() {
               "</ul>"+
               "</li>";
 
-            if ($.inArray(window.all_fields[index].toString(), fields) < 0) {
+            if ($.inArray(window.all_fields[index].toString(), fields) < 0 ) {
                 fieldstr += "<a class='jlink mfield " + afield + "'>" +
                   window.all_fields[index].toString() + "</a> ";
             }
@@ -559,6 +558,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       "No results match your query. Please try a different search" +
       "</center><br>";
   }
+
+  if (fields.length == 0)
+    fields = window.resultjson.kibana.default_fields;
 
   // If the returned data is an object do nothing, else try to parse
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
