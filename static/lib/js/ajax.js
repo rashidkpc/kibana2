@@ -108,12 +108,9 @@ function getPage() {
 
         $('#graphheader,#graph').text("");
 
-        // Determine fields to be displayed
-        if (window.hashjson.fields.length == 0) {
-          window.hashjson.fields = resultjson.kibana.default_fields
-        };
+
         //console.log(window.default_fields)
-        fields = window.hashjson.fields
+        //fields = window.hashjson.fields
 
         // Make sure we get some results before doing anything
         if (resultjson.hits.total > 0) {
@@ -124,11 +121,18 @@ function getPage() {
           var analyzestr =
             '<ul id=analyze_list class="nav nav-pills nav-stacked">';
           var afield = ''; // Adjusted field name, removing @
+          var selected_class = 'logfield_selected'
+
+          // Determine fields to be displayed
+          if (window.hashjson.fields.length == 0) {
+            fields = resultjson.kibana.default_fields
+            selected_class = ''
+          };
 
           for (var index in fields) {
             afield = window.all_fields[index].toString().replace(
               '@', 'ATSYM') + "_field";
-            fieldstr += "<a class='jlink mfield logfield_selected "+afield+"'>" +
+            fieldstr += "<a class='jlink mfield "+selected_class+" "+afield+"'>" +
               fields[index] + "</a> ";
           }
 
@@ -150,7 +154,7 @@ function getPage() {
               "</ul>"+
               "</li>";
 
-            if ($.inArray(window.all_fields[index].toString(), fields) < 0 ) {
+            if ($.inArray(window.all_fields[index].toString(), fields) < 0) {
                 fieldstr += "<a class='jlink mfield " + afield + "'>" +
                   window.all_fields[index].toString() + "</a> ";
             }
