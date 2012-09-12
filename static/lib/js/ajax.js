@@ -1234,7 +1234,7 @@ function resetAll() {
 }
 
 function get_object_fields(obj) {
-  field_array = [];
+  var field_array = [];
   for (field in obj._source['@fields']) {
     field_array.push(field);
   }
@@ -1246,7 +1246,8 @@ function get_object_fields(obj) {
 }
 
 function get_all_fields(json) {
-  field_array = [];
+  var field_array = [];
+  var obj_fields;
   for (hit in json.hits.hits) {
     obj_fields = get_object_fields(json.hits.hits[hit]);
     for (index in obj_fields) {
