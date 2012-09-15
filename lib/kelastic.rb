@@ -50,7 +50,11 @@ class Kelastic
 
     def index_range(from,to)
       if KibanaConfig::Smart_index == true
-        requested = date_range(from,to).map{ |date| date.strftime("logstash-%Y.%m.%d") }
+      	index_pattern = "logstash-%Y.%m.%d"
+      	if KibanaConfig::Smart_index_pattern != ""
+      	  index_pattern = KibanaConfig::Smart_index_pattern
+      	end
+        requested = date_range(from,to).map{ |date| date.strftime(index_pattern) }
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
           intersection.sort.reverse
@@ -78,7 +82,11 @@ class Kelastic
     # TODO: Verify this index exists?
     def current_index
       if KibanaConfig::Smart_index == true
-        (Time.now.utc).strftime("logstash-%Y.%m.%d")
+        index_pattern = "logstash-%Y.%m.%d"
+      	if KibanaConfig::Smart_index_pattern != ""
+      	  index_pattern = KibanaConfig::Smart_index_pattern
+      	end
+        (Time.now.utc).strftime(index_pattern)
       else
         KibanaConfig::Default_index
       end
