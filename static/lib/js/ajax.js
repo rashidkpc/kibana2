@@ -836,7 +836,7 @@ function renderDateTimePicker(from, to, force) {
       "type=text name=timefrom value='" + ISODateString(from) + "'> to " +
       "<input size=19 id=timeto class=hasDatePicker " +
       " type=text name=timeto value='" + ISODateString(to) + "'> " +
-      "<i id='timechange' class='jlink icon-filter' style='visibility: hidden' " +
+      "<i id='timechange' class='jlink' style='visibility: hidden' " +
       "> filter</i></center>"
     );
 
