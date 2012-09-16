@@ -46,3 +46,7 @@ padding-top: 5px;
 .new {
     background-color: #eee;
 }
+
+a.jlink {
+  color: #aaa;
+}

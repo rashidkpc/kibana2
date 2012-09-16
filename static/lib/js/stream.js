@@ -65,7 +65,9 @@ function getStream() {
       var i = 0;
       for (var obj in data.hits.hits) {
         hit = data.hits.hits[obj]
+
         id = hit['_id']
+        index = hit['_index']
         if (!(has_time)) {
           window.last_time = get_field_value(hit,'@timestamp');
           has_time = true;
@@ -73,7 +75,18 @@ function getStream() {
         if ($('#logrow_' + id).length == 0) {
           str += "<tr id=logrow_" + id + ">";
           i++;
-          str += "<td style='white-space:nowrap;'>" +
+          hash = Base64.encode(JSON.stringify(
+            {
+              "timeframe":"900",
+              "mode":"id",
+              "fields":"",
+              "id":id,
+              "index":index,
+              "offset":0
+            }
+            ));
+          console.log(hash)
+          str += "<td style='white-space:nowrap;'><a class=jlink href='../#"+hash+"'><i class='icon-link'></i></a> " +
             prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset) + "</td>";
           for (var field in fields) {
             str += "<td>" +
