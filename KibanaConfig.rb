@@ -64,7 +64,7 @@ module KibanaConfig
   # You can define your custom pattern here for index names if you 
   # use something other than daily indexing. Pattern needs to have 
   # date formatting like '%Y.%m.%d'
-  Smart_index_pattern = 'logstash-%Y.%m'
+  Smart_index_pattern = 'logstash-%Y.%m.%d'
   
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many
