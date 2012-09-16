@@ -199,6 +199,7 @@ function getPage() {
             '<center><br><p><img src=' +
             '/images/barload.gif></center>');
 
+          //console.log(window.hashjson)
           window.interval = calculate_interval(
             Date.parse(window.resultjson.kibana.time.from),
             Date.parse(window.resultjson.kibana.time.to),
@@ -1032,25 +1033,19 @@ function logGraph(data, interval, metric) {
     var color = getGraphColor(metric);
 
     $.plot(
-    $("#graph"), [{
+    $("#graph"), [
+    {
       data: array,
-      label: label + " per " + (parseInt(interval) / 1000) + "s"
-    }], {
+      label: label + " per " + secondsToHms(parseInt(interval) / 1000)
+    }
+    ], {
+      legend: { position: "nw" },
       series: {
-        lines: {
-          show: false,
-          fill: true
-        },
-        bars: {
-          show: true,
-          fill: 1,
-          barWidth: interval / 1.7
-        },
-        points: {
-          show: false
-        },
+        lines:  { show: false, fill: true },
+        bars:   { show: true,  fill: 1, barWidth: interval / 1.7 },
+        points: { show: false },
         color: color,
-        shadowSize: 0
+        shadowSize: 1
       },
       xaxis: {
         mode: "time",
@@ -1065,9 +1060,6 @@ function logGraph(data, interval, metric) {
       selection: {
         mode: "x",
         color: '#000'
-      },
-      legend: {
-        position: "nw"
       },
       grid: {
         backgroundColor: '#fff',
@@ -1295,18 +1287,46 @@ function calculate_interval(from,to,size) {
 
 function round_interval (interval) {
   switch (true) {
-    case (interval <= 500):     return 100;
-    case (interval <= 5000):    return 1000;
-    case (interval <= 7500):    return 5000;
-    case (interval <= 15000):   return 10000;
-    case (interval <= 45000):   return 30000;
-    case (interval <= 180000):  return 60000;
-    case (interval <= 450000):  return 300000;
-    case (interval <= 1200000): return 600000;
-    case (interval <= 2700000): return 1800000;
-    default:                    return 3600000;
+    case (interval <= 500):       return 100;
+    case (interval <= 5000):      return 1000;
+    case (interval <= 7500):      return 5000;
+    case (interval <= 15000):     return 10000;
+    case (interval <= 45000):     return 30000;
+    case (interval <= 180000):    return 60000;
+    case (interval <= 450000):    return 300000;
+    case (interval <= 1200000):   return 600000;
+    case (interval <= 2700000):   return 1800000;
+    case (interval <= 7200000):  return 3600000;
+    default:                      return 10800000;
   }
 }
+
+function secondsToHms(seconds){
+    var numyears = Math.floor(seconds / 31536000);
+    if(numyears){
+        return numyears + 'y';
+    }
+    var numdays = Math.floor((seconds % 31536000) / 86400);
+    if(numdays){
+        return numdays + 'd';
+    }
+    var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    if(numhours){
+        return numhours + 'h';
+    }
+    var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    if(numminutes){
+        return numminutes + 'm';
+    }
+    var numseconds = (((seconds % 31536000) % 86400) % 3600) % 60;
+    if(numseconds){
+        return numseconds + 's';
+    }
+    return 'less then a second'; //'just now' //or other string you like;
+}
+
+
+
 
 function bind_clicks() {
 
