@@ -695,6 +695,7 @@ function details_table(objid,theme) {
 
 
 function mSearch(field, value, mode) {
+  window.hashjson.offset = 0;
   if (mode === undefined) mode = '';
   if (mode != 'analysis') {
     window.hashjson.mode = mode;
