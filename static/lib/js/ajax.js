@@ -107,115 +107,79 @@ function getPage() {
         //console.log(resultjson);
 
         $('#graphheader,#graph').text("");
+        $('#feedlinks').html(feedLinks(window.hashjson));
+
 
         // Make sure we get some results before doing anything
-        if (resultjson.hits.total > 0) {
-
-          // Setup variables
-          window.all_fields = get_all_fields(resultjson);
-          var fieldstr = "";
-          var analyzestr =
-            '<ul id=analyze_list class="nav nav-pills nav-stacked">';
-          var afield = ''; // Adjusted field name, removing @
-          var selected_class = "logfield_selected"
-
-          // Determine fields to be displayed
-          if (window.hashjson.fields.length == 0) {
-            fields = resultjson.kibana.default_fields;
-            selected_class = '';
-          } else {
-            fields = window.hashjson.fields
-          }
-          //console.log(window.default_fields)
-
-          for (var index in fields) {
-            afield = window.all_fields[index].toString().replace(
-              '@', 'ATSYM') + "_field";
-            fieldstr += "<a class='jlink mfield "+selected_class+" "+afield+"'>" +
-              fields[index] + "</a> ";
-          }
-
-          for (var index in window.all_fields) {
-            afield = window.all_fields[index].toString().replace(
-              '@', 'ATSYM') + "_field";
-
-            analyzestr += '<li class="dropdown">' +
-              '<a class="dropdown-toggle jlink" data-toggle="dropdown">' +
-              window.all_fields[index].toString() +
-              '<b class=caret></b></a>' +
-              '<ul class="dropdown-menu">' +
-              "<li class='analyze_btn'>" +
-              "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
-              "<li class='trend_btn'>" +
-              "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
-              "<li class='stat_btn'>" +
-              "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
-              "</ul>"+
-              "</li>";
-
-            if ($.inArray(window.all_fields[index].toString(), fields) < 0 ) {
-                fieldstr += "<a class='jlink mfield " + afield + "'>" +
-                  window.all_fields[index].toString() + "</a> ";
-            }
-          }
-
-          analyzestr += '</ul>';
-          $('#fields').html(
-            "<h5><i class='icon-columns'></i> Columns</h5>" + fieldstr);
-          $('#analyze').html(
-            "<h5><i class='icon-cog'></i> Analysis</h5>" + analyzestr);
-
-          // Button delegations
-          $("#sidebar").delegate("li.analyze_btn a", "click", function () {
-            window.hashjson.offset = 0;
-            analyzeField(
-              $(this).parents().eq(2).children('a').text(), "score")});
-
-          $("#sidebar").delegate("li.trend_btn a", "click",function () {
-            window.hashjson.offset = 0;
-            analyzeField(
-              $(this).parents().eq(2).children('a').text(), "trend")});
-
-          $("#sidebar").delegate("li.stat_btn a", "click",function () {
-            window.hashjson.offset = 0;
-            analyzeField(
-              $(this).parents().eq(2).children('a').text(), "mean")});
-
-
-          $('.dropdown-toggle').dropdown();
-
-          // Create and populate #logs table
-          $('#logs').html(CreateLogTable(
-            window.resultjson.hits.hits, fields,
-            'table logs table-condensed'
-          ));
-          pageLinks();
-
-          // Populate hit and total
-          setMeta(window.resultjson.hits.total);
-
-          // Create and populate graph
-          $('#graph').html(
-            '<center><br><p><img src=' +
-            '/images/barload.gif></center>');
-
-          //console.log(window.hashjson)
-          window.interval = calculate_interval(
-            Date.parse(window.resultjson.kibana.time.from),
-            Date.parse(window.resultjson.kibana.time.to),
-            100
-          )
-          getGraph(window.interval);
-
-        } else {
-
-          // Populate hits and total
-          setMeta(window.resultjson.hits.total);
-
+        if (!(resultjson.hits.total > 0)) {
+          setMeta(0);
           showError('No logs matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
+          return;
         }
-        $('#feedlinks').html(feedLinks(window.hashjson));
+
+        // Determine fields to be displayed
+        if (window.hashjson.fields.length == 0) {
+          fields = resultjson.kibana.default_fields;
+        } else {
+          fields = window.hashjson.fields
+        }
+        //console.log(window.default_fields)
+
+
+         // Create 'Columns' section
+
+        $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
+          "<ul class='selected nav nav-pills nav-stacked'></ul>" +
+          "<ul class='unselected nav nav-pills nav-stacked'></ul>");
+
+        var all_fields = get_all_fields(resultjson);
+
+        var fieldstr = '';
+        for (var index in all_fields) {
+          var field_name = all_fields[index].toString();
+          var afield = field_name.replace('@', 'ATSYM') + "_field";
+
+          //fieldstr += "<li class='mfield " + afield + "'><i class='icon-plus jlink mfield " + afield +
+          //            "'></i> <span>"+field_name+"</span><li>";
+          fieldstr += sidebar_field_string(field_name,'plus');
+        }
+        $('#fields ul.unselected').append(fieldstr)
+
+        var fieldstr = '';
+        for (var index in window.hashjson.fields) {
+          var field_name = window.hashjson.fields[index].toString();
+          var afield = field_name.replace('@', 'ATSYM') + "_field";
+
+          //fieldstr += "<li class='mfield " + afield + "'><i class='icon-minus jlink mfield "+ afield +
+          //            "'></i> <span>"+field_name+"</span></li>";
+          $('#fields ul.unselected li.' + afield).hide();
+          fieldstr += sidebar_field_string(field_name,'minus');
+        }
+        $('#fields ul.selected').append(fieldstr)
+
+        // Create and populate #logs table
+        $('#logs').html(CreateLogTable(
+          window.resultjson.hits.hits, fields,
+          'table logs table-condensed'
+        ));
+        pageLinks();
+
+        // Populate hit and total
+        setMeta(window.resultjson.hits.total);
+
+        // Create and populate graph
+        $('#graph').html(
+          '<center><br><p><img src=' +
+          '/images/barload.gif></center>');
+
+        //console.log(window.hashjson)
+        window.interval = calculate_interval(
+          Date.parse(window.resultjson.kibana.time.from),
+          Date.parse(window.resultjson.kibana.time.to),
+          100
+        )
+        getGraph(window.interval);
       }
     }
   });
@@ -476,6 +440,24 @@ function setMeta(hits, mode) {
   }
 }
 
+function sidebar_field_string(field, icon) {
+  var afield = field.replace('@', 'ATSYM') + "_field";
+  return '<li class="dropdown mfield ' + afield + '">'+
+         '<i class="icon-'+icon+' jlink mfield ' + afield +'"></i> ' +
+         '<a style="display:inline-block" class="dropdown-toggle jlink" data-toggle="dropdown">' +
+         field +
+         '<b class=caret></b></a>' +
+         '<ul class="dropdown-menu">' +
+         "<li class='analyze_btn'>" +
+         "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
+         "<li class='trend_btn'>" +
+         "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
+         "<li class='stat_btn'>" +
+         "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
+         "</ul>"+
+         "</li>";
+}
+
 function pageLinks() {
   // Pagination
   var perpage = window.resultjson.kibana.per_page
@@ -672,6 +654,8 @@ function details_table(objid,theme) {
       "</td></tr>";
     i++;
 
+    // WTF was I doing here? This is wrong, -way- too many delegations
+    // caused by these.
     $("body").delegate(
       "#findthis_"+objid+"_"+field_id, "click", function (objid) {
         mSearch(
@@ -710,9 +694,14 @@ function mSearch(field, value, mode) {
 
 function mFields(field) {
 
+  var afield = field.replace('@', 'ATSYM') + "_field";
   // If the field is not in the hashjson, add it
   if ($.inArray(field, window.hashjson.fields) < 0) {
     window.hashjson.fields.push(field);
+    $('#fields ul.unselected li.' + afield).hide();
+    if($('#fields ul.selected li.' + afield).length == 0) {
+      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
+    }
   } else {
   // Otherwise, remove it
     window.hashjson.fields = jQuery.grep(
@@ -720,30 +709,14 @@ function mFields(field) {
         return value != field;
       }
     );
+    $('#fields ul.selected li.' + afield).remove();
+    $('#fields ul.unselected li.' + afield).show();
   }
 
   // Remove empty items if they exist
   window.hashjson.fields = $.grep(window.hashjson.fields,function(n){
     return(n);
   });
-
-  var str = "";
-  for (var index in window.hashjson.fields) {
-    str += "<a class='jlink mfield logfield_selected'>"
-      + window.hashjson.fields[index] + "</a> ";
-  }
-
-  for (var index in window.all_fields) {
-    if ($.inArray(window.all_fields[index].toString(),
-      window.hashjson.fields) < 0) {
-      str += "<a class='jlink mfield " +
-        window.all_fields[index].toString().replace('@', 'ATSYM') +
-        "_field '>" +
-        window.all_fields[index].toString() + "</a> ";
-    }
-  }
-
-  $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5> " + str);
 
   $('#logs').html(CreateLogTable(
     window.resultjson.hits.hits, window.hashjson.fields, 'table logs table-condensed'));
@@ -1342,9 +1315,8 @@ function bind_clicks() {
   });
 
   // Column selection
-  $("body").delegate(
-    ".mfield", "click", function () {
-      mFields($(this).text());
+  $("body").delegate("i.mfield", "click", function () {
+    mFields($(this).next().text());
   });
 
   // Reset button
@@ -1410,4 +1382,23 @@ function bind_clicks() {
       window.hashjson.offset = 0;
       setHash(window.hashjson);
   });
+
+  // Sidebar analysis stuff
+  $("#sidebar").delegate("li.analyze_btn a", "click", function () {
+    window.hashjson.offset = 0;
+    analyzeField(
+      $(this).parents().eq(2).children('a').text(), "score")});
+
+  $("#sidebar").delegate("li.trend_btn a", "click",function () {
+    window.hashjson.offset = 0;
+    analyzeField(
+      $(this).parents().eq(2).children('a').text(), "trend")});
+
+  $("#sidebar").delegate("li.stat_btn a", "click",function () {
+    window.hashjson.offset = 0;
+    analyzeField(
+      $(this).parents().eq(2).children('a').text(), "mean")});
+
+  $('.dropdown-toggle').dropdown();
+
 }
