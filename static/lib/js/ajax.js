@@ -395,8 +395,7 @@ function getAnalysis() {
             tbl[i] = metric;
             i++;
           }
-          $('#logs').html(
-            title+CreateTableView(tbl,'logs'));
+          $('#logs').html(title+CreateTableView(tbl,'logs'));
           sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'mean'
@@ -738,8 +737,8 @@ function mFields(field) {
     return(n);
   });
 
-  //$('#logs').html(CreateLogTable(
-  //  window.resultjson.hits.hits, window.hashjson.fields, 'table logs table-condensed'));
+  $('#logs').html(CreateLogTable(
+    window.resultjson.hits.hits, window.hashjson.fields, 'table logs table-condensed'));
 
   $('#feedlinks').html(feedLinks(window.hashjson));
 
