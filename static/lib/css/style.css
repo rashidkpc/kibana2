@@ -150,6 +150,10 @@ a.logfield_selected {
 color: #A92C10;
 }
 
+#fields span.selected a {
+  color: #A92C10;
+} 
+
 #graph {
 height: 120px;
 width: 100%;
