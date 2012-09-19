@@ -3,6 +3,9 @@ $(document).ready(function () {
   // Bind all click/change/whatever handlers
   bind_clicks()
 
+  // Hide sidebar by default
+  sbctl('hide',false);
+
   // Handle AJAX errors
   $("div#logs").ajaxError(function (e, xhr, settings, exception) {
     $('#meta').text("");
@@ -138,7 +141,7 @@ function getPage() {
         var fieldstr = '';
         for (var index in all_fields) {
           var field_name = all_fields[index].toString();
-          var afield = field_name.replace('@', 'ATSYM') + "_field";
+          var afield = field_alias(field_name) + "_field";
 
           //fieldstr += "<li class='mfield " + afield + "'><i class='icon-plus jlink mfield " + afield +
           //            "'></i> <span>"+field_name+"</span><li>";
@@ -149,7 +152,7 @@ function getPage() {
         var fieldstr = '';
         for (var index in window.hashjson.fields) {
           var field_name = window.hashjson.fields[index].toString();
-          var afield = field_name.replace('@', 'ATSYM') + "_field";
+          var afield = field_alias(field_name) + "_field";
 
           //fieldstr += "<li class='mfield " + afield + "'><i class='icon-minus jlink mfield "+ afield +
           //            "'></i> <span>"+field_name+"</span></li>";
@@ -179,6 +182,13 @@ function getPage() {
           Date.parse(window.resultjson.kibana.time.to),
           100
         )
+
+        if(typeof window.sb == 'undefined') {
+          sbctl('show',false)
+        } else {
+          sbctl(window.sb,false)
+        }
+
         getGraph(window.interval);
       }
     }
@@ -264,6 +274,7 @@ function getID() {
       $('#graph').html("<h2>Details for log ID: "+hit._id+" in "+hit._index+"</h2><br>"+str);
     }
   });
+  sbctl('hide',false)
   delete window.hashjson.id
   delete window.hashjson.index
   delete window.hashjson.mode
@@ -341,6 +352,7 @@ function getAnalysis() {
             ' events for your query in your selected timeframe.<br><br>';
           $('#logs').html(
             title+CreateTableView(analysisTable(resultjson),'logs analysis'));
+          sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
@@ -357,6 +369,7 @@ function getAnalysis() {
             ' and end of the selected timeframe for your query.<br><br>';
           $('#logs').html(
             title+CreateTableView(analysisTable(resultjson),'logs analysis'));
+          sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
@@ -384,6 +397,7 @@ function getAnalysis() {
           }
           $('#logs').html(
             title+CreateTableView(tbl,'logs'));
+          sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'mean'
           getGraph(window.interval);
@@ -441,7 +455,7 @@ function setMeta(hits, mode) {
 }
 
 function sidebar_field_string(field, icon) {
-  var afield = field.replace('@', 'ATSYM') + "_field";
+  var afield = field_alias(field) + "_field";
   return '<li class="dropdown mfield ' + afield + '">'+
          '<i class="icon-'+icon+' jlink mfield ' + afield +'"></i> ' +
          '<a style="display:inline-block" class="dropdown-toggle jlink" data-toggle="dropdown">' +
@@ -560,7 +574,8 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<thead><tr>';
     str += '<th scope="col" class=firsttd>Time</th>';
     for (var index in fields) {
-      str += '<th scope="col">' + fields[index] + '</th>';
+      var field = fields[index];
+      str += '<th scope="col" class="'+field_alias(field)+'_column">' + field + '</th>';
     }
     str += '</tr></thead>';
   }
@@ -570,18 +585,18 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   var i = 1;
   var alt = '';
   for (var objid in array) {
-    object = array[objid];
-    id = object._id;
-    time = prettyDateString(Date.parse(get_field_value(object,'@timestamp')) + tOffset);
+    var object = array[objid];
+    var id = object._id;
+    var time = prettyDateString(Date.parse(get_field_value(object,'@timestamp')) + tOffset);
     alt = i % 2 == 0 ? '' : 'alt'
     str += '<tr class="'+alt+' logrow" onclick=\'viewLog("' + objid + '")\'>';
 
     str += '<td class=firsttd>' + time + '</td>';
     for (var index in fields) {
-      field = fields[index];
-      value = get_field_value(object,field);
-      value = value === undefined ? "-" : value.toString();
-      str += '<td>' + xmlEnt(wbr(value, 10)) + '</td>';
+      var field = fields[index];
+      var value = get_field_value(object,field)
+      var value = value === undefined ? "-" : value.toString();
+      str += '<td class="'+field_alias(field)+'_column">' + xmlEnt(wbr(value, 10)) + '</td>';
     }
     str += '</tr><tr id=logrow_' + objid + ' class=hidedetails><td id=log_' +
       objid + ' colspan=100></td></tr>';
@@ -692,9 +707,13 @@ function mSearch(field, value, mode) {
   scroll(0, 0);
 }
 
+function field_alias(field) {
+  return field.replace('@', 'ATSYM');
+}
+
 function mFields(field) {
 
-  var afield = field.replace('@', 'ATSYM') + "_field";
+  var afield = field_alias(field) + "_field";
   // If the field is not in the hashjson, add it
   if ($.inArray(field, window.hashjson.fields) < 0) {
     window.hashjson.fields.push(field);
@@ -711,6 +730,7 @@ function mFields(field) {
     );
     $('#fields ul.selected li.' + afield).remove();
     $('#fields ul.unselected li.' + afield).show();
+    //$('table#logs ' + afield).remove();
   }
 
   // Remove empty items if they exist
@@ -718,8 +738,8 @@ function mFields(field) {
     return(n);
   });
 
-  $('#logs').html(CreateLogTable(
-    window.resultjson.hits.hits, window.hashjson.fields, 'table logs table-condensed'));
+  //$('#logs').html(CreateLogTable(
+  //  window.resultjson.hits.hits, window.hashjson.fields, 'table logs table-condensed'));
 
   $('#feedlinks').html(feedLinks(window.hashjson));
 
@@ -1132,11 +1152,14 @@ function sortObj(arr) {
   return sortedObj;
 }
 
-function sbctl(mode) {
+function sbctl(mode,user_selected) {
   var sb = $('#sidebar'),
     main = $('#main'),
     lnk = $('#sbctl'),
     win = $(window);
+  if(user_selected) {
+    window.sb = mode;
+  }
   if (mode == 'hide') {
     // collapse
     sb.hide();
@@ -1308,9 +1331,9 @@ function bind_clicks() {
   $('#sbctl').click(function () {
     var sb = $('#sidebar');
     if (sb.is(':visible')) {
-      sbctl('hide');
+      sbctl('hide',true);
     } else {
-      sbctl('show');
+      sbctl('show',true);
     }
   });
 

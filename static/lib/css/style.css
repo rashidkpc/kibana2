@@ -224,6 +224,10 @@ background: #fff;
 font-size: 11px;
 }
 
+div#sidebar {
+  display: block;
+}
+
 div.row-fluid > div.sidebar-collapsed {
   margin-left:0px;
 }
