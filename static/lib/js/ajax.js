@@ -116,7 +116,7 @@ function getPage() {
           showError('No logs matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
           return;
-        }          
+        }
 
         // Determine fields to be displayed
         if (window.hashjson.fields.length == 0) {
@@ -126,58 +126,37 @@ function getPage() {
         }
         //console.log(window.default_fields)
 
-        var all_fields = get_all_fields(resultjson);
+
+         // Create 'Columns' section
 
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
-          "<span class='selected'></span>" +
-          "<span class='unselected'></span>");
+          "<ul class='selected nav nav-pills nav-stacked'></ul>" +
+          "<ul class='unselected nav nav-pills nav-stacked'></ul>");
 
-        // Create 'Columns' section
+        var all_fields = get_all_fields(resultjson);
 
         var fieldstr = '';
         for (var index in all_fields) {
-          var afield = all_fields[index].toString().replace(
-            '@', 'ATSYM') + "_field";
-          fieldstr += "<a class='jlink mfield " + afield + "'>" +
-            all_fields[index].toString() + "</a> ";
+          var field_name = all_fields[index].toString();
+          var afield = field_name.replace('@', 'ATSYM') + "_field";
+
+          //fieldstr += "<li class='mfield " + afield + "'><i class='icon-plus jlink mfield " + afield +
+          //            "'></i> <span>"+field_name+"</span><li>";
+          fieldstr += sidebar_field_string(field_name,'plus');
         }
-        $('#fields span.unselected').append(fieldstr)
+        $('#fields ul.unselected').append(fieldstr)
 
         var fieldstr = '';
-        for (var index in fields) {
-          var afield = all_fields[index].toString().replace(
-            '@', 'ATSYM') + "_field";
-          fieldstr += "<a class='jlink mfield "+afield+"'>" +
-            fields[index] + "</a> ";
-          $('#fields span.unselected a.' + afield).hide();
+        for (var index in window.hashjson.fields) {
+          var field_name = window.hashjson.fields[index].toString();
+          var afield = field_name.replace('@', 'ATSYM') + "_field";
+
+          //fieldstr += "<li class='mfield " + afield + "'><i class='icon-minus jlink mfield "+ afield +
+          //            "'></i> <span>"+field_name+"</span></li>";
+          $('#fields ul.unselected li.' + afield).hide();
+          fieldstr += sidebar_field_string(field_name,'minus');
         }
-        $('#fields span.selected').append(fieldstr)
-
-
-        // Create 'Analyze' section
-        var analyzestr = '<ul id=analyze_list class="nav nav-pills nav-stacked">';
-        for (var index in all_fields) {
-          var afield = all_fields[index].toString().replace(
-            '@', 'ATSYM') + "_field";
-
-          analyzestr += '<li class="dropdown">' +
-            '<a class="dropdown-toggle jlink" data-toggle="dropdown">' +
-            all_fields[index].toString() +
-            '<b class=caret></b></a>' +
-            '<ul class="dropdown-menu">' +
-            "<li class='analyze_btn'>" +
-            "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
-            "<li class='trend_btn'>" +
-            "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
-            "<li class='stat_btn'>" +
-            "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
-            "</ul>"+
-            "</li>";
-        }
-        analyzestr += '</ul>';
-
-        $('#analyze').html(
-          "<h5><i class='icon-cog'></i> Analysis</h5>" + analyzestr);
+        $('#fields ul.selected').append(fieldstr)
 
         // Create and populate #logs table
         $('#logs').html(CreateLogTable(
@@ -461,6 +440,24 @@ function setMeta(hits, mode) {
   }
 }
 
+function sidebar_field_string(field, icon) {
+  var afield = field.replace('@', 'ATSYM') + "_field";
+  return '<li class="dropdown mfield ' + afield + '">'+
+         '<i class="icon-'+icon+' jlink mfield ' + afield +'"></i> ' +
+         '<a style="display:inline-block" class="dropdown-toggle jlink" data-toggle="dropdown">' +
+         field +
+         '<b class=caret></b></a>' +
+         '<ul class="dropdown-menu">' +
+         "<li class='analyze_btn'>" +
+         "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
+         "<li class='trend_btn'>" +
+         "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
+         "<li class='stat_btn'>" +
+         "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
+         "</ul>"+
+         "</li>";
+}
+
 function pageLinks() {
   // Pagination
   var perpage = window.resultjson.kibana.per_page
@@ -657,6 +654,8 @@ function details_table(objid,theme) {
       "</td></tr>";
     i++;
 
+    // WTF was I doing here? This is wrong, -way- too many delegations
+    // caused by these.
     $("body").delegate(
       "#findthis_"+objid+"_"+field_id, "click", function (objid) {
         mSearch(
@@ -698,8 +697,10 @@ function mFields(field) {
   // If the field is not in the hashjson, add it
   if ($.inArray(field, window.hashjson.fields) < 0) {
     window.hashjson.fields.push(field);
-    $('#fields span.unselected a.' + afield).hide();
-    $('#fields span.selected').append("<a class='jlink mfield " + afield + "'>" +field+ "</a> ");
+    $('#fields ul.unselected li.' + afield).hide();
+    if($('#fields ul.selected li.' + afield).length == 0) {
+      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
+    }
   } else {
   // Otherwise, remove it
     window.hashjson.fields = jQuery.grep(
@@ -707,9 +708,8 @@ function mFields(field) {
         return value != field;
       }
     );
-    $('#fields span.selected a.' + afield).remove();
-    $('#fields span.unselected a.' + afield).show();
-
+    $('#fields ul.selected li.' + afield).remove();
+    $('#fields ul.unselected li.' + afield).show();
   }
 
   // Remove empty items if they exist
@@ -1314,9 +1314,8 @@ function bind_clicks() {
   });
 
   // Column selection
-  $("body").delegate(
-    ".mfield", "click", function () {
-      mFields($(this).text());
+  $("body").delegate("i.mfield", "click", function () {
+    mFields($(this).next().text());
   });
 
   // Reset button

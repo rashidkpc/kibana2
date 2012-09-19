@@ -138,21 +138,24 @@ vertical-align: middle;
 padding-top: 10px;
 }
 
-#fields a:hover {
+#fields ul {
+  padding: 0px;
+  margin: 0px;
+}
+
+#fields ul i:hover {
 color: #A92C10;
 }
 
-#fields a.logfield_selected:hover {
-text-decoration: line-through;
+#fields ul i {
+  font-size: 0.8em;
 }
 
-a.logfield_selected {
-color: #A92C10;
-}
-
-#fields span.selected a {
+#fields ul.selected a.dropdown-toggle, #fields ul.selected b.caret {
   color: #A92C10;
-} 
+  border-bottom-color: #A92C10;
+  border-top-color: #A92C10;
+}
 
 #graph {
 height: 120px;
@@ -228,10 +231,18 @@ div.sidebar-collapsed #sbctl {
   left:3px;
 }
 
+ul.selected, ul.unselected {
+  white-space: nowrap;
+}
+
+#fields > ul > li > a {
+  padding: 1px;
+}
+
 ul#analyze_list > li > a {
-padding-top: 2px;
-padding-bottom: 2px;
-padding-left: 3px;
+padding-top: 1px;
+padding-bottom: 1px;
+padding-left: 1px;
 }
 
 dl {
