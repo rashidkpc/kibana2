@@ -149,6 +149,7 @@ color: #A92C10;
 
 #fields ul i {
   font-size: 0.8em;
+  line-height: 10px;
 }
 
 #fields ul.selected a.dropdown-toggle, #fields ul.selected b.caret {
@@ -158,7 +159,7 @@ color: #A92C10;
 }
 
 #graph {
-height: 120px;
+height: 200px;
 width: 100%;
 }
 
