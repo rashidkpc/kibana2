@@ -250,6 +250,10 @@ padding-bottom: 1px;
 padding-left: 1px;
 }
 
+h3.popover-title {
+  font-weight: bold;
+}
+
 dl {
  width:100%;
  overflow:hidden;

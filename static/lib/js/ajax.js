@@ -2,6 +2,7 @@ $(document).ready(function () {
 
   // Bind all click/change/whatever handlers
   bind_clicks()
+  popover_setup()
 
   // Hide sidebar by default
   sbctl('hide',false);
@@ -160,6 +161,8 @@ function getPage() {
           fieldstr += sidebar_field_string(field_name,'minus');
         }
         $('#fields ul.selected').append(fieldstr)
+        enable_popovers();
+
 
         // Create and populate #logs table
         $('#logs').html(CreateLogTable(
@@ -453,6 +456,7 @@ function setMeta(hits, mode) {
   }
 }
 
+/*
 function sidebar_field_string(field, icon) {
   var afield = field_alias(field) + "_field";
   return '<li class="dropdown mfield ' + afield + '">'+
@@ -469,6 +473,54 @@ function sidebar_field_string(field, icon) {
          "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
          "</ul>"+
          "</li>";
+}
+*/
+
+function sidebar_field_string(field, icon) {
+  var afield = field_alias(field) + "_field";
+  return '<li class="popup-marker jlink mfield ' + afield + '" rel="popover" data-content="'+
+          "<ul class='nav nav-list'>" +
+            "<li class='analyze_btn'>" +
+              "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
+            "<li class='trend_btn'>" +
+              "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
+            "<li class='stat_btn'>" +
+              "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
+          "</ul>" +
+          '" data-original-title="<i class=icon-beaker></i> '+field+'<small> analysis</small>">'+
+          field+" <i class='icon-chevron-right'></i></li>";
+}
+
+function popover_setup() {
+
+  popover_visible = false;
+  popover_clickedaway = false;
+
+  $(document).click(function(e) {
+    if(popover_visible & popover_clickedaway)
+    {
+      $('.popover').remove()
+      popover_visible = popover_clickedaway = false
+    } else {
+      popover_clickedaway = true
+    }
+  });
+}
+
+function enable_popovers() {
+  $('.popup-marker').popover({
+    html: true,
+    trigger: 'manual'
+  }).click(function(e) {
+    if(popover_visible) {
+      $('.popover').remove()
+    }
+    $(this).popover('show');
+    popover_clickedaway = false
+    popover_visible = true
+    e.preventDefault()
+
+  });
 }
 
 function pageLinks() {
