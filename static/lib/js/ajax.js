@@ -134,7 +134,10 @@ function getPage() {
          // Create 'Columns' section
 
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
+          "<h5><small>selected</small></h5>" +
           "<ul class='selected nav nav-pills nav-stacked'></ul>" +
+          "<hr>"+
+          "<h5><small>available</small></h5>" +
           "<ul class='unselected nav nav-pills nav-stacked'></ul>");
 
         var all_fields = get_all_fields(resultjson);
@@ -146,7 +149,7 @@ function getPage() {
 
           //fieldstr += "<li class='mfield " + afield + "'><i class='icon-plus jlink mfield " + afield +
           //            "'></i> <span>"+field_name+"</span><li>";
-          fieldstr += sidebar_field_string(field_name,'plus');
+          fieldstr += sidebar_field_string(field_name,'caret-up');
         }
         $('#fields ul.unselected').append(fieldstr)
 
@@ -158,7 +161,7 @@ function getPage() {
           //fieldstr += "<li class='mfield " + afield + "'><i class='icon-minus jlink mfield "+ afield +
           //            "'></i> <span>"+field_name+"</span></li>";
           $('#fields ul.unselected li.' + afield).hide();
-          fieldstr += sidebar_field_string(field_name,'minus');
+          fieldstr += sidebar_field_string(field_name,'caret-down');
         }
         $('#fields ul.selected').append(fieldstr)
         enable_popovers();
@@ -478,7 +481,9 @@ function sidebar_field_string(field, icon) {
 
 function sidebar_field_string(field, icon) {
   var afield = field_alias(field) + "_field";
-  return '<li class="popup-marker jlink mfield ' + afield + '" rel="popover" data-content="'+
+  return '<li class="mfield ' + afield + '">'+
+          '<i class="icon-'+icon+' jlink mfield ' + afield +'"></i> '+
+          '<a style="display:inline-block" class="popup-marker jlink field" rel="popover" data-content="'+
           "<ul class='nav nav-list'>" +
             "<li class='analyze_btn'>" +
               "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
@@ -487,8 +492,8 @@ function sidebar_field_string(field, icon) {
             "<li class='stat_btn'>" +
               "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
           "</ul>" +
-          '" data-original-title="<i class=icon-beaker></i> '+field+'<small> analysis</small>">'+
-          field+" <i class='icon-chevron-right'></i></li>";
+          '" data-original-title="<i class=icon-beaker></i> <span>'+field+'</span><small> analysis</small>">' +
+          field+"<i class='field icon-caret-right'></i></a></li>";
 }
 
 function popover_setup() {
@@ -770,7 +775,7 @@ function mFields(field) {
     window.hashjson.fields.push(field);
     $('#fields ul.unselected li.' + afield).hide();
     if($('#fields ul.selected li.' + afield).length == 0) {
-      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
+      $('#fields ul.selected').append(sidebar_field_string(field,'caret-down'));
     }
   } else {
   // Otherwise, remove it
@@ -783,6 +788,8 @@ function mFields(field) {
     $('#fields ul.unselected li.' + afield).show();
     //$('table#logs ' + afield).remove();
   }
+
+  enable_popovers();
 
   // Remove empty items if they exist
   window.hashjson.fields = $.grep(window.hashjson.fields,function(n){
@@ -1458,21 +1465,19 @@ function bind_clicks() {
   });
 
   // Sidebar analysis stuff
-  $("#sidebar").delegate("li.analyze_btn a", "click", function () {
+  $(document).delegate(".popover li.analyze_btn a", "click", function () {
     window.hashjson.offset = 0;
     analyzeField(
-      $(this).parents().eq(2).children('a').text(), "score")});
+      $(".popover span").text(), "score")});
 
-  $("#sidebar").delegate("li.trend_btn a", "click",function () {
+  $(document).delegate(".popover li.trend_btn a", "click",function () {
     window.hashjson.offset = 0;
     analyzeField(
-      $(this).parents().eq(2).children('a').text(), "trend")});
+      $(".popover span").text(), "trend")});
 
-  $("#sidebar").delegate("li.stat_btn a", "click",function () {
+  $(document).delegate(".popover li.stat_btn a", "click",function () {
     window.hashjson.offset = 0;
     analyzeField(
-      $(this).parents().eq(2).children('a').text(), "mean")});
-
-  $('.dropdown-toggle').dropdown();
+      $(".popover span").text(), "mean")});
 
 }

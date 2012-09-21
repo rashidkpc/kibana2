@@ -138,21 +138,24 @@ vertical-align: middle;
 padding-top: 10px;
 }
 
+#fields hr {
+  margin: 5px;
+}
+
 #fields ul {
   padding: 0px;
   margin: 0px;
 }
 
-#fields ul i:hover {
-color: #A92C10;
-}
-
-#fields ul i {
-  font-size: 0.8em;
+#fields ul i.mfield {
   line-height: 10px;
 }
 
-#fields ul.selected a.dropdown-toggle, #fields ul.selected b.caret {
+#fields ul i.mfield:hover {
+  background-color: #DDD;
+}
+
+#fields ul.selected .field {
   color: #A92C10;
   border-bottom-color: #A92C10;
   border-top-color: #A92C10;
