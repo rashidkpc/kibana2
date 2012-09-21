@@ -163,6 +163,26 @@ padding-top: 10px;
   border-top-color: #A92C10;
 }
 
+span.raw {
+  display:none;
+}
+
+table.micro {
+  white-space: nowrap;
+  table-layout:fixed;
+  font-size: 0.8em;
+  overflow: hidden;
+}
+
+table.micro td {
+  overflow: hidden;
+  text-align: right;
+}
+
+.popover-inner {
+  width: auto;
+}
+
 #graph {
 height: 200px;
 width: 100%;

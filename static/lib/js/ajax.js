@@ -491,14 +491,14 @@ function enable_popovers() {
       return $(this).text();
     },
     content: function() {
-      return  "<ul class='nav nav-list'>" +
-                "<li class='analyze_btn' rel='score'>" +
-                  "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
-                "<li class='analyze_btn' rel='trend'>" +
-                  "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
-                "<li class='analyze_btn' rel='mean'>" +
-                  "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
-              "</ul>";
+      return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
+              microAnalysisTable(window.resultjson,$(this).text(),5) +
+              "<div class='btn-group'>" +
+                "<button class='btn btn-small analyze_btn' rel='score'><i class='icon-list-ol'></i> Score</button>" +
+                "<button class='btn btn-small analyze_btn' rel='trend'><i class='icon-tasks'></i> Trend</button>" +
+                "<button class='btn btn-small analyze_btn' rel='mean'><i class='icon-bar-chart'></i> Stats</button>" +
+              "</div>"+
+              "";
     },
   }).click(function(e) {
     if(popover_visible) {
@@ -512,19 +512,39 @@ function enable_popovers() {
   });
 }
 
+function microAnalysisTable (json,field,count) {
+  /*
+  buttons = "<i class='jlink icon-large icon-search findthis' data-field='"+field+"'>"+
+          "<span class='raw'>" + xmlEnt(value) + "</span></i> " +
+          "<i class='jlink icon-large icon-ban-circle notthis' data-field='"+field+"'>"+
+          "<span class='raw'>" + xmlEnt(value) + "</span></i> ";
+  */
+  var counts = top_field_values(json,field,count)
+  var table = []
+  $.each(counts, function(index,value){
+    buttons = "<i class='jlink icon-large icon-search findthis' data-field='"+field+"'>"+
+              "<span class='raw'>" + xmlEnt(value[0]) + "</span></i> " +
+              "<i class='jlink icon-large icon-ban-circle notthis' data-field='"+field+"'>"+
+              "<span class='raw'>" + xmlEnt(value[0]) + "</span></i> ";
+    var percent = "<strong>"+Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 + "%</strong>";
+    table.push([value[0],percent,buttons]);
+  });
+  return CreateTableView(table,'table table-condensed table-bordered micro',false)
+}
+
 function pageLinks() {
   // Pagination
   var perpage = window.resultjson.kibana.per_page
   var str = "<center>";
   if (window.hashjson.offset - perpage >= 0) {
-    str += "<i class='firstpage jlink icon-circle-arrow-left'></i> " +
-      "<i class='prevpage icon-arrow-left jlink'></i> ";
+    str += "<i data-action='firstpage' class='page jlink icon-circle-arrow-left'></i> " +
+      "<i data-action='prevpage' class='page icon-arrow-left jlink'></i> ";
   }
   var end = window.hashjson.offset + window.resultjson.hits.hits.length;
   str += "<strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
   if (end < resultjson.hits.total)
   {
-    str += "<i class='nextpage icon-arrow-right jlink'></i> ";
+    str += "<i data-action='nextpage' class='page icon-arrow-right jlink'></i> ";
   }
   str += "</center>";
 
@@ -688,8 +708,13 @@ function details_table(objid,theme) {
     field = obj_fields[index];
     field_id = field.replace('@', 'ATSYM');
     value = get_field_value(obj,field);
-    buttons = "<i class='jlink icon-large icon-search' id=findthis_"+objid+"_"+field_id+"></i> " +
-              "<i class='jlink icon-large icon-ban-circle' id=notthis_"+objid+"_"+field_id+"></i> ";
+
+    buttons = "<i class='jlink icon-large icon-search findthis' data-field='"+field+"'>"+
+              "<span class='raw'>" + xmlEnt(value) + "</span>" +
+              "</i> " +
+              "<i class='jlink icon-large icon-ban-circle notthis' data-field='"+field+"'>"+
+              "<span class='raw'>" + xmlEnt(value) + "</span>" +
+              "</i> ";
 
     if (isNaN(value)) {
       try {
@@ -700,32 +725,13 @@ function details_table(objid,theme) {
       }
     }
 
-    trclass = (i % 2 == 0) ? 'class=alt' : '';
+    trclass = (i % 2 == 0) ? 'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
     str += "<tr " + trclass + ">" +
       "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
       "<td style='width: 60px'>" + buttons + "</td>" +
-      '<td>' + xmlEnt(wbr(value, 10)) + "<span style='display:none'>" +
-      xmlEnt(value) + "</span>" +
+      '<td>' + xmlEnt(wbr(value, 10)) +
       "</td></tr>";
     i++;
-
-    // WTF was I doing here? This is wrong, -way- too many delegations
-    // caused by these.
-    $("body").delegate(
-      "#findthis_"+objid+"_"+field_id, "click", function (objid) {
-        mSearch(
-          $(this).parents().eq(1).find('.firsttd').text(),
-          $(this).parents().eq(1).find('span').text()
-        );
-    });
-
-    $("body").delegate(
-      "#notthis_"+objid+"_"+field_id, "click", function (objid) {
-        mSearch(
-          "NOT " + $(this).parents().eq(1).find('.firsttd').text(),
-          $(this).parents().eq(1).find('span').text()
-        );
-    });
 
   }
   str += "</table>";
@@ -805,7 +811,6 @@ function feedLinks(obj) {
 // Split up log spaceless strings
 // Str = string to split
 // num = number of letters between <wbr> tags
-
 function wbr(str, num) {
   str = htmlEntities(str);
   return str.replace(RegExp("(\\w{" + num + "}|[:;,])([\\w\"'])", "g"),
@@ -1296,19 +1301,69 @@ function get_all_fields(json) {
   return field_array.sort();
 }
 
-function get_field_value(object,field) {
+function get_field_value(object,field,opt) {
   value = field.charAt(0) == '@' ?
     object['_source'][field] : object['_source']['@fields'][field];
 
   if(typeof value === 'undefined')
-    return '-'
+    return ''
   if($.isArray(value))
-    return value.toString();
+    return opt == 'raw' ? value : value.toString();
   if(typeof value === 'object' && value != null)
+    // Leaving this out for now
+    //return opt == 'raw' ? value : JSON.stringify(value,null,4)
     return JSON.stringify(value,null,4)
 
   return value.toString();
 }
+
+// Returns a big flat array of all values for a field
+function get_all_values_for_field(json,field) {
+  var field_array = [];
+  for (hit in json.hits.hits) {
+    var value = get_field_value(json.hits.hits[hit],field,'raw')
+    if(typeof value === 'object' && value != null) {
+      field_array.push.apply(field_array,value);
+    } else {
+      field_array.push(value);
+    }
+  }
+  return field_array;
+}
+
+// Takes a flat array of values and returns an array of arrays
+// reverse sorted with counts
+function count_values_in_array(array) {
+  var count = {};
+  $.each(array, function(){
+    var num = this; // Get number
+    count[num] = count[num]+1 || 1; // Increment counter for each value
+  });
+
+  var tuples = [];
+  for (var key in count) tuples.push([key, count[key]]);
+  tuples.sort(function(a, b) {
+    a = a[1];
+    b = b[1];
+    return a < b ? -1 : (a > b ? 1 : 0);
+  });
+
+  tuples.reverse();
+
+  var count_array = [];
+  for (var i = 0; i < tuples.length; i++) {
+    var key = tuples[i][0];
+    var value = tuples[i][1];
+    count_array.push([key,value])
+  }
+  return count_array;
+}
+
+function top_field_values(json,field,count) {
+  var result = count_values_in_array(get_all_values_for_field(json,field));
+  return result.slice(0,count)
+}
+
 
 
  /**
@@ -1364,9 +1419,6 @@ function secondsToHms(seconds){
     return 'less then a second'; //'just now' //or other string you like;
 }
 
-
-
-
 function bind_clicks() {
 
   // Side bar expand/collapse
@@ -1406,7 +1458,8 @@ function bind_clicks() {
   $("#logs").delegate("table.analysis tr td i.search", "click",
     function () {
       mSearch(
-        window.hashjson.analyze_field, $(this).parents().eq(1).children().eq(1).text()
+        window.hashjson.analyze_field,
+        $(this).parents().eq(1).children().eq(1).text()
       );
     }
   );
@@ -1415,7 +1468,9 @@ function bind_clicks() {
   $("#logs").delegate("table.analysis tr td i.rescore", "click",
     function () {
       mSearch(
-        window.hashjson.analyze_field, $(this).parents().eq(1).children().eq(1).text(), 'analysis'
+        window.hashjson.analyze_field,
+        $(this).parents().eq(1).children().eq(1).text(),
+        'analysis'
       );
     }
   );
@@ -1430,32 +1485,48 @@ function bind_clicks() {
     });
 
 
-  $("div.pagelinks").delegate("i.nextpage", "click",
+  $("div.pagelinks").delegate("i.page", "click",
     function () {
-      window.hashjson.offset = window.hashjson.offset + window.resultjson.kibana.per_page;
-      setHash(window.hashjson);
-    });
-
-  $("div.pagelinks").delegate("i.prevpage", "click",
-    function () {
-      window.hashjson.offset = window.hashjson.offset - window.resultjson.kibana.per_page;
-      setHash(window.hashjson);
-  });
-
-  $("div.pagelinks").delegate("i.firstpage", "click",
-    function () {
-      window.hashjson.offset = 0;
+      var action = $(this).attr('data-action')
+      switch (action) {
+      case 'nextpage':
+        window.hashjson.offset = window.hashjson.offset + window.resultjson.kibana.per_page;
+      break;
+      case 'prevpage':
+        window.hashjson.offset = window.hashjson.offset - window.resultjson.kibana.per_page;
+      break;
+      case 'firstpage':
+        window.hashjson.offset = 0;
+      break;
+      }
       setHash(window.hashjson);
   });
 
   // Sidebar analysis stuff
-  $(document).delegate(".popover li.analyze_btn a", "click", function () {
+  $(document).delegate(".popover .analyze_btn", "click", function () {
     window.hashjson.offset = 0;
-    var mode  = $(this).parent().attr('rel');
+    var mode  = $(this).attr('rel');
     var field = $(".popover .popover-title").text();
     analyzeField(field, mode)
   });
 
+  // WTF was I doing here? This is wrong, -way- too many delegations
+  // caused by these.
+  $("body").delegate(
+    "i.findthis", "click", function (objid) {
+      mSearch(
+        $(this).attr("data-field"),
+        $(this).find('span').text()
+      );
+  });
+
+  $("body").delegate(
+    "i.notthis", "click", function (objid) {
+      mSearch(
+        "NOT " + $(this).attr("data-field"),
+        $(this).find('span').text()
+      );
+  });
 
 
 }
