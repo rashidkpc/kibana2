@@ -459,40 +459,11 @@ function setMeta(hits, mode) {
   }
 }
 
-/*
-function sidebar_field_string(field, icon) {
-  var afield = field_alias(field) + "_field";
-  return '<li class="dropdown mfield ' + afield + '">'+
-         '<i class="icon-'+icon+' jlink mfield ' + afield +'"></i> ' +
-         '<a style="display:inline-block" class="dropdown-toggle jlink" data-toggle="dropdown">' +
-         field +
-         '<b class=caret></b></a>' +
-         '<ul class="dropdown-menu">' +
-         "<li class='analyze_btn'>" +
-         "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
-         "<li class='trend_btn'>" +
-         "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
-         "<li class='stat_btn'>" +
-         "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
-         "</ul>"+
-         "</li>";
-}
-*/
-
 function sidebar_field_string(field, icon) {
   var afield = field_alias(field) + "_field";
   return '<li class="mfield ' + afield + '">'+
           '<i class="icon-'+icon+' jlink mfield ' + afield +'"></i> '+
-          '<a style="display:inline-block" class="popup-marker jlink field" rel="popover" data-content="'+
-          "<ul class='nav nav-list'>" +
-            "<li class='analyze_btn'>" +
-              "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
-            "<li class='trend_btn'>" +
-              "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
-            "<li class='stat_btn'>" +
-              "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
-          "</ul>" +
-          '" data-original-title="<i class=icon-beaker></i> <span>'+field+'</span><small> analysis</small>">' +
+          '<a style="display:inline-block" class="popup-marker jlink field" rel="popover">' +
           field+"<i class='field icon-caret-right'></i></a></li>";
 }
 
@@ -515,7 +486,20 @@ function popover_setup() {
 function enable_popovers() {
   $('.popup-marker').popover({
     html: true,
-    trigger: 'manual'
+    trigger: 'manual',
+    title: function() {
+      return $(this).text();
+    },
+    content: function() {
+      return  "<ul class='nav nav-list'>" +
+                "<li class='analyze_btn' rel='score'>" +
+                  "<a class=jlink><i class='icon-list-ol'></i> Score</a></li> " +
+                "<li class='analyze_btn' rel='trend'>" +
+                  "<a class=jlink><i class='icon-tasks'></i> Trend</a></li> "+
+                "<li class='analyze_btn' rel='mean'>" +
+                  "<a class=jlink><i class='icon-bar-chart'></i> Statistics</a></li> "+
+              "</ul>";
+    },
   }).click(function(e) {
     if(popover_visible) {
       $('.popover').remove()
@@ -1467,17 +1451,11 @@ function bind_clicks() {
   // Sidebar analysis stuff
   $(document).delegate(".popover li.analyze_btn a", "click", function () {
     window.hashjson.offset = 0;
-    analyzeField(
-      $(".popover span").text(), "score")});
+    var mode  = $(this).parent().attr('rel');
+    var field = $(".popover .popover-title").text();
+    analyzeField(field, mode)
+  });
 
-  $(document).delegate(".popover li.trend_btn a", "click",function () {
-    window.hashjson.offset = 0;
-    analyzeField(
-      $(".popover span").text(), "trend")});
 
-  $(document).delegate(".popover li.stat_btn a", "click",function () {
-    window.hashjson.offset = 0;
-    analyzeField(
-      $(".popover span").text(), "mean")});
 
 }
