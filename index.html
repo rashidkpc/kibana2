@@ -113,7 +113,7 @@
             new TWTR.Widget({
               version: 2,
               type: 'search',
-              search: 'kibana AND logstash',
+              search: '(kibana AND (logstash OR logs OR logging OR ruby)) OR kibana.org',
               interval: 2000,
               title: '',
               subject: '',
