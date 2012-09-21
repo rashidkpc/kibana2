@@ -149,10 +149,12 @@ padding-top: 10px;
 
 #fields ul i.mfield {
   line-height: 10px;
+  color: #666;
 }
 
 #fields ul i.mfield:hover {
-  background-color: #DDD;
+  background-color: #EEE;
+  color: #000;
 }
 
 #fields ul.selected .field {
