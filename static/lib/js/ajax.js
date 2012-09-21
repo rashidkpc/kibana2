@@ -814,7 +814,8 @@ function feedLinks(obj) {
     ">export <i class='icon-hdd'></i></a> "+
     "<a href=/stream#" +
     Base64.encode(JSON.stringify(obj)) +
-    ">stream <i class='icon-dashboard'></i></a>"
+    ">stream <i class='icon-dashboard'></i></a> " +
+    "<a href=\"/auth/logout\">logout</a>"
   return str;
 }
 

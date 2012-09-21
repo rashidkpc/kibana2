@@ -198,7 +198,15 @@ background-color: #F5F5F5;
 }
 
 .small {
-	font-size: 0.7em;
+font-size: 0.7em;
+}
+
+.large {
+font-size: 1.4em;
+}
+
+.welcome img {
+margin: 5px;
 }
 
 table.logdetails th {
@@ -283,3 +291,7 @@ visibility: hidden;
 -o-user-select: none;
 user-select: none;
 }
+
+#login { width: 250px; margin: auto; padding-top: 100px; text-align: center; }
+#login input { text-align: center;}
+#login input[type=text], #login input[type=password] { width: 200px; }

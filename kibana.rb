@@ -6,6 +6,9 @@ require 'date'
 require 'rss/maker'
 require 'yaml'
 require 'tzinfo'
+require 'rpam'
+
+include Rpam
 
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
@@ -42,12 +45,55 @@ helpers do
 
 end
 
+before do
+  unless session[:username]
+    if request.path.start_with?("/api")
+      # ajax api call, just return an error
+      halt JSON.generate({"error" => "Not logged in"})
+    elsif !request.path.start_with?("/auth")
+      # normal web call, redirect to login
+      halt redirect '/auth/login'
+    end
+  end
+end
+
 get '/' do
-  send_file File.join(settings.public_folder, 'index.html')
+  send_file File.join(settings.public_folder, 'def.html')
 end
 
 get '/stream' do
   send_file File.join(settings.public_folder, 'stream.html')
+end
+
+get '/auth/login' do
+  locals = {}
+  if session[:login_message]
+    locals[:login_message] = session[:login_message]
+  end
+  erb :login, :locals => locals
+end
+
+post '/auth/login' do
+  username = params[:username]
+  password = params[:password]
+  begin
+    if authpam(username,password)
+      session[:username] = username
+      session[:login_message] = ""
+      redirect '/'
+    else
+      raise "User authentication failed"
+    end
+  rescue Exception => e
+    session[:login_message] = "Invalid username or password"
+    halt redirect '/auth/login'
+  end
+end
+
+get '/auth/logout' do
+  session[:username] = nil
+  session[:login_message] = "Successfully logged out"
+  redirect '/auth/login'
 end
 
 # Returns
