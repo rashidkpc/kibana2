@@ -15,6 +15,7 @@ $LOAD_PATH << './lib'
 
 require 'KibanaConfig'
 Dir['./lib/*.rb'].each{ |f| require f }
+
 ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
 
@@ -22,6 +23,15 @@ configure do
   set :port, KibanaConfig::KibanaPort
   set :public_folder, Proc.new { File.join(root, "static") }
   enable :sessions
+
+  @@auth_module = nil
+  begin
+    if KibanaConfig::Auth_module != ""
+      require "./lib/modules/auth_#{KibanaConfig::Auth_module}"
+      @@auth_module = get_module(KibanaConfig)
+    end
+  rescue
+  end
 end
 
 helpers do
@@ -46,13 +56,15 @@ helpers do
 end
 
 before do
-  unless session[:username]
-    if request.path.start_with?("/api")
-      # ajax api call, just return an error
-      halt JSON.generate({"error" => "Not logged in"})
-    elsif !request.path.start_with?("/auth")
-      # normal web call, redirect to login
-      halt redirect '/auth/login'
+  if @@auth_module
+    unless session[:username]
+      if request.path.start_with?("/api")
+        # ajax api call, just return an error
+        halt JSON.generate({"error" => "Not logged in"})
+      elsif !request.path.start_with?("/auth")
+        # normal web call, redirect to login
+        halt redirect '/auth/login'
+      end
     end
   end
 end
@@ -67,6 +79,9 @@ end
 
 get '/auth/login' do
   locals = {}
+  if !@@auth_module
+    redirect '/'
+  end
   if session[:login_message]
     locals[:login_message] = session[:login_message]
   end
@@ -74,23 +89,25 @@ get '/auth/login' do
 end
 
 post '/auth/login' do
+  if !@@auth_module
+    redirect '/'
+  end
   username = params[:username]
   password = params[:password]
-  begin
-    if authpam(username,password)
-      session[:username] = username
-      session[:login_message] = ""
-      redirect '/'
-    else
-      raise "User authentication failed"
-    end
-  rescue Exception => e
+  if @@auth_module.authenticate(username,password)
+    session[:username] = username
+    session[:login_message] = ""
+    redirect '/'
+  else
     session[:login_message] = "Invalid username or password"
     halt redirect '/auth/login'
   end
 end
 
 get '/auth/logout' do
+  if !@@auth_module
+    redirect '/'
+  end
   session[:username] = nil
   session[:login_message] = "Successfully logged out"
   redirect '/auth/login'

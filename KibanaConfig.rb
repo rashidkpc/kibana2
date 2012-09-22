@@ -87,4 +87,7 @@ module KibanaConfig
   # Prevent wildcard search terms which result in extremely slow queries
   # See: http:#www.elasticsearch.org/guide/reference/query-dsl/wildcard-query.html
   Disable_fullscan = false
+
+  # Authentication Module
+  Auth_module = ''
 end
