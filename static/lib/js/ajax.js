@@ -901,7 +901,6 @@ function renderDateTimePicker(from, to, force) {
       $('#timeinput').change();
     });
 
-    //tz_string = window.tOffset == 0 ? "+0" : window.tOffset
     // Give user a nice interface for selecting time ranges
     $("#timechange").click(function () {
       var time = {

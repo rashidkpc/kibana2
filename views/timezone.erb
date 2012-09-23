@@ -2,6 +2,9 @@ var tmp_offset = "<%="#{
 	KibanaConfig::Timezone == 'user' ?
 	'user' : ((TZInfo::Timezone.get(KibanaConfig::Timezone).current_period.offset.utc_total_offset).to_f / 3600.0).to_s
 }"%>"
+
+window.time_format = "<%= defined?(KibanaConfig::Time_format) ? KibanaConfig::Time_format : "mm/dd HH:MM:ss" %>"
+
 if (tmp_offset == 'user') {
 	var d = new Date()
 	window.tOffset = -d.getTimezoneOffset() * 60 * 1000;

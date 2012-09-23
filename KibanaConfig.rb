@@ -21,6 +21,11 @@ module KibanaConfig
   # You can use `date +%Z` on linux to get your timezone string
   Timezone = 'user'
 
+  # Format for timestamps. Defaults to mm/dd HH:MM:ss.
+  # For syntax see: http://blog.stevenlevithan.com/archives/date-time-format
+  # Time_format = 'isoDateTime' 
+  Time_format = 'mm/dd HH:MM:ss'
+
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['vhost','response','request']
   Default_fields = ['@message']
