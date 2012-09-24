@@ -89,5 +89,9 @@ module KibanaConfig
   Disable_fullscan = false
 
   # Authentication Module
-  Auth_module = ''
+  Auth_module = 'pam'
+
+  # Authentication options for the auth_ldap module
+  Ldap_host = '127.0.0.1'
+  Ldap_port = 389
 end
