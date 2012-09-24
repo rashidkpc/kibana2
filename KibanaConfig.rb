@@ -7,6 +7,10 @@ module KibanaConfig
   # The port Kibana should listen on
   KibanaPort = 5601
 
+  # The adress ip Kibana should listen on
+  KibanaHost = '127.0.0.1'
+
+
   # The record type as defined in your logstash configuration.
   # Seperate multiple types with a comma, no spaces. Leave blank
   # for all.
