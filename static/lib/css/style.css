@@ -180,6 +180,7 @@ table.micro td {
 
 .popover {
   width: 400px;
+  z-index: 9999;
 }
 
 .popover-inner {
