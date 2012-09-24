@@ -123,9 +123,9 @@ function getPage() {
 
         // Determine fields to be displayed
         if (window.hashjson.fields.length == 0) {
-          fields = resultjson.kibana.default_fields;
+          var fields = resultjson.kibana.default_fields;
         } else {
-          fields = window.hashjson.fields
+          var fields = window.hashjson.fields
         }
         //console.log(window.default_fields)
 
@@ -157,8 +157,8 @@ function getPage() {
           fieldstr += sidebar_field_string(field_name,'caret-down');
         }
         $('#fields ul.selected').append(fieldstr)
-        enable_popovers();
 
+        enable_popovers();
 
         // Create and populate #logs table
         $('#logs').html(CreateLogTable(
@@ -265,11 +265,11 @@ function getID() {
     cache: false,
     success: function (json) {
       window.resultjson = JSON.parse(json)
-      hit = resultjson.hits.hits[0]
+      var hit = resultjson.hits.hits[0]
       blank_page();
       setMeta(1);
 
-      str = details_table(0, 'table table-bordered');
+      var str = details_table(0, 'table table-bordered');
       $('#graph').html("<h2>Details for log ID: "+hit._id+" in "+hit._index+"</h2><br>"+str);
     }
   });
@@ -294,10 +294,7 @@ function getAnalysis() {
 
         //Parse out the returned JSON
         var field = window.hashjson.analyze_field;
-        var resultjson = JSON.parse(json);
-        window.resultjson = resultjson;
-
-        //console.log(resultjson);
+        resultjson = JSON.parse(json);
 
         $('.pagelinks').html('');
         $('#fields').html('');
@@ -388,7 +385,7 @@ function getAnalysis() {
           var tbl = Array(), i = 0, metric;
           delete resultjson.facets.stats._type;
           for (var obj in resultjson.facets.stats) {
-            metric = Array();
+            var metric = Array();
             metric['Statistic'] = obj.charAt(0).toUpperCase() + obj.slice(1);
             metric['Value'] = resultjson.facets.stats[obj];
             tbl[i] = metric;
@@ -413,12 +410,10 @@ function graphLoading() {
 }
 
 function analysisTable(resultjson) {
-  var i = 0,
-    metric = {},
-    isalt = '',
-    tblArray = new Array();
+  var i = 0;
+  var tblArray = new Array();
   for (var obj in resultjson.hits.hits) {
-    metric = {},
+    var metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
     metric[window.hashjson.analyze_field] = object.id;
@@ -511,7 +506,7 @@ function microAnalysisTable (json,field,count) {
   var table = []
   $.each(counts, function(index,value){
 
-    buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
+    var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
               "<i class='jlink icon-large icon-search msearch' data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch' data-action='NOT ' data-field='"+field+"'></i> ";
     var percent = "<strong>"+Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 + "%</strong>";
@@ -541,13 +536,10 @@ function pageLinks() {
 
 // This is very ugly
 function blank_page() {
-  $('#graph').text("");
-  $('#graphheader').text("");
-  $('#feedlinks').text("");
-  $('#logs').text("");
-  $('.pagelinks').text("");
-  $('#fields').text("");
-  $('#analyze').text("");
+  var selectors = ['#graph','#graphheader','#feedlinks','#logs','.pagelinks','#fields','#analyze']
+  for (var selector in selectors) {
+    $(selector).text("");
+  }
 }
 
 // This function creates a standard table with column/rows

@@ -26,7 +26,7 @@ function get_all_fields(json) {
 }
 
 function get_field_value(object,field,opt) {
-  value = field.charAt(0) == '@' ?
+  var value = field.charAt(0) == '@' ?
     object['_source'][field] : object['_source']['@fields'][field];
 
   if(typeof value === 'undefined')
@@ -88,8 +88,6 @@ function top_field_values(json,field,count) {
   return result.slice(0,count)
 }
 
-
-
  /**
    * Calculate a graph interval
    *
@@ -99,7 +97,7 @@ function top_field_values(json,field,count) {
    *
    */
 function calculate_interval(from,to,size) {
-  interval = round_interval((to - from)/size)
+  var interval = round_interval((to - from)/size)
   return interval
 }
 
@@ -114,7 +112,7 @@ function round_interval (interval) {
     case (interval <= 450000):    return 300000;
     case (interval <= 1200000):   return 600000;
     case (interval <= 2700000):   return 1800000;
-    case (interval <= 7200000):  return 3600000;
+    case (interval <= 7200000):   return 3600000;
     default:                      return 10800000;
   }
 }
@@ -153,18 +151,9 @@ function addslashes(str) {
 }
 
 // Create an ISO8601 compliant timestamp for ES
-function ISODateString(unixtime) {
-  var d = new Date(parseInt(unixtime));
-
-  function pad(n) {
-    return n < 10 ? '0' + n : n
-  }
-  return d.getUTCFullYear() + '-' +
-    pad(d.getUTCMonth() + 1) + '-' +
-    pad(d.getUTCDate()) + 'T' +
-    pad(d.getUTCHours()) + ':' +
-    pad(d.getUTCMinutes()) + ':' +
-    pad(d.getUTCSeconds());
+function ISODateString(d) {
+  d = new Date(parseInt(d - window.tOffset));
+  return dateFormat(d,'isoDateTime');
 }
 
 function prettyDateString(d) {
@@ -213,7 +202,7 @@ function sortObj(arr) {
 
 // WTF. Has to be a better way to do this. Hi Tyler.
 function int_to_tz(offset) {
-  hour = offset / 1000 / 3600
+  var hour = offset / 1000 / 3600
   var str = ""
   if (hour == 0) {
     str = "+0000"
@@ -234,19 +223,17 @@ function int_to_tz(offset) {
   return str
 }
 
-
 // Sets #hash, thus refreshing results
 function setHash(json) {
   window.location.hash = Base64.encode(JSON.stringify(json));
 }
 
-
 // Add commas to numbers
 function addCommas(nStr) {
   nStr += '';
-  x = nStr.split('.');
-  x1 = x[0];
-  x2 = x.length > 1 ? '.' + x[1] : '';
+  var x = nStr.split('.');
+  var x1 = x[0];
+  var x2 = x.length > 1 ? '.' + x[1] : '';
   var rgx = /(\d+)(\d{3})/;
   while (rgx.test(x1)) {
     x1 = x1.replace(rgx, '$1' + ',' + '$2');
@@ -265,6 +252,7 @@ function wbr(str, num) {
     }
   );
 }
+
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
