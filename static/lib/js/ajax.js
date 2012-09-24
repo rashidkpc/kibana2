@@ -39,7 +39,10 @@ $(document).ready(function () {
 function pageload(hash) {
   if (typeof window.request !== 'undefined') {
     window.request.abort();
-    delete window.segment;
+    window.segment = undefined;
+    try{
+      delete window.segment;
+    }catch(e){}
   }
   //if hash value exists, run the ajax
   if (hash) {
@@ -241,7 +244,11 @@ function getGraph(interval) {
           getGraph(interval);
         } else {
           if(typeof window.segment !== 'undefined')
-            delete window.segment
+            //delete window.segment
+            window['segment'] = undefined;
+            try{
+              delete window['segment'];
+            }catch(e){}
         }
 
       }
@@ -274,9 +281,14 @@ function getID() {
     }
   });
   sbctl('hide',false)
-  delete window.hashjson.id
-  delete window.hashjson.index
-  delete window.hashjson.mode
+  window.hashjson.id = undefined;
+  window.hashjson.index = undefined
+  window.hashjson.mode = undefined
+  try{
+    delete window.hashjson.id;
+    delete window.hashjson.index
+    delete window.hashjson.mode
+  }catch(e){}
 }
 
 function getAnalysis() {
@@ -383,7 +395,12 @@ function getAnalysis() {
             '</strong> field over your selected time frame' +
             '<br><br>';
           var tbl = Array(), i = 0, metric;
-          delete resultjson.facets.stats._type;
+
+          resultjson.facets.stats._type = undefined;
+          try{
+            delete resultjson.facets.stats._type
+          }catch(e){}
+
           for (var obj in resultjson.facets.stats) {
             var metric = Array();
             metric['Statistic'] = obj.charAt(0).toUpperCase() + obj.slice(1);
