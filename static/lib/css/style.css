@@ -176,7 +176,10 @@ table.micro {
 
 table.micro td {
   overflow: hidden;
-  text-align: right;
+}
+
+.popover {
+  width: 400px;
 }
 
 .popover-inner {

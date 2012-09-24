@@ -512,7 +512,7 @@ function microAnalysisTable (json,field,count) {
     var percent = "<strong>"+Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 + "%</strong>";
     table.push([value[0],percent,buttons]);
   });
-  return CreateTableView(table,'table table-condensed table-bordered micro',false)
+  return CreateTableView(table,'table table-condensed table-bordered micro',false,['99%','30px','30px'])
 }
 
 function pageLinks() {
@@ -546,7 +546,8 @@ function blank_page() {
 // objArray = Anytype of object array, like JSON results
 // theme (optional) = A css class to add to the table (e.g. <table class="<theme>">
 // enableHeader (optional) = Controls if you want to hide/show, default is show
-function CreateTableView(objArray, theme, enableHeader) {
+// widths = control the widths of columns (optional)
+function CreateTableView(objArray, theme, enableHeader, widths) {
 
   if (theme === undefined) theme = 'mediumTable'; //default theme
   if (enableHeader === undefined) enableHeader = true; //default enable header
@@ -570,7 +571,8 @@ function CreateTableView(objArray, theme, enableHeader) {
   for (var i = 0; i < array.length; i++) {
     str += (i % 2 == 0) ? '<tr class="alt">' : '<tr>';
     for (var index in array[i]) {
-      str += '<td>' + array[i][index] + '</td>';
+      var width = (!(widths === undefined)) ? 'width="'+widths[index]+'"' : '';
+      str += '<td '+width+'>' + array[i][index] + '</td>';
     }
     str += '</tr>';
   }
