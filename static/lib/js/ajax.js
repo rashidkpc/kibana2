@@ -889,6 +889,12 @@ function renderDateTimePicker(from, to, force) {
 
     $('#timefrom,#timeto').change(function () {
       $('#timechange').css('visibility', 'visible');
+      var time = {
+        "from": ISODateString(Date.parse($('#timefrom').val())) + int_to_tz(window.tOffset),
+        "to": ISODateString(Date.parse($('#timeto').val())) + int_to_tz(window.tOffset)
+      };
+      window.hashjson.offset = 0;
+      window.hashjson.time = time;
       $('#timeinput').val('custom');
       $('#timeinput').change();
     });
