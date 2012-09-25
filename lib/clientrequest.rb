@@ -22,6 +22,10 @@ class ClientRequest
     @request = JSON.parse(Base64.decode64(hash))
 
     @search = @request['search']
+    if @search != "" and @search.include? "|"
+      @search = @search.strip().split('|')[0].strip()
+    end
+
     @index  = @request['index']
     @offset = @request['offset'].nil? ? 0 : @request['offset']
 
