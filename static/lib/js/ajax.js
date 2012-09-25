@@ -494,7 +494,11 @@ function enable_popovers() {
     html: true,
     trigger: 'manual',
     title: function() {
-      return $(this).text();
+      var field = $(this).text();
+      var buttons = "<span class='raw'>" + field + "</span>" +
+        "<i class='jlink icon-search msearch' data-action='' data-field='_exists_'></i> " +
+        "<i class='jlink icon-ban-circle msearch' data-action='' data-field='_missing_'></i> ";
+      return buttons + " " + field + "<small> analysis</small> ";
     },
     content: function() {
       return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
