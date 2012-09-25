@@ -53,7 +53,7 @@ function getStream() {
     from = "/" + window.last_time;
   }
 
-  $.getJSON("/api/stream/" + b64json + from, null, function(data) {
+  $.getJSON("api/stream/" + b64json + from, null, function(data) {
     if (data != null) {
       window.i++;
       var fields = window.hashjson.fields

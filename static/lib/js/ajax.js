@@ -176,7 +176,7 @@ function getPage() {
         // Create and populate graph
         $('#graph').html(
           '<center><br><p><img src=' +
-          '/images/barload.gif></center>');
+          'images/barload.gif></center>');
 
         //console.log(window.hashjson)
         window.interval = calculate_interval(
@@ -423,7 +423,7 @@ function getAnalysis() {
 function graphLoading() {
   $('#graph').html(
     '<center><br><p><img src=' +
-    '/images/barload.gif></center>');
+    'images/barload.gif></center>');
 }
 
 function analysisTable(resultjson) {
@@ -459,7 +459,7 @@ function analysisTable(resultjson) {
 
 function setMeta(hits, mode) {
   if ( hits == 'loading' ) {
-    $('#meta').html('<img src=/images/ajax-loader.gif>');
+    $('#meta').html('<img src=images/ajax-loader.gif>');
   } else {
     $('#meta').html(addCommas(hits) + " <span class=small>hits</span></td></tr>");
   }
@@ -796,13 +796,13 @@ function mFields(field) {
 }
 
 function feedLinks(obj) {
-  var str = "<a href=/rss/" +
+  var str = "<a href=rss/" +
     Base64.encode(JSON.stringify(obj)) +
     ">rss <i class='icon-rss'></i></a> "+
-    "<a href=/export/" +
+    "<a href=export/" +
     Base64.encode(JSON.stringify(obj)) +
     ">export <i class='icon-hdd'></i></a> "+
-    "<a href=/stream#" +
+    "<a href=stream#" +
     Base64.encode(JSON.stringify(obj)) +
     ">stream <i class='icon-dashboard'></i></a>"
   return str;
