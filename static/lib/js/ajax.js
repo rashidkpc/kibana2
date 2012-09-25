@@ -1066,7 +1066,10 @@ function logGraph(data, interval, metric) {
   }
   $("#graph_container").resizable({
     minHeight: 100,
-    handles: 's'
+    handles: 's',
+    stop: function(event, ui) {
+      $("#graph_container").css('width', '');
+    }
   });
 }
 
