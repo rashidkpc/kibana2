@@ -37,6 +37,6 @@ end
 
 # Required function, returns the auth
 # class for this module.
-def get_module(config)
+def get_auth_module(config)
   return AuthLDAP.new(config)
 end

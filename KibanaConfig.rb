@@ -94,4 +94,7 @@ module KibanaConfig
   # Authentication options for the auth_ldap module
   Ldap_host = '127.0.0.1'
   Ldap_port = 389
+
+  # Storage Module
+  Storage_module = 'mongo'
 end

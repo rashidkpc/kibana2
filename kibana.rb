@@ -28,9 +28,18 @@ configure do
   begin
     if KibanaConfig::Auth_module != ""
       require "./lib/modules/auth_#{KibanaConfig::Auth_module}"
-      @@auth_module = get_module(KibanaConfig)
+      @@auth_module = get_auth_module(KibanaConfig)
     end
   rescue
+    puts "Failed to load the auth module: #{KibanaConfig::Auth_module}"
+  end
+
+  @@storage_module = nil
+  begin
+    require "./lib/modules/storage_#{KibanaConfig::Storage_module}"
+    @@storage_module = get_storage_module(KibanaConfig)
+  rescue
+    puts "Failed to load the storage module: #{KibanaConfig::Storage_module}"
   end
 end
 
@@ -65,6 +74,8 @@ before do
         # normal web call, redirect to login
         halt redirect '/auth/login'
       end
+    else
+      p = @@storage_module.get_permissions(session[:username])
     end
   end
 end
