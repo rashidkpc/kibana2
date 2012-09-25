@@ -448,8 +448,8 @@ function analysisTable(resultjson) {
       }
     }
     metric['Action'] =  "<span class='raw'>"+object.id+"</span>"+
-                        "<i data-action='' class='icon-search icon-large jlink'></i> " +
-                        "<i data-action='analysis' class=' icon-cog icon-large jlink'></i>";
+                        "<i data-mode='' data-field='"+window.hashjson.analyze_field+"' class='msearch icon-search icon-large jlink'></i> " +
+                        "<i data-mode='analysis' data-field='"+window.hashjson.analyze_field+"' class='msearch icon-cog icon-large jlink'></i>";
 
     tblArray[i] = metric;
     i++;
@@ -498,13 +498,15 @@ function enable_popovers() {
     },
     content: function() {
       return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
-              microAnalysisTable(window.resultjson,$(this).text(),5) +
-              "<div class='btn-group'>" +
-                "<button class='btn btn-small analyze_btn' rel='score'><i class='icon-list-ol'></i> Score</button>" +
-                "<button class='btn btn-small analyze_btn' rel='trend'><i class='icon-tasks'></i> Trend</button>" +
-                "<button class='btn btn-small analyze_btn' rel='mean'><i class='icon-bar-chart'></i> Stats</button>" +
-              "</div>"+
-              "";
+        microAnalysisTable(window.resultjson,$(this).text(),5) +
+        "<div class='btn-group'>" +
+          "<button class='btn btn-small analyze_btn' rel='score'>" + 
+            "<i class='icon-list-ol'></i> Score</button>" +
+          "<button class='btn btn-small analyze_btn' rel='trend'>" + 
+            "<i class='icon-tasks'></i> Trend</button>" +
+          "<button class='btn btn-small analyze_btn' rel='mean'>" +
+            "<i class='icon-bar-chart'></i> Stats</button>" +
+        "</div>";
     },
   }).click(function(e) {
     if(popover_visible) {
@@ -522,14 +524,15 @@ function microAnalysisTable (json,field,count) {
   var counts = top_field_values(json,field,count)
   var table = []
   $.each(counts, function(index,value){
-
     var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
               "<i class='jlink icon-large icon-search msearch' data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch' data-action='NOT ' data-field='"+field+"'></i> ";
-    var percent = "<strong>"+Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 + "%</strong>";
-    table.push([value[0],percent,buttons]);
+    var percent = "<strong>" + Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 + 
+                  "%</strong>";
+    table.push([xmlEnt(value[0]),percent,buttons]);
   });
-  return CreateTableView(table,'table table-condensed table-bordered micro',false,['99%','30px','30px'])
+  return CreateTableView(table,
+    'table table-condensed table-bordered micro',false,['99%','30px','30px'])
 }
 
 function pageLinks() {
@@ -743,8 +746,9 @@ function mSearch(field, value, mode) {
     window.hashjson.analyze_field = '';
   }
   var glue = $('#queryinput').val() != "" ? " AND " : " ";
-  window.hashjson.search = $('#queryinput').val() + glue + field + ":" + "\"" +
-    addslashes(value.toString()) + "\"";
+  var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
+
+  window.hashjson.search = $('#queryinput').val() + glue + query;
   setHash(window.hashjson);
   scroll(0, 0);
 }
@@ -1218,27 +1222,26 @@ function bind_clicks() {
   });
 
   // Analysis table rescore
-  $("#logs").delegate("table.analysis tr td i", "click",
-    function () {
-      var action = $(this).attr('data-action')
-      mSearch(
-        window.hashjson.analyze_field,
-        $(this).parent().children('span.raw').text(),
-        action
-      );
+  $("body").delegate("i.msearch", "click", function () {
+    var action = typeof $(this).attr('data-action') === 'undefined' ? '' : $(this).attr('data-action');
+    var mode = $(this).attr('data-mode');
+    var field = $(this).attr("data-field");
+    var value = $(this).parent().children('span.raw').text();
+    if (value == '') {
+      value = field;
+      field = '_missing_';
     }
-  );
+    mSearch(
+      action + field,
+      value,
+      mode
+    );
+  });
 
   // Column selection
   $("body").delegate("i.mfield", "click", function () {
     mFields($(this).attr('data-field'));
   });
 
-  $("body").delegate("i.msearch", "click", function () {
-      var action = $(this).attr('data-action')
-      mSearch(
-        action + $(this).attr("data-field"),
-        $(this).parent().children('span.raw').text()
-      );
-  });
+
 }
