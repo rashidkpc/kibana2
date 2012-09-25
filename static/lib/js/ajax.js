@@ -1199,6 +1199,9 @@ function bind_clicks() {
   // Go back to the logs
   $("#logs").delegate("button#back_to_logs", "click",
     function () {
+      if (window.hashjson.search.search("|") != -1) {
+        window.hashjson.search = $.trim(window.hashjson.search.split('|')[0])
+      }
       window.hashjson.mode = '';
       window.hashjson.graphmode = 'count';
       window.hashjson.analyze_field = '';
