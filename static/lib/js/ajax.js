@@ -295,7 +295,7 @@ function getAnalysis() {
   setMeta('loading');
   //generate the parameter for the php script
   var sendhash = window.location.hash.replace(/^#/, '');
-  console.log(sendhash)
+
   //Get the data and display it
   window.request = $.ajax({
     url: "api/analyze/"+window.hashjson.analyze_field+"/"+window.hashjson.mode+"/"+sendhash,
@@ -303,7 +303,6 @@ function getAnalysis() {
     cache: false,
     success: function (json) {
       // Make sure we're still on the same page
-      console.log(window.location.hash.replace(/^#/, ''))
       if (sendhash == window.location.hash.replace(/^#/, '')) {
 
         //Parse out the returned JSON
