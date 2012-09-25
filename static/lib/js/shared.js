@@ -11,6 +11,27 @@ function get_object_fields(obj) {
   return field_array.sort();
 }
 
+function has_field(obj,field) {
+  var obj_fields = get_object_fields(obj);
+  if ($.inArray(field,obj_fields) < 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function get_related_fields(json,field) {
+  var field_array = []
+  for (hit in json.hits.hits) {
+    var obj_fields = get_object_fields(json.hits.hits[hit]);
+    if ($.inArray(field,obj_fields) > 0) {
+      field_array.push.apply(field_array,obj_fields);
+    }
+  }
+  var counts = count_values_in_array(field_array);
+  return counts;
+}
+
 function get_all_fields(json) {
   var field_array = [];
   var obj_fields;
@@ -141,6 +162,9 @@ function secondsToHms(seconds){
     return 'less then a second'; //'just now' //or other string you like;
 }
 
+function to_percent(number,outof) {
+  return Math.round((number/outof)*10000)/100 + "%";
+}
 
 function addslashes(str) {
   str = str.replace(/\\/g, '\\\\');

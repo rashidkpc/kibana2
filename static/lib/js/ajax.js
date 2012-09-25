@@ -479,7 +479,7 @@ function popover_setup() {
   popover_clickedaway = false;
 
   $(document).click(function(e) {
-    if(popover_visible & popover_clickedaway)
+    if(popover_visible & popover_clickedaway & !$(e.target).is("a.micro"))
     {
       $('.popover').remove()
       popover_visible = popover_clickedaway = false
@@ -501,8 +501,21 @@ function enable_popovers() {
       return buttons + " " + field + "<small> analysis</small> ";
     },
     content: function() {
+      var related_limit = 10;
+      var field = $(this).text()
+      var counts = get_related_fields(window.resultjson,field);
+      var str = '<span class=related><small><strong>Related fields:</strong><br> ';
+      var i = 0
+      $.each(counts, function(index,value) {
+        var display = i < related_limit ? 'inline-block' : 'none';
+        str += "<span style='display:"+display+"'>" + value[0] +
+                " (" + to_percent(value[1],window.resultjson.kibana.per_page) + "),</span>";
+        i++;
+      });
+      str += (i >= related_limit) ? ' <a class="jlink micro more">' + (i - related_limit) + ' more</a>' : '';
+      str += "</small></span>";
       return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
-        microAnalysisTable(window.resultjson,$(this).text(),5) +
+        microAnalysisTable(window.resultjson,field,5) + str +
         "<div class='btn-group'>" +
           "<button class='btn btn-small analyze_btn' rel='score'>" +
             "<i class='icon-list-ol'></i> Score</button>" +
@@ -531,8 +544,7 @@ function microAnalysisTable (json,field,count) {
     var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
               "<i class='jlink icon-large icon-search msearch' data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch' data-action='NOT ' data-field='"+field+"'></i> ";
-    var percent = "<strong>" + Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 +
-                  "%</strong>";
+    var percent = "<strong>" + to_percent(value[1],window.resultjson.kibana.per_page) +"</strong>";
     table.push([xmlEnt(value[0]),percent,buttons]);
   });
   return CreateTableView(table,
@@ -1251,6 +1263,13 @@ function bind_clicks() {
   $("body").delegate("i.mfield", "click", function () {
     mFields($(this).attr('data-field'));
   });
+
+  $("body").delegate("span.related a.more", "click", function () {
+    $('span.related span').show();
+    $('span.related a.more').remove();
+    $('div.popover div.arrow').remove();
+  });
+
 
 
 }
