@@ -10,8 +10,8 @@ body {
 }
 
 .content {
-padding-left: 0px;
-padding-right: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .btn.tiny {
@@ -25,11 +25,11 @@ padding-right: 0px;
 }
 
 .topbar {
-padding: 3px;
+  padding: 3px;
 }
 
 .jlink {
-cursor: pointer;
+  cursor: pointer;
 }
 
 i.jlink {
@@ -55,87 +55,87 @@ width: 100%;
 }
 
 #logs td {
-word-wrap: break-word;
-font-size: 11px;
-vertical-align: text-top;
+  word-wrap: break-word;
+  font-size: 11px;
+  vertical-align: text-top;
 }
 
 #logs td.firsttd {
-white-space: nowrap;
-vertical-align: text-top;
+  white-space: nowrap;
+  vertical-align: text-top;
 }
 
 #logs th {
-text-align: left;
+  text-align: left;
 }
 
 #meta {
-text-align: right;
-width: 95px;
-font-size: 16px;
-color: #fff;
-vertical-align: middle;
+  text-align: right;
+  width: 95px;
+  font-size: 16px;
+  color: #fff;
+  vertical-align: middle;
 }
 
 div.legend table, div.legend table td {
-width: auto;
-height: auto;
-line-height: auto;
-color: #000;
-margin: 0px;
-border: 0;
-padding: 0px;
+  width: auto;
+  height: auto;
+  line-height: auto;
+  color: #000;
+  margin: 0px;
+  border: 0;
+  padding: 0px;
 }
 
 div.legend table td.legendColorBox, div.legend table td.legendLabel {
-padding-left: 3px;
+  padding-left: 3px;
 }
 
 
 table.formatting {
-vertical-align: middle;
-margin-left: 0px;
+  vertical-align: middle;
+  margin-left: 0px;
 }
 
 table.formatting td {
-margin-top: 0px;
-padding-left: 5px;
+  margin-top: 0px;
+  padding-left: 5px;
 }
 
 .navbar table.formatting .btn {
-margin-top: 0px;
+  margin-top: 0px;
 }
 
 #searchform {
-width: 100%;
-margin: 5px;
+  width: 100%;
+  margin: 5px;
 }
 
 #searchform img {
-max-width: none;
+  max-width: none;
 }
 
 #queryinput {
-width: 98%;
-font-size: 8pt;
-color: #333;
+  width: 98%;
+  font-size: 8pt;
+  color: #333;
 }
 
 #feedlinks {
-position: absolute;
-top: 50px;
-right: 20px;
+  position: absolute;
+  top: 50px;
+  right: 20px;
 }
 
 #feedlinks a, #feedlinks img {
-color: #000;
-font-size: .9em;
-text-align: right;
-vertical-align: middle;
+  color: #000;
+  font-size: .9em;
+  text-align: right;
+  vertical-align: middle;
 }
 
 #analyze {
-padding-top: 10px;
+  padding-top: 10px;
 }
 
 #fields hr {
@@ -176,6 +176,7 @@ table.micro {
 
 table.micro td {
   overflow: hidden;
+  line-height: 12px;
 }
 
 .popover {
@@ -187,40 +188,47 @@ table.micro td {
   width: auto;
 }
 
+#graph_container {
+  height: 100px;
+  width: 100%;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 5px;
+}
+
 #graph {
-height: 200px;
-width: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 #graphheader {
-font-size: 10pt;
-vertical-align: text-bottom;
-margin: 0px;
+  font-size: 10pt;
+  vertical-align: text-bottom;
+  margin: 0px;
 }
 
 table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
-cursor: pointer;
+  cursor: pointer;
 }
 
 
 table.logdetails {
-margin-left: 10px;
+  margin-left: 10px;
 }
 
 tr.logrow:hover {
-background-color: #e8f7f7;
+  background-color: #e8f7f7;
 }
 
 tr.showdetails td {
-border-top: 0px;
+  border-top: 0px;
 }
 
 table.logdetails td{
-border: 0px;
+  border: 0px;
 }
 
 .alt {
-background-color: #F5F5F5;
+  background-color: #F5F5F5;
 }
 
 .small {
@@ -228,29 +236,28 @@ background-color: #F5F5F5;
 }
 
 table.logdetails th {
-font-size: 7pt;
-font-weight: normal;
-background-color: #F5F5F5;
-border-top: 0;
-border-bottom: 0;
-
+  font-size: 7pt;
+  font-weight: normal;
+  background-color: #F5F5F5;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 tr.hidedetails {
-display: none;
+  display: none;
 }
 
 td.logopts {
-background-color: #fff;
-white-space: nowrap;
+  background-color: #fff;
+  white-space: nowrap;
 }
 
 .no_hover a:hover {
-background: #fff;
+  background: #fff;
 }
 
 #ui-datepicker-div {
-font-size: 11px;
+  font-size: 11px;
 }
 
 div#sidebar {
@@ -274,9 +281,9 @@ ul.selected, ul.unselected {
 }
 
 ul#analyze_list > li > a {
-padding-top: 1px;
-padding-bottom: 1px;
-padding-left: 1px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 1px;
 }
 
 h3.popover-title {
@@ -300,12 +307,12 @@ dd {
 
 
 del {
-visibility: hidden;
--webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
--o-user-select: none;
-user-select: none;
+  visibility: hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }

@@ -500,9 +500,9 @@ function enable_popovers() {
       return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
         microAnalysisTable(window.resultjson,$(this).text(),5) +
         "<div class='btn-group'>" +
-          "<button class='btn btn-small analyze_btn' rel='score'>" + 
+          "<button class='btn btn-small analyze_btn' rel='score'>" +
             "<i class='icon-list-ol'></i> Score</button>" +
-          "<button class='btn btn-small analyze_btn' rel='trend'>" + 
+          "<button class='btn btn-small analyze_btn' rel='trend'>" +
             "<i class='icon-tasks'></i> Trend</button>" +
           "<button class='btn btn-small analyze_btn' rel='mean'>" +
             "<i class='icon-bar-chart'></i> Stats</button>" +
@@ -527,7 +527,7 @@ function microAnalysisTable (json,field,count) {
     var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
               "<i class='jlink icon-large icon-search msearch' data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch' data-action='NOT ' data-field='"+field+"'></i> ";
-    var percent = "<strong>" + Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 + 
+    var percent = "<strong>" + Math.round((value[1]/window.resultjson.kibana.per_page)*10000)/100 +
                   "%</strong>";
     table.push([xmlEnt(value[0]),percent,buttons]);
   });
@@ -1025,7 +1025,6 @@ function logGraph(data, interval, metric) {
       label = metric;
 
     var color = getGraphColor(metric);
-
     $.plot(
     $("#graph"), [
     {
@@ -1065,7 +1064,10 @@ function logGraph(data, interval, metric) {
       }
     });
   }
-
+  $("#graph_container").resizable({
+    minHeight: 100,
+    handles: 's'
+  });
 }
 
 function showTooltip(x, y, contents) {
