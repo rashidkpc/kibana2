@@ -178,7 +178,6 @@ function getPage() {
           '<center><br><p><img src=' +
           'images/barload.gif></center>');
 
-        //console.log(window.hashjson)
         window.interval = calculate_interval(
           Date.parse(window.resultjson.kibana.time.from),
           Date.parse(window.resultjson.kibana.time.to),
@@ -1171,6 +1170,12 @@ function highlight_events(objids) {
   }
 }
 
+function unhighlight_events(objids) {
+  for (objid in objids) {
+    $('#logs tr#logrow_'+objids[objid]).removeClass('highlight')
+  }
+}
+
 function unhighlight_all_events() {
   $('#logs .highlight').removeClass('highlight');
 }
@@ -1280,11 +1285,14 @@ function bind_clicks() {
   });
 
   $("body").delegate("a.highlight_events", "click", function () {
+    unhighlight_all_events();
+    $('.alert-highlight').remove();
     var objids = $(this).attr('data-objid').split(',');
     var field  = $(this).attr('data-field');
     $('#logs').prepend(
-      '<div class="alert alert-info">' +
-        '<button type="button" class="unhighlight close" data-dismiss="alert">×</button>' +
+      '<div class="alert alert-info alert-highlight">' +
+        '<button type="button" class="unhighlight close" data-field="'+field+'" data-dismiss="alert">'+
+        '×</button>' +
         '<strong>Highlighting</strong> events containing the <strong>'+field+
         '</strong> field. Dismiss this notice to clear highlights.' +
       '</div>');
