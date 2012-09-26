@@ -1293,7 +1293,7 @@ function bind_clicks() {
       '<div class="alert alert-info alert-highlight">' +
         '<button type="button" class="unhighlight close" data-field="'+field+'" data-dismiss="alert">'+
         '×</button>' +
-        '<strong>Highlighting</strong> events containing the <strong>'+field+
+        'Highlighting <strong>'+objids.length+' events</strong> containing the <strong>'+field+
         '</strong> field. Dismiss this notice to clear highlights.' +
       '</div>');
     highlight_events(objids);
