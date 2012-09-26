@@ -1283,7 +1283,7 @@ function bind_clicks() {
     var objids = $(this).attr('data-objid').split(',');
     var field  = $(this).attr('data-field');
     $('#logs').prepend(
-      '<div class="alert alert-error">' +
+      '<div class="alert alert-info">' +
         '<button type="button" class="unhighlight close" data-dismiss="alert">×</button>' +
         '<strong>Highlighting</strong> events containing the <strong>'+field+
         '</strong> field. Dismiss this notice to clear highlights.' +
