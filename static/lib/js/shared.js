@@ -20,11 +20,23 @@ function has_field(obj,field) {
   }
 }
 
+function get_objids_with_field(json,field) {
+  var objid_array = [];
+  for (hit in json.hits.hits) {
+    if(has_field(json.hits.hits[hit],field)) {
+      objid_array.push(hit);
+    }
+  }
+  return objid_array;
+}
+
 function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {
-    var obj_fields = get_object_fields(json.hits.hits[hit]);
-    if ($.inArray(field,obj_fields) > 0) {
+    var obj_fields = jQuery.grep(get_object_fields(json.hits.hits[hit]), function(value){
+      return (value.charAt(0) != '@');
+    });
+    if ($.inArray(field,obj_fields) >= 0) {
       field_array.push.apply(field_array,obj_fields);
     }
   }
@@ -61,6 +73,8 @@ function get_field_value(object,field,opt) {
 
   return value.toString();
 }
+
+
 
 // Returns a big flat array of all values for a field
 function get_all_values_for_field(json,field) {

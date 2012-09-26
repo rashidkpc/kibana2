@@ -501,19 +501,26 @@ function enable_popovers() {
       return buttons + " " + field + "<small> analysis</small> ";
     },
     content: function() {
+      // console.log(get_objids_with_field(window.resultjson,$(this).text()));
+      // $("#logs tr.logrow").each(function(){
+      //  console.log(this)
+      // });
       var related_limit = 10;
       var field = $(this).text()
       var counts = get_related_fields(window.resultjson,field);
-      var str = '<span class=related><small><strong>Related fields:</strong><br> ';
-      var i = 0
-      $.each(counts, function(index,value) {
-        var display = i < related_limit ? 'inline-block' : 'none';
-        str += "<span style='display:"+display+"'>" + value[0] +
-                " (" + to_percent(value[1],window.resultjson.kibana.per_page) + "),</span>";
-        i++;
-      });
-      str += (i >= related_limit) ? ' <a class="jlink micro more">' + (i - related_limit) + ' more</a>' : '';
-      str += "</small></span>";
+      var str = ''
+      if(counts.length > 0) {
+        str = '<span class=related><small><strong>Related fields:</strong><br> ';
+        var i = 0
+        $.each(counts, function(index,value) {
+          var display = i < related_limit ? 'inline-block' : 'none';
+          str += "<span style='display:"+display+"'>" + value[0] +
+                  " (" + to_percent(value[1],window.resultjson.kibana.per_page) + "), </span>";
+          i++;
+        });
+        str += (i >= related_limit) ? ' <a class="jlink micro more">' + (i - related_limit) + ' more</a>' : '';
+        str += "</small></span>";
+      }
       return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
         microAnalysisTable(window.resultjson,field,5) + str +
         "<div class='btn-group'>" +
@@ -667,7 +674,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     var id = object._id;
     var time = prettyDateString(Date.parse(get_field_value(object,'@timestamp')) + tOffset);
     alt = i % 2 == 0 ? '' : 'alt'
-    str += '<tr class="'+alt+' logrow" onclick=\'viewLog("' + objid + '")\'>';
+    str += '<tr data-object="'+objid+'" id="logrow_'+objid+'" class="'+alt+' logrow">';
 
     str += '<td class=firsttd>' + time + '</td>';
     for (var index in fields) {
@@ -676,8 +683,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var value = value === undefined ? "-" : value.toString();
       str += '<td class="'+field_alias(field)+'_column">' + xmlEnt(wbr(value, 10)) + '</td>';
     }
-    str += '</tr><tr id=logrow_' + objid + ' class=hidedetails><td id=log_' +
-      objid + ' colspan=100></td></tr>';
+    str += '</tr><tr class="hidedetails"></tr>';
     i++;
   }
 
@@ -685,30 +691,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   return str;
 }
 
-function viewLog(objid) {
-
-  // Get the table
-  str = details_table(objid)
-
-  // Populate td with that table
-  $('#log_' + objid).html(str);
-
-  $('.ui-state-default').hover(function () {
-    $(this).toggleClass('ui-state-hover');
-  });
-  $('.ui-state-default').click(function () {
-    $(this).toggleClass('ui-state-active');
-  });
-
-  // Regular jQuery toggle() doesn't work with table-rows
-  $('#logrow_' + objid).toggleClass('showdetails');
-  $('#logrow_' + objid).toggleClass('hidedetails');
-}
-
-
 // Create a table with details about an object
 function details_table(objid,theme) {
-  if (theme === undefined) theme = 'logdetails table-bordered';
+  if (theme === undefined) theme = 'logdetails table table-bordered';
 
   obj = window.resultjson.hits.hits[objid];
   obj_fields = get_object_fields(obj);
@@ -752,7 +737,6 @@ function details_table(objid,theme) {
   str += "</table>";
   return str;
 }
-
 
 function mSearch(field, value, mode) {
   window.hashjson.offset = 0;
@@ -824,8 +808,6 @@ function feedLinks(obj) {
   return str;
 }
 
-
-
 $(function () {
   $('form').submit(function () {
     if (window.hashjson.search != $('#queryinput').val()) {
@@ -850,9 +832,8 @@ $(function () {
   });
 });
 
-
-
 // Render the date/time picker
+// Must make this pretty
 function renderDateTimePicker(from, to, force) {
   if (!$('#timechange').length || force == true) {
     var maxDateTime = new Date();
@@ -961,7 +942,9 @@ function logGraph(data, interval, metric) {
   // whatever is left. ie meangraph -> mean
   if (typeof metric === 'undefined')
     metric = 'count';
+  
   metric = metric.replace('graph','');
+  
   if (metric === '')
     metric = 'count';
 
@@ -1214,7 +1197,18 @@ function bind_clicks() {
       window.hashjson.graphmode = 'count';
       window.hashjson.analyze_field = '';
       setHash(window.hashjson);
-    });
+    }
+  );
+
+   $("#logs").delegate("tr.logrow", "click",
+    function () {
+      $(this).next().html(
+        '<td colspan=100>'+details_table($(this).attr('data-object'))+'</td>'
+      );
+      $($(this).next()).toggleClass('showdetails');
+      $($(this).next()).toggleClass('hidedetails');
+    }
+  ); 
 
 
   $("div.pagelinks").delegate("i.page", "click",
