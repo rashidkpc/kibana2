@@ -78,6 +78,10 @@ background-color: #FFF;
   vertical-align: middle;
 }
 
+.highlight {
+  color: #B94A48;
+}
+
 div.legend table, div.legend table td {
   width: auto;
   height: auto;

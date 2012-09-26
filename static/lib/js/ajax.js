@@ -495,10 +495,15 @@ function enable_popovers() {
     trigger: 'manual',
     title: function() {
       var field = $(this).text();
+      var objids = get_objids_with_field(window.resultjson,field);
       var buttons = "<span class='raw'>" + field + "</span>" +
         "<i class='jlink icon-search msearch' data-action='' data-field='_exists_'></i> " +
         "<i class='jlink icon-ban-circle msearch' data-action='' data-field='_missing_'></i> ";
-      return buttons + " " + field + "<small> analysis</small> ";
+      return buttons + " " + field +
+              "<small> micro analysis <span class='small event_count'>"+
+                "(<a class='jlink micro highlight_events' data-field='"+field+"' data-objid='"+objids+"'>" +
+                  objids.length+" events</a> on this page)"+
+              "</span></small>  ";
     },
     content: function() {
       // console.log(get_objids_with_field(window.resultjson,$(this).text()));
@@ -507,34 +512,35 @@ function enable_popovers() {
       // });
       var related_limit = 10;
       var field = $(this).text()
+      var objids = get_objids_with_field(window.resultjson,field);
       var counts = get_related_fields(window.resultjson,field);
       var str = ''
+
       if(counts.length > 0) {
         str = '<span class=related><small><strong>Related fields:</strong><br> ';
         var i = 0
         $.each(counts, function(index,value) {
           var display = i < related_limit ? 'inline-block' : 'none';
           str += "<span style='display:"+display+"'>" + value[0] +
-                  " (" + to_percent(value[1],window.resultjson.kibana.per_page) + "), </span>";
+                  " (" + to_percent(value[1],objids.length) + "), </span>";
           i++;
         });
-        str += (i >= related_limit) ? ' <a class="jlink micro more">' + (i - related_limit) + ' more</a>' : '';
+        str += (i > related_limit) ? ' <a class="jlink micro more">' + (i - related_limit) + ' more</a>' : '';
         str += "</small></span>";
       }
-      return  "<i class='icon-beaker'></i> <small>Micro Analysis</small><br>" +
-        microAnalysisTable(window.resultjson,field,5) + str +
+      return microAnalysisTable(window.resultjson,field,5) + str +
         "<div class='btn-group'>" +
-          "<button class='btn btn-small analyze_btn' rel='score'>" +
+          "<button class='btn btn-small analyze_btn' rel='score' data-field="+field+">" +
             "<i class='icon-list-ol'></i> Score</button>" +
-          "<button class='btn btn-small analyze_btn' rel='trend'>" +
+          "<button class='btn btn-small analyze_btn' rel='trend' data-field="+field+">" +
             "<i class='icon-tasks'></i> Trend</button>" +
-          "<button class='btn btn-small analyze_btn' rel='mean'>" +
+          "<button class='btn btn-small analyze_btn' rel='mean' data-field="+field+">" +
             "<i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
     },
   }).click(function(e) {
     if(popover_visible) {
-      $('.popover').remove()
+      $('.popover').remove();
     }
     $(this).popover('show');
     popover_clickedaway = false
@@ -942,9 +948,9 @@ function logGraph(data, interval, metric) {
   // whatever is left. ie meangraph -> mean
   if (typeof metric === 'undefined')
     metric = 'count';
-  
+
   metric = metric.replace('graph','');
-  
+
   if (metric === '')
     metric = 'count';
 
@@ -1159,6 +1165,15 @@ function resetAll() {
   setHash(window.hashjson);
 }
 
+function highlight_events(objids) {
+  for (objid in objids) {
+    $('#logs tr#logrow_'+objids[objid]).addClass('highlight')
+  }
+}
+
+function unhighlight_all_events() {
+  $('#logs .highlight').removeClass('highlight');
+}
 
 function bind_clicks() {
 
@@ -1208,7 +1223,7 @@ function bind_clicks() {
       $($(this).next()).toggleClass('showdetails');
       $($(this).next()).toggleClass('hidedetails');
     }
-  ); 
+  );
 
 
   $("div.pagelinks").delegate("i.page", "click",
@@ -1232,7 +1247,7 @@ function bind_clicks() {
   $(document).delegate(".popover .analyze_btn", "click", function () {
     window.hashjson.offset = 0;
     var mode  = $(this).attr('rel');
-    var field = $(".popover .popover-title").text();
+    var field = $(this).attr('data-field');
     analyzeField(field, mode)
   });
 
@@ -1264,6 +1279,20 @@ function bind_clicks() {
     $('div.popover div.arrow').remove();
   });
 
+  $("body").delegate("a.highlight_events", "click", function () {
+    var objids = $(this).attr('data-objid').split(',');
+    var field  = $(this).attr('data-field');
+    $('#logs').prepend(
+      '<div class="alert alert-error">' +
+        '<button type="button" class="unhighlight close" data-dismiss="alert">×</button>' +
+        '<strong>Highlighting</strong> events containing the <strong>'+field+
+        '</strong> field. Dismiss this notice to clear highlights.' +
+      '</div>');
+    highlight_events(objids);
+  });
 
+  $("body").delegate("button.unhighlight", "click", function () {
+    unhighlight_all_events();
+  });
 
 }
