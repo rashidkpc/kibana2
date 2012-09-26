@@ -1,4 +1,4 @@
-require 'kibana'
+require './kibana'
 require 'rubygems'
 require 'sinatra'
 
