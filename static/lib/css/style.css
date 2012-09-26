@@ -48,6 +48,7 @@ i.jlink {
 
 table.logs {
 width: 100%;
+background-color: #FFF;
 }
 
 .well h5 {
@@ -221,10 +222,6 @@ tr.logrow:hover {
 
 tr.showdetails td {
   border-top: 0px;
-}
-
-table.logdetails td{
-  border: 0px;
 }
 
 .alt {
