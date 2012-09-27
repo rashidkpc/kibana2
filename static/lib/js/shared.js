@@ -84,7 +84,7 @@ function get_field_value(object,field,opt) {
     //return opt == 'raw' ? value : JSON.stringify(value,null,4)
     return JSON.stringify(value,null,4)
 
-  return value.toString();
+  return (value != null) ? value.toString() : '';
 }
 
 
