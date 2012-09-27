@@ -189,9 +189,18 @@ function addslashes(str) {
 }
 
 // Create an ISO8601 compliant timestamp for ES
-function ISODateString(d) {
-  d = new Date(parseInt(d - window.tOffset));
-  return dateFormat(d,'isoDateTime');
+function ISODateString(unixtime) {
+  var d = new Date(parseInt(unixtime));
+
+  function pad(n) {
+    return n < 10 ? '0' + n : n
+  }
+  return d.getUTCFullYear() + '-' +
+    pad(d.getUTCMonth() + 1) + '-' +
+    pad(d.getUTCDate()) + 'T' +
+    pad(d.getUTCHours()) + ':' +
+    pad(d.getUTCMinutes()) + ':' +
+    pad(d.getUTCSeconds());
 }
 
 function prettyDateString(d) {
