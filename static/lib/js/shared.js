@@ -30,6 +30,19 @@ function get_objids_with_field(json,field) {
   return objid_array;
 }
 
+function get_objids_with_field_value(json,field,value) {
+  var objid_array = [];
+  for (hit in json.hits.hits) {
+    var hit_obj = json.hits.hits[hit];
+    if(has_field(hit_obj,field)) {
+      if(get_field_value(hit_obj,field) == value) {
+        objid_array.push(hit);
+      }
+    }
+  }
+  return objid_array;
+}
+
 function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {

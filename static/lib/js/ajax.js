@@ -500,8 +500,8 @@ function enable_popovers() {
         "<i class='jlink icon-ban-circle msearch' data-action='' data-field='_missing_'></i> ";
       return buttons + " " + field +
               "<small> micro analysis <span class='small event_count'>"+
-                "(<a class='jlink micro highlight_events' data-field='"+field+"' data-objid='"+objids+"'>" +
-                  objids.length+" events</a> on this page)"+
+                "(<a class='jlink micro highlight_events' data-field='"+field+"' data-mode='field' "+
+                  "data-objid='"+objids+"'>" + objids.length+" events</a> on this page)"+
               "</span></small>  ";
     },
     content: function() {
@@ -553,11 +553,13 @@ function microAnalysisTable (json,field,count) {
   var counts = top_field_values(json,field,count)
   var table = []
   $.each(counts, function(index,value){
+    var field_val = "<a class='jlink micro highlight_events' data-mode='value' data-field='"+field+
+    "' data-objid='"+get_objids_with_field_value(window.resultjson,field,value[0])+"'>"+xmlEnt(value[0])+"</a>";
     var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
               "<i class='jlink icon-large icon-search msearch' data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch' data-action='NOT ' data-field='"+field+"'></i> ";
     var percent = "<strong>" + to_percent(value[1],window.resultjson.kibana.per_page) +"</strong>";
-    table.push([xmlEnt(value[0]),percent,buttons]);
+    table.push([field_val,percent,buttons]);
   });
   return CreateTableView(table,
     'table table-condensed table-bordered micro',false,['99%','30px','30px'])
@@ -1289,12 +1291,17 @@ function bind_clicks() {
     $('.alert-highlight').remove();
     var objids = $(this).attr('data-objid').split(',');
     var field  = $(this).attr('data-field');
+    if ($(this).attr('data-mode') == 'field')
+      var notice = 'Highlighting <strong>'+objids.length+' events</strong> containing the <strong>'+field+
+        '</strong> field. Dismiss this notice to clear highlights.';
+    if ($(this).attr('data-mode') == 'value') 
+      var notice = 'Highlighting <strong>'+objids.length+' events</strong> where <strong>'+field+
+        '</strong> is <strong>' + $(this).text() + '</strong>. Dismiss this notice to clear highlights.';
+
     $('#logs').prepend(
       '<div class="alert alert-info alert-highlight">' +
         '<button type="button" class="unhighlight close" data-field="'+field+'" data-dismiss="alert">'+
-        '×</button>' +
-        'Highlighting <strong>'+objids.length+' events</strong> containing the <strong>'+field+
-        '</strong> field. Dismiss this notice to clear highlights.' +
+        '×</button>' + notice +
       '</div>');
     highlight_events(objids);
   });
