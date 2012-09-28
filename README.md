@@ -1,6 +1,8 @@
 # Kibana
 Copyright 2012 Rashid Khan <rashidkpc #logstash irc.freenode.net>
 
+http://www.kibana.org
+
 Kibana is a browser based interface for Logstash and ElasticSearch that allows 
 you to efficiently search, visualize, analyze and otherwise make sense of your 
 logs. 

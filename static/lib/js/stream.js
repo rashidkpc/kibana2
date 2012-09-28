@@ -53,7 +53,7 @@ function getStream() {
     from = "/" + window.last_time;
   }
 
-  $.getJSON("/api/stream/" + b64json + from, null, function(data) {
+  $.getJSON("api/stream/" + b64json + from, null, function(data) {
     if (data != null) {
       window.i++;
       var fields = window.hashjson.fields
@@ -114,40 +114,3 @@ function getStream() {
     }
   });
 }
-
-function ISODateString(unixtime) {
-  d = new Date(parseInt(unixtime));
-
-  function pad(n) {
-    return n < 10 ? '0' + n : n
-  }
-  return d.getUTCFullYear() + '-' +
-    pad(d.getUTCMonth() + 1) + '-' +
-    pad(d.getUTCDate()) + 'T' +
-    pad(d.getUTCHours()) + ':' +
-    pad(d.getUTCMinutes()) + ':' +
-    pad(d.getUTCSeconds())
-}
-
-function prettyDateString(d) {
-
-  d = new Date(parseInt(d));
-
-  function pad(n) {
-    return n < 10 ? '0' + n : n
-  }
-  return pad(d.getUTCMonth() + 1) + '/' +
-    pad(d.getUTCDate()) + ' ' +
-    pad(d.getUTCHours()) + ':' +
-    pad(d.getUTCMinutes()) + ':' +
-    pad(d.getUTCSeconds());
-}
-
-function get_field_value(object,field) {
-  value = field.charAt(0) == '@' ?
-    object['_source'][field] : object['_source']['@fields'][field];
-  if(typeof value === 'undefined')
-    value = '-'
-  return value.toString();
-}
-

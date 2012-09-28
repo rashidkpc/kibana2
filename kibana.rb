@@ -20,6 +20,7 @@ ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
 
 configure do
+  set :bind, defined?(KibanaConfig::KibanaHost) ? KibanaConfig::KibanaHost : '0.0.0.0'
   set :port, KibanaConfig::KibanaPort
   set :public_folder, Proc.new { File.join(root, "static") }
   enable :sessions

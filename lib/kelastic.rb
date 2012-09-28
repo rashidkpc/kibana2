@@ -127,7 +127,7 @@ class Kelastic
       end
       parsed = JSON.parse(c.body_str)
       parsed['kibana'] = {
-        'per_page' => KibanaConfig::Per_page
+        'per_page'    => KibanaConfig::Per_page
       }
       if c.response_code == 500
         parsed['kibana']['error'] = "Invalid query"
