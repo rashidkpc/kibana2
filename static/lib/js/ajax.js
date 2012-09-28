@@ -130,11 +130,8 @@ function getPage() {
         } else {
           var fields = window.hashjson.fields
         }
-        //console.log(window.default_fields)
-
-
-         // Create 'Columns' section
-
+        
+        // Create 'Columns' section
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
           "<h5><small>selected</small></h5>" +
           "<ul class='selected nav nav-pills nav-stacked'></ul>" +
@@ -214,7 +211,7 @@ function getGraph(interval) {
 
         //Parse out the returned JSON
         var graphjson = JSON.parse(json);
-        //console.log(graphjson)
+
         if ($(".legend").length > 0) {
           window.graphdata = graphjson.facets[mode].entries.concat(window.graphdata);
           window.graphhits = graphjson.hits.total + window.graphhits
@@ -505,10 +502,6 @@ function enable_popovers() {
               "</span></small>  ";
     },
     content: function() {
-      // console.log(get_objids_with_field(window.resultjson,$(this).text()));
-      // $("#logs tr.logrow").each(function(){
-      //  console.log(this)
-      // });
       var related_limit = 10;
       var field = $(this).text()
       var objids = get_objids_with_field(window.resultjson,field);
@@ -667,7 +660,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<th scope="col" class=firsttd>Time</th>';
     for (var index in fields) {
       var field = fields[index];
-      str += '<th scope="col" class="'+field_alias(field)+'_column">' + field + '</th>';
+      str += '<th scope="col" class="column '+field_alias(field)+'_column">' + field + '</th>';
     }
     str += '</tr></thead>';
   }
@@ -688,7 +681,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var field = fields[index];
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
-      str += '<td class="'+field_alias(field)+'_column">' + xmlEnt(wbr(value, 10)) + '</td>';
+      str += '<td class="column '+field_alias(field)+'_column">' + xmlEnt(wbr(value, 10)) + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
     i++;
@@ -767,15 +760,38 @@ function field_alias(field) {
 function mFields(field) {
 
   var afield = field_alias(field) + "_field";
+  var cfield = field_alias(field) + "_column";
   // If the field is not in the hashjson, add it
   if ($.inArray(field, window.hashjson.fields) < 0) {
+
+    // We're adding a field, but there's nothing in the hashjson. Remove default fields
+    if (window.hashjson.fields.length == 0) {
+      $('#logs').find('tr.logrow').each(function(){
+        $(".column").remove();
+      });
+    }
+
+    // Add field to hashjson
     window.hashjson.fields.push(field);
     $('#fields ul.unselected li.' + afield).hide();
     if($('#fields ul.selected li.' + afield).length == 0) {
       $('#fields ul.selected').append(sidebar_field_string(field,'caret-down'));
     }
+
+    // Add column
+    $('#logs').find('tr.logrow').each(function(){
+        var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
+        var value = get_field_value(obj,field)
+        $(this).find('td').last().after(
+          '<td class="column '+field_alias(field)+'_column">' + xmlEnt(wbr(value, 10)) + '</td>');
+    });
+    $('#logs thead tr').find('th').last().after(
+      '<th scope="col" class="column '+field_alias(field)+'_column">' + field + '</th>');
+
   } else {
-  // Otherwise, remove it
+    $('#logs .' + cfield).remove();
+
+    // Otherwise, remove it
     window.hashjson.fields = jQuery.grep(
       window.hashjson.fields, function (value) {
         return value != field;
@@ -783,21 +799,35 @@ function mFields(field) {
     );
     $('#fields ul.selected li.' + afield).remove();
     $('#fields ul.unselected li.' + afield).show();
-    //$('table#logs ' + afield).remove();
-  }
 
-  enable_popovers();
+    if (window.hashjson.fields.length == 0) {
+      $.each(window.resultjson.kibana.default_fields, function(index,field){
+        $('#logs').find('tr.logrow').each(function(){
+          var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
+          var value = get_field_value(obj,field)
+          $(this).find('td').last().after(
+            '<td class="column '+field_alias(field)+'_column">' + xmlEnt(wbr(value, 10)) + '</td>');
+        });
+        $('#logs thead tr').find('th').last().after(
+          '<th scope="col" class="column '+field_alias(field)+'_column">' + field + '</th>');
+      });
+    }
+
+  }
 
   // Remove empty items if they exist
   window.hashjson.fields = $.grep(window.hashjson.fields,function(n){
     return(n);
   });
 
+  /*
   $('#logs').html(CreateLogTable(
     window.resultjson.hits.hits, window.hashjson.fields, 'table logs table-condensed'));
+  */
 
   $('#feedlinks').html(feedLinks(window.hashjson));
 
+  enable_popovers();
   pageLinks();
 
 }
