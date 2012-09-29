@@ -35,8 +35,15 @@ function get_objids_with_field_value(json,field,value) {
   for (hit in json.hits.hits) {
     var hit_obj = json.hits.hits[hit];
     if(has_field(hit_obj,field)) {
-      if(get_field_value(hit_obj,field) == value) {
-        objid_array.push(hit);
+      var field_val = get_field_value(hit_obj,field,'raw')
+      if($.isArray(field_val)) {
+        if($.inArray(value,field_val) >= 0) {
+          objid_array.push(hit);
+        }
+      } else {
+        if(field_val == value) {
+          objid_array.push(hit);
+        }
       }
     }
   }

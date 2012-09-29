@@ -18,7 +18,6 @@ $(document).ready(function () {
         " configuation has something funky going on. <br><br>If it helps,"+
         " I received a <strong>" + xhr.status + " " + xhr.statusText +
         "</strong> from: " + settings.url);
-      //console.log(xhr);
     }
   });
 
