@@ -70,7 +70,7 @@ before do
     unless session[:username]
       if request.path.start_with?("/api")
         # ajax api call, just return an error
-        halt JSON.generate({"error" => "Not logged in"})
+        halt 401, JSON.generate({"error" => "Not logged in"})
       elsif !request.path.start_with?("/auth")
         # normal web call, redirect to login
         halt redirect '/auth/login'

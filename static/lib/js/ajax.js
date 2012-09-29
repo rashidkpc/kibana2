@@ -100,7 +100,7 @@ function getPage() {
         //Parse out the result
         window.resultjson = JSON.parse(json);
 
-        if (typeof window.resultjson.kibana.error !== 'undefined') {
+        if (typeof window.resultjson.kibana != 'undefined' && typeof window.resultjson.kibana.error !== 'undefined') {
           setMeta(0);
           showError('No logs matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
@@ -188,6 +188,11 @@ function getPage() {
         }
 
         getGraph(window.interval);
+      }
+    },
+    statusCode: {
+      401: function() {
+        window.location = '/auth/login';
       }
     }
   });
