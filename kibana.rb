@@ -76,7 +76,7 @@ before do
         halt redirect '/auth/login'
       end
     else
-      p = @@storage_module.get_permissions(session[:username])
+      @user_perms = @@storage_module.get_permissions(session[:username])
     end
   end
 end
@@ -128,7 +128,7 @@ end
 # Returns
 get '/api/search/:hash' do
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
+  query   = SortedQuery.new(req.search,@user_perms,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
 
@@ -147,9 +147,9 @@ get '/api/graph/:mode/:interval/:hash/?:segment?' do
   req     = ClientRequest.new(params[:hash])
   case params[:mode]
   when "count"
-    query   = DateHistogram.new(req.search,req.from,req.to,params[:interval].to_i)
+    query   = DateHistogram.new(req.search,@user_perms,req.from,req.to,params[:interval].to_i)
   when "mean"
-    query   = StatsHistogram.new(req.search,req.from,req.to,req.analyze,params[:interval].to_i)
+    query   = StatsHistogram.new(req.search,@user_perms,req.from,req.to,req.analyze,params[:interval].to_i)
   end
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticSegment.new(query,indices,segment)
@@ -161,7 +161,7 @@ get '/api/id/:id/:index' do
   ## TODO: Make this verify that the index matches the smart index pattern.
   id      = params[:id]
   index   = "#{params[:index]}"
-  query   = IDQuery.new(id)
+  query   = IDQuery.new(id,@user_perms)
   result  = Kelastic.new(query,index)
   JSON.generate(result.response)
 end
@@ -171,21 +171,21 @@ get '/api/analyze/:field/trend/:hash' do
   show  = KibanaConfig::Analyze_show
   req           = ClientRequest.new(params[:hash])
 
-  query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+  query_end     = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit,'@timestamp','desc')
   indices_end   = Kelastic.index_range(req.from,req.to)
   result_end    = KelasticMulti.new(query_end,indices_end)
 
   # Oh snaps. too few results for full limit analysis, rerun with less
   if (result_end.response['hits']['hits'].length < limit)
     limit         = (result_end.response['hits']['hits'].length / 2).to_i
-    query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+    query_end     = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit,'@timestamp','desc')
     indices_end   = Kelastic.index_range(req.from,req.to)
     result_end    = KelasticMulti.new(query_end,indices_end)
   end
 
   count_end     = KelasticResponse.count_field(result_end.response,params[:field])
 
-  query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
+  query_begin   = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit,'@timestamp','asc')
   indices_begin = Kelastic.index_range(req.from,req.to).reverse
   result_begin  = KelasticMulti.new(query_begin,indices_begin)
   count_begin   = KelasticResponse.count_field(result_begin.response,params[:field])
@@ -219,7 +219,7 @@ get '/api/analyze/:field/score/:hash' do
   limit = KibanaConfig::Analyze_limit
   show  = KibanaConfig::Analyze_show
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,0,limit)
+  query   = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
   count   = KelasticResponse.count_field(result.response,params[:field])
@@ -275,7 +275,7 @@ get '/api/stream/:hash/?:from?' do
 
   # Build and execute
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,from,to,0,30)
+  query   = SortedQuery.new(req.search,@user_perms,from,to,0,30)
   result  = Kelastic.new(query,Kelastic.current_index)
   output  = JSON.generate(result.response)
 
@@ -293,7 +293,7 @@ get '/rss/:hash/?:count?' do
   to    = Time.now
 
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,from,to,0,count)
+  query   = SortedQuery.new(req.search,@user_perms,from,to,0,count)
   indices = Kelastic.index_range(from,to)
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
@@ -326,7 +326,7 @@ get '/export/:hash/?:count?' do
   sep   = KibanaConfig::Export_delimiter
 
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,0,count)
+  query   = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,count)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
