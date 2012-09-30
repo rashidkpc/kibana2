@@ -596,7 +596,7 @@ function blank_page() {
     '#fields','#analyze']
   
   for (var selector in selectors) {
-    $(selector).text("");
+    $(selectors[selector]).text("");
   }
 }
 

@@ -120,6 +120,14 @@ class Kelastic
       result
     end
 
+    def error_msg(error)
+      result = {}
+      result['kibana'] = {
+        'error' => error
+      }
+      result
+    end
+
     def run(url,query)
       c = Curl::Easy.http_post(url, query.to_s) do |curl|
         curl.headers['Accept'] = 'application/json'
@@ -163,6 +171,12 @@ class KelasticSegment
 
     # Make sure we're passed an array, if not, make one
     indices = indices.kind_of?(Array) ? indices : [indices]
+
+    if indices.length < 1
+      @response = Kelastic.error_msg("no index")
+      return @response
+    end
+
     index = indices[segment]
     @url = "#{Kelastic.index_path(index)}/_search"
 
@@ -197,6 +211,11 @@ end
 class KelasticMulti
  attr_accessor :response,:url
   def initialize(query,indices)
+
+    if indices.length < 1
+      @response = Kelastic.error_msg("no index")
+      return @response
+    end
 
     index = indices.first
     @url = "#{Kelastic.index_path(index)}/_search"
@@ -259,6 +278,11 @@ end
 class KelasticMultiFlat
   attr_accessor :response,:url
   def initialize(query,indices)
+
+    if indices.length < 1
+      @response = Kelastic.error_msg("no index")
+      return @response
+    end
 
     index = indices.join(',')
     @url = "#{Kelastic.index_path(index)}/_search"
