@@ -5,6 +5,7 @@ class Permissions
   include Mongoid::Document
   field :username
   field :enabled, :type => Boolean
+  field :is_admin, :type => Boolean
   field :tags, :type => Array
 end
 
@@ -12,8 +13,11 @@ class StorageMongo
   # Required function, accepts a KibanaConfig object
   def initialize(config)
     @config = config
-    puts "Initializing mongo for kibana storage..."
-    Mongoid.configure.master = Mongo::Connection.new("127.0.0.1",27017).db("kibana")
+    @mongo_host = (defined? config::Mongo_host) ? config::Mongo_host : "127.0.0.1"
+    @mongo_port = (defined? config::Mongo_port) ? config::Mongo_port : 27017
+    @mongo_db = (defined? config::Mongo_db) ? config::Mongo_db : "kibana"
+    puts "Initializing mongo (#{@mongo_host}:#{@mongo_port}/#{@mongo_db}) for kibana storage..."
+    Mongoid.configure.master = Mongo::Connection.new(@mongo_host,@mongo_port).db(@mongo_db)
   end
 
   # Helper function
@@ -26,7 +30,7 @@ class StorageMongo
   def get_permissions(username)
     p = lookup_permissions(username)
     if p
-      return p[:tags]
+      return p
     else
       return nil
     end

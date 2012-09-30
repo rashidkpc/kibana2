@@ -1,0 +1,33 @@
+<%= erb :header, :locals => locals %>
+      <div class="span2" id=sidebar>
+        <%= erb :loginmenu, :locals => locals %>
+        <div class="sidebar">
+          <div class="well">
+            <div id=fields></div>
+            <div id=analyze></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content span10" id=main>
+        <div>
+          <span id=sbctl class="ui-icon ui-icon-triangle-1-w ui-state-default jlink"></span>
+          <span id=feedlinks></span>
+          <p id=graphheader></p>
+          <div id=graph_container>
+            <div id=graph>
+              <div class=hero-unit>
+                <h1><img src=images/kibana_banner.png></h1>
+                <br><br>
+                <p><strong>Welcome to Kibana.</strong> Give me a few moments, I'm fetching some interesting data to display. It might be a minute, there could be lots of data in here. Consider the thousands, millions or billions of events I might be looking through, to find just the right ones for you. It's nothing, really. You're welcome.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id=legend></div>
+        </div>
+        <div class='pagelinks'></div>
+        <div id=logs class=zebra-stripped></div>
+        <div class='pagelinks'></div>
+      </div>
+<%= erb :footer, :locals => locals %>

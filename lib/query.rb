@@ -63,8 +63,8 @@ class Query
     # TODO: 
     #  * default allow/deny for non-tagged items?
     #  * error if perms nil?
-    if perms && !perms.include?("*")
-      @filter["and"]["filters"].push({ "terms" => { "@tags" => perms } })
+    if perms && !perms[:tags].include?("*")
+      @filter["and"]["filters"].push({ "terms" => { "@tags" => perms[:tags] } })
     end
 
     # Put it all together

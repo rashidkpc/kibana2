@@ -281,8 +281,13 @@ div.sidebar-collapsed #sbctl {
   left:3px;
 }
 
-ul.selected, ul.unselected {
+ul.selected, ul.unselected, ul.login {
   white-space: nowrap;
+}
+
+ul.login {
+  padding: 0px;
+  margin: 0px;
 }
 
 #fields > ul > li > a {

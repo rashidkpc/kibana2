@@ -82,7 +82,13 @@ before do
 end
 
 get '/' do
-  send_file File.join(settings.public_folder, 'def.html')
+  #send_file File.join(settings.public_folder, 'def.html')
+  locals = {}
+  if @@auth_module 
+    locals[:username] = session[:username]
+    locals[:is_admin] = @user_perms[:is_admin]
+  end
+  erb :index, :locals => locals
 end
 
 get '/stream' do

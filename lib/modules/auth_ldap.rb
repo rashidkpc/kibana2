@@ -4,10 +4,10 @@ class AuthLDAP
   # Required function, accepts a KibanaConfig object
   def initialize(config)
     @ldap = Net::LDAP.new
-    @ldap.host = config::Ldap_host ? config::Ldap_host : "127.0.0.1"
-    @ldap.port = config::Ldap_port ? config::Ldap_port : 389
-    @ldap_user_base = config::Ldap_user_base ? config::Ldap_user_base : "dc=example, dc=com"
-    @ldap_group_base = config::Ldap_group_base ? config::Ldap_group_base : "dc=example, dc=com"
+    @ldap.host = (defined? config::Ldap_host) ? config::Ldap_host : "127.0.0.1"
+    @ldap.port = (defined? config::Ldap_port) ? config::Ldap_port : 389
+    @ldap_user_base = (defined? config::Ldap_user_base) ? config::Ldap_user_base : "dc=example, dc=com"
+    @ldap_group_base = (defined? config::Ldap_group_base) ? config::Ldap_group_base : "dc=example, dc=com"
   end
 
   # Required function, authenticates a username/password
