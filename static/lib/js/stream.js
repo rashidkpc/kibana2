@@ -85,7 +85,6 @@ function getStream() {
               "offset":0
             }
             ));
-          console.log(hash)
           str += "<td style='white-space:nowrap;'><a class=jlink href='../#"+hash+"'><i class='icon-link'></i></a> " +
             prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset) + "</td>";
           for (var field in fields) {
