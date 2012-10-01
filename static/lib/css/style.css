@@ -143,8 +143,8 @@ table.formatting td {
   padding-top: 10px;
 }
 
-#fields hr {
-  margin: 5px;
+.well hr {
+  margin: 5px 0px 5px 0px;
 }
 
 #fields ul {

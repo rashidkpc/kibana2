@@ -2,6 +2,7 @@
         <div class="sidebar">
           <div class="well">
             <h5><small>Logged in: <b><%= locals[:username] %></b></small></h5>
+            <hr>
             <ul class="login nav">
               <% if locals[:is_admin] %>
               <%= erb :adminmenu, :locals => locals %>
