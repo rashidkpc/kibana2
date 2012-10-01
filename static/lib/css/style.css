@@ -206,9 +206,15 @@ table.micro td {
 }
 
 #graphheader {
-  font-size: 10pt;
-  vertical-align: text-bottom;
+  font-size: 9pt;
+  text-align: center;
   margin: 0px;
+  padding: 0px;
+}
+
+#graphheader form {
+  margin: 0px;
+  padding: 0px;
 }
 
 table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
@@ -334,3 +340,17 @@ del {
 #login { width: 250px; margin: auto; padding-top: 100px; text-align: center; }
 #login input { text-align: center;}
 #login input[type=text], #login input[type=password] { width: 200px; }
+
+input#timefrom,input#timeto {
+  width: 150px;
+  text-align: center;
+}
+
+/* DateTimeEntry styles */
+.datetimeEntry_control {
+  vertical-align: middle;
+  margin-left: 2px;
+}
+* html .datetimeEntry_control { /* IE only */
+  margin-top: -4px;
+}

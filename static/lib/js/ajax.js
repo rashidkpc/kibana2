@@ -129,7 +129,7 @@ function getPage() {
         } else {
           var fields = window.hashjson.fields
         }
-        
+
         // Create 'Columns' section
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
           "<h5><small>selected</small></h5>" +
@@ -275,7 +275,7 @@ function getID() {
       setMeta(1);
 
       var str = details_table(0, 'table table-bordered');
-      
+
       $('#graph').html(
         "<h2>Details for log ID: "+hit._id+" in "+hit._index+"</h2><br>"+str);
     }
@@ -297,7 +297,7 @@ function getAnalysis() {
   var sendhash = window.location.hash.replace(/^#/, '');
   //Get the data and display it
   window.request = $.ajax({
-    url: "api/analyze/" + window.hashjson.analyze_field + "/" + 
+    url: "api/analyze/" + window.hashjson.analyze_field + "/" +
       window.hashjson.mode + "/" + sendhash,
     type: "GET",
     cache: false,
@@ -475,7 +475,7 @@ function sidebar_field_string(field, icon) {
           '<i class="icon-'+icon+' jlink mfield ' + afield +'" '+
           'data-field="'+field+'"></i> '+
           '<a style="display:inline-block" class="popup-marker jlink field" '+
-          'rel="popover">' + field + 
+          'rel="popover">' + field +
           "<i class='field icon-caret-right'></i></a></li>";
 }
 
@@ -509,8 +509,8 @@ function enable_popovers() {
         "data-field='_missing_'></i> ";
       return buttons + " " + field +
         "<small> micro analysis <span class='small event_count'>"+
-        "(<a class='jlink micro highlight_events' data-field='"+field+"'" + 
-          " data-mode='field' data-objid='"+objids+"'>" + 
+        "(<a class='jlink micro highlight_events' data-field='"+field+"'" +
+          " data-mode='field' data-objid='"+objids+"'>" +
           objids.length+" events</a> on this page)</span></small>  ";
     },
     content: function() {
@@ -529,7 +529,7 @@ function enable_popovers() {
                   " (" + to_percent(value[1],objids.length) + "), </span>";
           i++;
         });
-        str += (i > related_limit) ? ' <a class="jlink micro more">' + 
+        str += (i > related_limit) ? ' <a class="jlink micro more">' +
           (i - related_limit) + ' more</a>' : '';
         str += "</small></span>";
       }
@@ -567,7 +567,7 @@ function microAnalysisTable (json,field,count) {
               " data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch'"+
               " data-action='NOT ' data-field='"+field+"'></i> ";
-    var percent = "<strong>" + 
+    var percent = "<strong>" +
       to_percent(value[1],window.resultjson.kibana.per_page) +"</strong>";
     table.push([field_val,percent,buttons]);
   });
@@ -599,7 +599,7 @@ function pageLinks() {
 function blank_page() {
   var selectors = ['#graph','#graphheader','#feedlinks','#logs','.pagelinks',
     '#fields','#analyze']
-  
+
   for (var selector in selectors) {
     $(selectors[selector]).text("");
   }
@@ -680,7 +680,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<th scope="col" class=firsttd>Time</th>';
     for (var index in fields) {
       var field = fields[index];
-      str += '<th scope="col" class="column '+field_alias(field)+'_column">' + 
+      str += '<th scope="col" class="column '+field_alias(field)+'_column">' +
         field + '</th>';
     }
     str += '</tr></thead>';
@@ -703,7 +703,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var field = fields[index];
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
-      str += '<td class="column ' + field_alias(field)+'_column">' + 
+      str += '<td class="column ' + field_alias(field)+'_column">' +
         xmlEnt(wbr(value, 10)) + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
@@ -736,9 +736,9 @@ function details_table(objid,theme) {
     value = get_field_value(obj,field);
 
     buttons = "<span class='raw'>" + xmlEnt(value) + "</span>" +
-      "<i class='jlink icon-large icon-search msearch' " + 
+      "<i class='jlink icon-large icon-search msearch' " +
       "data-action='' data-field='"+field+"'></i> " +
-      "<i class='jlink icon-large icon-ban-circle msearch' " + 
+      "<i class='jlink icon-large icon-ban-circle msearch' " +
       "data-action='NOT ' data-field='"+field+"'></i> ";
 
     if (isNaN(value)) {
@@ -750,15 +750,15 @@ function details_table(objid,theme) {
       }
     }
 
-    trclass = (i % 2 == 0) ? 
+    trclass = (i % 2 == 0) ?
       'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
-    
+
     str += "<tr " + trclass + ">" +
       "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
       "<td style='width: 60px'>" + buttons + "</td>" +
       '<td>' + xmlEnt(wbr(value, 10)) +
       "</td></tr>";
-    
+
     i++;
 
   }
@@ -835,11 +835,11 @@ function mFields(field) {
           var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
           var value = get_field_value(obj,field)
           $(this).find('td').last().after(
-            '<td class="column '+field_alias(field)+'_column">' + 
+            '<td class="column '+field_alias(field)+'_column">' +
             xmlEnt(wbr(value, 10)) + '</td>');
         });
         $('#logs thead tr').find('th').last().after(
-          '<th scope="col" class="column '+field_alias(field)+'_column">' + 
+          '<th scope="col" class="column '+field_alias(field)+'_column">' +
           field + '</th>');
       });
     }
@@ -853,7 +853,7 @@ function mFields(field) {
 
   /*
   $('#logs').html(CreateLogTable(
-    window.resultjson.hits.hits, window.hashjson.fields, 
+    window.resultjson.hits.hits, window.hashjson.fields,
     'table logs table-condensed'));
   */
 
@@ -900,83 +900,40 @@ $(function () {
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
   if (!$('#timechange').length || force == true) {
-    var maxDateTime = new Date();
-    // set to midnight of current day
-    maxDateTime.setHours(23,59,59,999);
-    $('#graphheader').html("<center>" +
-      "<input size=19 id=timefrom class=hasDatePicker " +
-      "type=text name=timefrom value='" + ISODateString(from) + "'> to " +
-      "<input size=19 id=timeto class=hasDatePicker " +
-      " type=text name=timeto value='" + ISODateString(to) + "'> " +
-      "<i id='timechange' class='jlink' style='visibility: hidden' " +
-      "> filter</i></center>"
+
+    $('#graphheader').html(
+      "<div class='form-inline'><input size=19 id=timefrom class='datetimeRange'" +
+      " type=text name=timefrom value='" + pickDateString(from - tOffset) + "'> to " +
+      "<input size=19 id=timeto class='inpuet-small datetimeRange'" +
+      " type=text name=timeto value='" + pickDateString(to - tOffset) + "'> " +
+      "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
+      "> filter</button></div>"
     );
 
-    $('#timefrom').datetimepicker({
-      showSecond: true,
-      timeFormat: 'hh:mm:ss',
-      dateFormat: 'yy-mm-dd',
-      separator: 'T',
-      maxDate: maxDateTime,
-      maxDateTime: maxDateTime,
-      onSelect: function (dateText, inst) {
-        // Work arround bug: /jQuery-Timepicker-Addon/issues/302
-        if ($('#timeto').val() != '') {
-          $('#timeto').datetimepicker('setDate',
-            $('#timeto').val());
-        }
-        var tFrom = $(this).datetimepicker('getDate').getTime();
-        var tTo = $('#timeto').datetimepicker('getDate').getTime();
-        var now = new Date().getTime();
-        if (tFrom > now-(1000*60)) {
-          // set timeto to now and timefrom to now - 1 min
-          $('#timeto').datetimepicker('setDate', (new Date(now)));
-          $('#timefrom').datetimepicker('setDate',
-            (new Date(now-60*1000)));
-        } else if (tFrom > tTo-(1000*60)) {
-          // set timeto to min(now, timefrom + 15 min)
-          $('#timeto').datetimepicker('setDate',
-            (new Date(Math.min(now, tFrom+(15*60*1000)))));
-        }
-        $('#timechange').css('visibility', 'visible');
-        $('#timeinput').val('custom');
-      }
+    $('#timefrom').datetimeEntry({
+      maxDatetime : new Date(to - tOffset),
+      datetimeFormat: 'Y-O-D H:M:S',
+      spinnerImage: ''
     });
 
-    $('#timeto').datetimepicker({
-      showSecond: true,
-      timeFormat: 'hh:mm:ss',
-      dateFormat: 'yy-mm-dd',
-      separator: 'T',
-      maxDate: maxDateTime,
-      maxDateTime: maxDateTime,
-      onSelect: function (dateText, inst) {
-        if ($('#timefrom').val() != '') {
-          $('#timefrom').datetimepicker('setDate',
-            $('#timefrom').val());
-        }
-        var tTo = $(this).datetimepicker('getDate').getTime();
-        var tFrom = $('#timefrom').datetimepicker('getDate').getTime();
-        var now = new Date().getTime();
-        if (tTo > now) {
-          // set timeto to now
-          $('#timeto').datetimepicker('setDate', (new Date(now)));
-        } else if (tFrom > tTo) {
-          // set timefrom to timeto - 15 min
-          $('#timefrom').datetimepicker('setDate',
-            (new Date(tTo-15*60*1000)));
-        }
-        $('#timechange').css('visibility', 'visible');
-        $('#timeinput').val('custom');
-      }
+    $('#timeto').datetimeEntry({
+      minDatetime: new Date(from - tOffset),
+      datetimeFormat: 'Y-O-D H:M:S',
+      spinnerImage: ''
+    });
+
+    $('input.datetimeRange').datetimeEntry({datetimeFormat: 'Y-O-D H:M:S'}).
+    change(function() {
+      $('#' + (this.id == 'timefrom' ? 'timeto' : 'timefrom')).datetimeEntry(
+        'change', (this.id == 'timefrom' ? 'minDatetime' : 'maxDatetime'),
+        $(this).datetimeEntry('getDatetime'));
     });
 
     $('#timefrom,#timeto').change(function () {
-      var tz_offset = int_to_tz(window.tOffset);
       $('#timechange').css('visibility', 'visible');
       var time = {
-        "from": ISODateString(Date.parse($('#timefrom').val())) + tz_offset,
-        "to": ISODateString(Date.parse($('#timeto').val())) + tz_offset
+        "from": field_time('#timefrom'),
+        "to": field_time('#timeto')
       };
       window.hashjson.offset = 0;
       window.hashjson.time = time;
@@ -986,10 +943,9 @@ function renderDateTimePicker(from, to, force) {
 
     // Give user a nice interface for selecting time ranges
     $("#timechange").click(function () {
-      var tz_offset = int_to_tz(window.tOffset);
       var time = {
-        "from": ISODateString(Date.parse($('#timefrom').val())) + tz_offset,
-        "to": ISODateString(Date.parse($('#timeto').val())) + tz_offset
+        "from": field_time('#timefrom'),
+        "to": field_time('#timeto')
       };
       window.hashjson.offset = 0;
       window.hashjson.time = time;
@@ -997,6 +953,13 @@ function renderDateTimePicker(from, to, force) {
       setHash(window.hashjson);
     });
   }
+}
+
+function field_time(selector) {
+  var tz_offset = int_to_tz(window.tOffset);
+  return ISODateString(
+    new Date($(selector).datetimeEntry('getDatetime').getTime() + tOffset)
+    ) + tz_offset;
 }
 
 
@@ -1057,6 +1020,7 @@ function logGraph(data, interval, metric) {
         window.hashjson.time = time;
         window.hashjson.timeframe = "custom";
         setHash(window.hashjson);
+
       }
     });
 
@@ -1319,7 +1283,7 @@ function bind_clicks() {
 
   // Analysis table rescore
   $("body").delegate("i.msearch", "click", function () {
-    var action = typeof $(this).attr('data-action') === 'undefined' ? 
+    var action = typeof $(this).attr('data-action') === 'undefined' ?
       '' : $(this).attr('data-action');
     var mode = $(this).attr('data-mode');
     var field = $(this).attr("data-field");
@@ -1348,12 +1312,12 @@ function bind_clicks() {
     var objids = $(this).attr('data-objid').split(',');
     var field  = $(this).attr('data-field');
     if ($(this).attr('data-mode') == 'field')
-      var notice = 'Highlighting <strong>' + objids.length + ' events</strong>'+ 
-        ' containing the <strong>' + field + '</strong>' + 
+      var notice = 'Highlighting <strong>' + objids.length + ' events</strong>'+
+        ' containing the <strong>' + field + '</strong>' +
         ' field. Dismiss this notice to clear highlights.';
-    if ($(this).attr('data-mode') == 'value') 
-      var notice = 'Highlighting <strong>'+objids.length+' events</strong>' + 
-        ' where <strong>' + field + '</strong> is <strong>' + $(this).text() + 
+    if ($(this).attr('data-mode') == 'value')
+      var notice = 'Highlighting <strong>'+objids.length+' events</strong>' +
+        ' where <strong>' + field + '</strong> is <strong>' + $(this).text() +
         '</strong>. Dismiss this notice to clear highlights.';
 
     $('#logs').prepend(
