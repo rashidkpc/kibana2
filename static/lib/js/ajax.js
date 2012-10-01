@@ -1015,6 +1015,7 @@ function logGraph(data, interval, metric) {
         window.hashjson.time = time;
         window.hashjson.timeframe = "custom";
         setHash(window.hashjson);
+
       }
     });
 

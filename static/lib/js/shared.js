@@ -212,6 +212,9 @@ function addslashes(str) {
 //function ISODateString(unixtime) {
   //var d = new Date(parseInt(unixtime));
 function ISODateString(d) {
+  if(is_int(d)) {
+    d = new Date(parseInt(d));
+  }
 
   function pad(n) {
     return n < 10 ? '0' + n : n
