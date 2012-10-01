@@ -895,18 +895,31 @@ $(function () {
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
   if (!$('#timechange').length || force == true) {
+    
+
     var maxDateTime = new Date();
     // set to midnight of current day
     maxDateTime.setHours(23,59,59,999);
     $('#graphheader').html("<center>" +
       "<input size=19 id=timefrom class=hasDatePicker " +
-      "type=text name=timefrom value='" + ISODateString(from) + "'> to " +
+      "type=text name=timefrom value='" + pickDateString(from) + "'> to " +
       "<input size=19 id=timeto class=hasDatePicker " +
-      " type=text name=timeto value='" + ISODateString(to) + "'> " +
+      " type=text name=timeto value='" + pickDateString(to) + "'> " +
       "<i id='timechange' class='jlink' style='visibility: hidden' " +
       "> filter</i></center>"
     );
 
+    $('#timefrom').datetimeEntry({
+      maxDatetime: maxDateTime,
+      datetimeFormat: 'Y-O-D H:M:S'
+    });
+
+    $('#timeto').datetimeEntry({
+      maxDatetime: maxDateTime,
+      datetimeFormat: 'Y-O-D H:M:S'
+    });
+
+    /*
     $('#timefrom').datetimepicker({
       showSecond: true,
       timeFormat: 'hh:mm:ss',
@@ -966,13 +979,15 @@ function renderDateTimePicker(from, to, force) {
       }
     });
 
+    */
     $('#timefrom,#timeto').change(function () {
       var tz_offset = int_to_tz(window.tOffset);
       $('#timechange').css('visibility', 'visible');
       var time = {
-        "from": ISODateString(Date.parse($('#timefrom').val())) + tz_offset,
-        "to": ISODateString(Date.parse($('#timeto').val())) + tz_offset
+        "from": ISODateString($('#timefrom').datetimeEntry('getDatetime')) + tz_offset,
+        "to": ISODateString($('#timeto').datetimeEntry('getDatetime')) + tz_offset
       };
+      console.log($('#timefrom').datetimeEntry('getDatetime'))
       window.hashjson.offset = 0;
       window.hashjson.time = time;
       $('#timeinput').val('custom');
@@ -983,14 +998,16 @@ function renderDateTimePicker(from, to, force) {
     $("#timechange").click(function () {
       var tz_offset = int_to_tz(window.tOffset);
       var time = {
-        "from": ISODateString(Date.parse($('#timefrom').val())) + tz_offset,
-        "to": ISODateString(Date.parse($('#timeto').val())) + tz_offset
+        "from": ISODateString($('#timefrom').datetimeEntry('getDatetime')) + tz_offset,
+        "to": ISODateString($('#timeto').datetimeEntry('getDatetime')) + tz_offset
       };
+      console.log(time)
       window.hashjson.offset = 0;
       window.hashjson.time = time;
       window.hashjson.timeframe = "custom";
       setHash(window.hashjson);
     });
+    
   }
 }
 
