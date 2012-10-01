@@ -206,9 +206,15 @@ table.micro td {
 }
 
 #graphheader {
-  font-size: 10pt;
-  vertical-align: text-bottom;
+  font-size: 9pt;
+  text-align: center;
   margin: 0px;
+  padding: 0px;
+}
+
+#graphheader form {
+  margin: 0px;
+  padding: 0px;
 }
 
 table.logs tr.logrow:hover, td.logfield:hover, td.logfield_selected {
@@ -316,6 +322,11 @@ del {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+
+input#timefrom,input#timeto {
+  width: 150px;
+  text-align: center;
 }
 
 /* DateTimeEntry styles */

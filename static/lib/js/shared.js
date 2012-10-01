@@ -225,7 +225,7 @@ function ISODateString(d) {
 }
 
 function pickDateString(d) {
-  return dateFormat(d,'yyyy-mm-dd H:MM:ss')
+  return dateFormat(d,'yyyy-mm-dd HH:MM:ss')
 }
 
 function prettyDateString(d) {
