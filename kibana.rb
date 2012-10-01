@@ -86,7 +86,7 @@ get '/' do
   locals = {}
   if @@auth_module 
     locals[:username] = session[:username]
-    locals[:is_admin] = @user_perms[:is_admin]
+    locals[:is_admin] = (defined? @user_perms[:is_admin]) ? @user_perms[:is_admin] : false
   end
   erb :index, :locals => locals
 end

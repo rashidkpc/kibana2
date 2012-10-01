@@ -1,13 +1,13 @@
 <% if locals[:username] %>
         <div class="sidebar">
           <div class="well">
-            <h5><small>Logged in: <b><%= locals[:username] %></b></small></h5>
+            <h5><i class="icon-user"></i> <small><b><%= locals[:username] %></b></small></h5>
             <hr>
             <ul class="login nav">
               <% if locals[:is_admin] %>
               <%= erb :adminmenu, :locals => locals %>
               <% end %>
-              <li><a href="/auth/logout">Logout</a></li>
+              <li><a href="/auth/logout"><i class="icon-off"></i> Logout</a></li>
             </ul>
           </div>
         </div>
