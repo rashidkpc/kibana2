@@ -77,13 +77,23 @@ before do
       end
     else
       @user_perms = @@storage_module.get_permissions(session[:username])
-      if !(defined? @user_perms[:is_admin])
-        @user_perms[:is_admin] = false
-      end
-      if request.path.start_with?("/auth/admin")
-        # only admins get to go here
-        if !@user_perms[:is_admin]
-          halt 401, "You are not authorized to be here"
+      if !@user_perms
+        # User is authenticated, but not authorized. Put them in 
+        # a holding state until an admin grants them authorization
+        if request.path.start_with?("/api")
+          halt 401, JSON.generate({"error" => "Not authorized for any security groups"})
+        elsif !request.path.start_with?("/auth/logout")
+          halt 401, "You are not authorized for any search groups. Please contact the kibana administrator to grant you permission."
+        end
+      else
+        if !(defined? @user_perms[:is_admin])
+          @user_perms[:is_admin] = false
+        end
+        if request.path.start_with?("/auth/admin")
+          # only admins get to go here
+          if !@user_perms[:is_admin]
+            halt 401, "You are not authorized to be here"
+          end
         end
       end
     end
@@ -146,15 +156,26 @@ get '/auth/admin' do
     locals[:username] = session[:username]
     locals[:is_admin] = @user_perms[:is_admin]
     locals[:show_back] = true
+
     locals[:users] = [ @user_perms ]
   end
   erb :admin, :locals => locals
 end
 
 get '/auth/admin/:username' do
+  locals = {}
+  if @@auth_module
+    locals[:username] = session[:username]
+    locals[:is_admin] = @user_perms[:is_admin]
+    locals[:show_back] = true
+    
+    locals[:user_data] = @@storage_module.get_permissions(params[:username])
+  end
+  erb :adminedit, :locals => locals
 end
 
 post '/auth/admin/save' do
+  redirect '/auth/admin'
 end
 
 # Returns

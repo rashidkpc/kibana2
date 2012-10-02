@@ -1,0 +1,107 @@
+<%= erb :adminheader, :locals => locals %>
+      <div class="span2" id=sidebar>
+        <%= erb :loginmenu, :locals => locals %>
+      </div>
+ 
+      <div class="content span10" id=main>
+      <% if locals[:user_data] %>
+      <div id="alltags" class="well well-small">
+       <ul class="nav nav-list">
+        <li><a href="#">item 1</a></li>
+        <li><a href="#">item 2</a></li>
+        <li><a href="#">item 3</a></li>
+        <li><a href="#">item 4</a></li>
+        <li><a href="#">item 5</a></li>
+        <li><a href="#">item 6</a></li>
+        <li><a href="#">item 7</a></li>
+        <li><a href="#">item 8</a></li>
+        <li><a href="#">item 9</a></li>
+        <li><a href="#">item 10</a></li>
+        <li><a href="#">item 11</a></li>
+       </ul>
+      </div>
+      <form class="form-horizontal" method="POST" action="/auth/admin/save">
+        <legend>Editing <%= locals[:user_data][:username] %></legend>
+        <div class="control-group">
+          <label class="control-label" for="tag">Allowed Tags</label>
+          <div class="controls">
+            <div class="input-append">
+              <input id="tag" type="text" class="span8" placeholder="enter a tag..." />
+              <button id="showtags" class="btn"><i class="icon-chevron-down"></i></button>
+              <button id="addtag" class="btn"><i class="icon-plus"></i></button>
+            </div>
+          </div>
+          <div class="controls">
+            <select id="usertags" multiple="multiple" class="span4">
+            </select>
+            <br />
+            <a id="deltags" href="#"><i class="icon-trash icon-white"></i> Remove Selected</a>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <label class="checkbox">
+              <input name="is_admin" type="checkbox"<% if locals[:user_data][:is_admin] %> checked<% end %>> Is Admin?</input>
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <input type="hidden" name="username" value="<%= locals[:user_data][:username] %>" />
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button id="cancel" type="button" class="btn">Cancel</button>
+        </div>
+      </form>
+      <script>
+      $(document).ready(function(){
+        $('#cancel').click(function() {
+          window.location = '/auth/admin';
+        });
+        $('#addtag').click(function() {
+          var s = $('#tag').val().trim();
+          var exists = $("#usertags option[value='"+s+"']").length !== 0;
+ 
+          if (s != "" && !exists) {
+            $('#usertags').append('<option value="'+s+'">'+s+'</option>');
+          }
+          $('#tag').val("");
+          return false;
+        });
+        $('#showtags').click(function() {
+          var pos = $('#tag').offset();
+          pos.top += $('#tag').width();
+          $('#alltags').fadeIn(100);
+          $('#alltags').css({position:"absolute",top:0,left:0,width:"100px"}).position({
+             my: "right top",
+             at: "right bottom",
+             of: "#showtags",
+             offset: "1 -1",
+             collision: "none"
+          }).fadeIn(200);
+          return false;
+        });
+        $('#alltags ul li a').click(function() {
+          $('#tag').val($(this).text());
+          $('#alltags').fadeOut(200);
+          return false;
+        });
+        $('#deltags').click(function() {
+          $('#usertags :selected').remove();
+          return false;
+        });
+        $(document).mouseup(function(e) {
+          // hide the tags list if clicked outside
+          var container = $("#alltags");
+          if (container.has(e.target).length === 0) {
+            container.hide();
+          }
+        });
+      });
+      </script>
+      <% else %>
+      <div class="alert alert-error">
+        <h2>User not found!</h2>
+        <p>Please go back and try again.</p>
+      </div>
+      <% end %>
+      </div>
+<%= erb :footer, :locals => locals %>

@@ -341,6 +341,12 @@ del {
 #login input { text-align: center;}
 #login input[type=text], #login input[type=password] { width: 200px; }
 
+#alltags {
+  display: none;
+  height: 200px;
+  overflow-y: scroll;
+}
+
 input#timefrom,input#timeto {
   width: 150px;
   text-align: center;

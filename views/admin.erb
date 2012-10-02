@@ -15,7 +15,7 @@
        <tbody>
        <% for user in locals[:users] %>
         <tr>
-         <td><%= user[:username] %></td>
+         <td><a href="/auth/admin/<%= user[:username] %>"><i class="icon-edit"></i> <%= user[:username] %></a></td>
          <td><label class="checkbox"><input type="checkbox" <% if user[:is_admin] %>checked<% end %> disabled></label></td>
          <td><%= user[:tags].join(", ") %></td>
         </tr>
