@@ -84,6 +84,8 @@ function get_field_value(object,field,opt) {
 
   if(typeof value === 'undefined')
     return ''
+  if(value === null)
+    return ''
   if($.isArray(value))
     return opt == 'raw' ? value : value.toString();
   if(typeof value === 'object' && value != null)
