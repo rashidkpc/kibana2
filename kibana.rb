@@ -77,16 +77,24 @@ before do
       end
     else
       @user_perms = @@storage_module.get_permissions(session[:username])
+      if !(defined? @user_perms[:is_admin])
+        @user_perms[:is_admin] = false
+      end
+      if request.path.start_with?("/auth/admin")
+        # only admins get to go here
+        if !@user_perms[:is_admin]
+          halt 401, "You are not authorized to be here"
+        end
+      end
     end
   end
 end
 
 get '/' do
-  #send_file File.join(settings.public_folder, 'def.html')
   locals = {}
   if @@auth_module 
     locals[:username] = session[:username]
-    locals[:is_admin] = (defined? @user_perms[:is_admin]) ? @user_perms[:is_admin] : false
+    locals[:is_admin] = @user_perms[:is_admin]
   end
   erb :index, :locals => locals
 end
@@ -129,6 +137,24 @@ get '/auth/logout' do
   session[:username] = nil
   session[:login_message] = "Successfully logged out"
   redirect '/auth/login'
+end
+
+# User/permission administration
+get '/auth/admin' do
+  locals = {}
+  if @@auth_module
+    locals[:username] = session[:username]
+    locals[:is_admin] = @user_perms[:is_admin]
+    locals[:show_back] = true
+    locals[:users] = [ @user_perms ]
+  end
+  erb :admin, :locals => locals
+end
+
+get '/auth/admin/:username' do
+end
+
+post '/auth/admin/save' do
 end
 
 # Returns
