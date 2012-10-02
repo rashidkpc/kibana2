@@ -1000,7 +1000,6 @@ function logGraph(data, interval, metric) {
   }
   renderDateTimePicker((array[0][0]),(array[array.length -1][0]),true);
 
-
   // Make sure we get results before calculating graph stuff
   if (!jQuery.isEmptyObject(data)) {
 
@@ -1023,7 +1022,6 @@ function logGraph(data, interval, metric) {
 
       }
     });
-
 
     // Allow user to hover over a bar and get details
     var previousPoint = null;
@@ -1071,7 +1069,7 @@ function logGraph(data, interval, metric) {
       },
       xaxis: {
         mode: "time",
-        timeformat: "%H:%M:%S<br>%m/%d",
+        timeformat: "%H:%M:%S<br>%m-%d",
         label: "Datetime",
         color: "#000",
       },
