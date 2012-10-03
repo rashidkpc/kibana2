@@ -17,7 +17,7 @@
         <tr>
          <td><a href="/auth/admin/<%= user[:username] %>"><i class="icon-edit"></i> <%= user[:username] %></a></td>
          <td><label class="checkbox"><input type="checkbox" <% if user[:is_admin] %>checked<% end %> disabled></label></td>
-         <td><%= user[:tags].join(", ") %></td>
+         <td><% if user[:tags] %><%= user[:tags].join(", ") %><% else %>(no tags assigned)<% end %></td>
         </tr>
        </tbody>
        <% end %>

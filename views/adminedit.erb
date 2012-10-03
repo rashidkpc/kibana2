@@ -7,20 +7,14 @@
       <% if locals[:user_data] %>
       <div id="alltags" class="well well-small">
        <ul class="nav nav-list">
-        <li><a href="#">item 1</a></li>
-        <li><a href="#">item 2</a></li>
-        <li><a href="#">item 3</a></li>
-        <li><a href="#">item 4</a></li>
-        <li><a href="#">item 5</a></li>
-        <li><a href="#">item 6</a></li>
-        <li><a href="#">item 7</a></li>
-        <li><a href="#">item 8</a></li>
-        <li><a href="#">item 9</a></li>
-        <li><a href="#">item 10</a></li>
-        <li><a href="#">item 11</a></li>
+       <% if locals[:alltags] %>
+         <% locals[:alltags].each do |tag| %>
+         <option value="<%= tag %>"><%= tag %></option>
+         <% end %>
+       <% end %>
        </ul>
       </div>
-      <form class="form-horizontal" method="POST" action="/auth/admin/save">
+      <form id="userdata" class="form-horizontal" method="post" action="/auth/admin/save">
         <legend>Editing <%= locals[:user_data][:username] %></legend>
         <div class="control-group">
           <label class="control-label" for="tag">Allowed Tags</label>
@@ -32,16 +26,19 @@
             </div>
           </div>
           <div class="controls">
-            <select id="usertags" multiple="multiple" class="span4">
+            <select id="usertags" name="usertags[]" multiple="multiple" class="span4">
+            <% if locals[:user_data][:tags] %>
+              <% locals[:user_data][:tags].each do |tag| %>
+              <option value="<%= tag %>"><%= tag %></option>
+              <% end %>
+            <% end %>
             </select>
             <br />
             <a id="deltags" href="#"><i class="icon-trash icon-white"></i> Remove Selected</a>
           </div>
-        </div>
-        <div class="control-group">
           <div class="controls">
             <label class="checkbox">
-              <input name="is_admin" type="checkbox"<% if locals[:user_data][:is_admin] %> checked<% end %>> Is Admin?</input>
+              <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:user_data][:is_admin] %> checked<% end %>> Is Admin?</input>
             </label>
           </div>
         </div>
@@ -56,12 +53,16 @@
         $('#cancel').click(function() {
           window.location = '/auth/admin';
         });
+        $('#userdata').submit(function() {
+          $('#usertags option').attr('selected',true);
+        });
         $('#addtag').click(function() {
           var s = $('#tag').val().trim();
           var exists = $("#usertags option[value='"+s+"']").length !== 0;
  
           if (s != "" && !exists) {
-            $('#usertags').append('<option value="'+s+'">'+s+'</option>');
+            //$('#usertags').append('<option value="'+s+'">'+s+'</option>');
+            $('#usertags').append(new Option(s,s,false,false));
           }
           $('#tag').val("");
           return false;

@@ -175,6 +175,14 @@ get '/auth/admin/:username' do
 end
 
 post '/auth/admin/save' do
+  username = params[:username]
+  usertags = params[:usertags]
+  is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
+
+  puts "is_admin = #{is_admin} (#{params[:is_admin]})"
+
+  @@storage_module.set_permissions(username,usertags,is_admin)
+
   redirect '/auth/admin'
 end
 

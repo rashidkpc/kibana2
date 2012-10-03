@@ -37,13 +37,14 @@ class StorageMongo
   end
 
   # Required function, sets the user's permissions
-  def set_permissions(username,tags)
+  def set_permissions(username,tags,is_admin = false)
     begin
       p = lookup_permissions(username)
       if !p
         raise "Username not found"
       end
       p[:tags] = tags
+      p[:is_admin] = is_admin
       p.save!
       if !p.persisted?
         raise "Failed to save user data for #{username}"
