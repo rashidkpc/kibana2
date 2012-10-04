@@ -211,8 +211,7 @@ Date.prototype.format = function (mask, utc) {
     };
 }(Date));
 
-﻿/*
-http://keith-wood.name/datetimeEntry.html
+/*http://keith-wood.name/datetimeEntry.html
    Date and time entry for jQuery v1.0.1.
    Written by Keith Wood (kbwood{at}iinet.com.au) September 2010.
    Dual licensed under the GPL (http://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt) and
