@@ -929,6 +929,8 @@ function datepickers(from,to) {
 // Render the date/time picker
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
+  $('.datepicker').remove()
+
   if (!$('#timechange').length || force == true) {
 
     datepickers(from,to)
