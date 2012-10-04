@@ -896,31 +896,79 @@ $(function () {
   });
 });
 
+function datepickers(from,to) {
+  $('#graphheader').html(
+    "<div class='form-inline'>"+
+    "<input size=19 id=timefrom class='datetimeRange'" +
+    " type=text name=timefrom> to " +
+    "<input size=19 id=timeto class='datetimeRange'" +
+    " type=text name=timeto> " +
+    "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
+    "> filter</button></div>"
+  );
+
+  $('#timefrom').datetimeEntry({
+    maxDatetime : new Date(to - tOffset),
+    datetimeFormat: 'Y-O-D H:M:S',
+    spinnerImage: ''
+  });
+  $('#timefrom').datetimeEntry('setDatetime',new Date(from-tOffset))
+
+  $('#timeto').datetimeEntry({
+    minDatetime: $('#timefrom').datetimeEntry('getDatetime'),
+    maxDatetime: new Date(),
+    datetimeFormat: 'Y-O-D H:M:S',
+    spinnerImage: ''
+  },to);
+  $('#timeto').datetimeEntry('setDatetime',new Date(to-tOffset))
+
+
+  $('#timefrom,#timeto').datepicker({
+    format: 'yyyy-mm-dd'
+  }).on('show', function(ev) {
+    o_from = $('#timefrom').datetimeEntry('getDatetime');
+    o_to = $('#timeto').datetimeEntry('getDatetime');
+  });
+}
+
 // Render the date/time picker
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
+  $('.datepicker').remove()
+
   if (!$('#timechange').length || force == true) {
 
-    $('#graphheader').html(
-      "<div class='form-inline'><input size=19 id=timefrom class='datetimeRange'" +
-      " type=text name=timefrom value='" + pickDateString(from - tOffset) + "'> to " +
-      "<input size=19 id=timeto class='inpuet-small datetimeRange'" +
-      " type=text name=timeto value='" + pickDateString(to - tOffset) + "'> " +
-      "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
-      "> filter</button></div>"
-    );
+    datepickers(from,to)
 
-    $('#timefrom').datetimeEntry({
-      maxDatetime : new Date(to - tOffset),
-      datetimeFormat: 'Y-O-D H:M:S',
-      spinnerImage: ''
-    });
+    $('#timefrom').datepicker().on('changeDate', function(ev) {
+      o_from.setUTCFullYear(ev.date.getFullYear())
+      o_from.setUTCMonth(ev.date.getMonth())
+      o_from.setUTCDate(ev.date.getDate())
+      $('.datepicker').remove()
+      renderDateTimePicker(
+        new Date(o_from.getTime() + tOffset),
+        new Date(o_to.getTime() + tOffset),
+        true
+      );
+      window.hashjson.timeframe = 'custom'
+      $('#timeinput').val('custom');
+      $('#timechange').css('visibility', 'visible');
+    })
 
-    $('#timeto').datetimeEntry({
-      minDatetime: new Date(from - tOffset),
-      datetimeFormat: 'Y-O-D H:M:S',
-      spinnerImage: ''
-    });
+    $('#timeto').datepicker().on('changeDate', function(ev) {
+      o_to.setUTCFullYear(ev.date.getFullYear())
+      o_to.setUTCMonth(ev.date.getMonth())
+      o_to.setUTCDate(ev.date.getDate())
+      $('.datepicker').remove()
+      renderDateTimePicker(
+        new Date(o_from.getTime() + tOffset),
+        new Date(o_to.getTime() + tOffset),
+        true
+      );
+      window.hashjson.timeframe = 'custom'
+      $('#timeinput').val('custom');
+      $('#timechange').css('visibility', 'visible');
+    })
 
     $('input.datetimeRange').datetimeEntry({datetimeFormat: 'Y-O-D H:M:S'}).
     change(function() {
