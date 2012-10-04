@@ -23,6 +23,11 @@
 </head>
 
 <body>
+  <script>
+  $('document').ready(function(){
+    $(".alert").alert();
+  });
+  </script>
   <div class="navbar navbar-fixed-top navbar-inverse">
     <div class="navbar-inner">
       <div class="container-fluid">
@@ -37,6 +42,9 @@
     <form id="searchform" class="form-search form-horizontal" action="/auth/login" method="POST">
     <table class=formatting>
       <% if locals[:login_message] %>
+      <div class="alert">
+        <%= locals[:login_message] %>
+      </div>
       <tr><td width='1%'><%= locals[:login_message] %></td></tr>
       <% end %>
       <tr><td width='1%'><input type="text" placeholder="Username" id="username" name="username" /></td></tr>

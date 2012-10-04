@@ -86,9 +86,27 @@ before do
           halt 401, "You are not authorized for any search groups. Please contact the kibana administrator to grant you permission."
         end
       else
-        if !(defined? @user_perms[:is_admin])
+        if !defined?(@user_perms[:tags]) || !@user_perms[:tags]
+          @user_perms[:tags] = []
+        end
+        if !defined?(@user_perms[:is_admin]) || !@user_perms[:is_admin]
           @user_perms[:is_admin] = false
         end
+
+        # check any groups this user belongs to for additional
+        # permissions defined in the storage module
+        @@auth_module.membership(session[:username]).each do |group|
+          g_perms = @@storage_module.get_permissions("@" + group)
+          if g_perms
+            if defined?(g_perms[:tags])
+              @user_perms[:tags] = (@user_perms[:tags] + g_perms[:tags]).uniq
+            end
+            if defined?(g_perms[:is_admin])
+              @user_perms[:is_admin] ||= g_perms[:is_admin]
+            end
+          end
+        end        
+
         if request.path.start_with?("/auth/admin")
           # only admins get to go here
           if !@user_perms[:is_admin]
@@ -157,19 +175,35 @@ get '/auth/admin' do
     locals[:is_admin] = @user_perms[:is_admin]
     locals[:show_back] = true
 
-    locals[:users] = [ @user_perms ]
+    locals[:users] = []
+    locals[:groups] = []
+    @@storage_module.get_all_permissions().each do |perm|
+      if perm.username.start_with?("@")
+        locals[:groups].push(perm)
+      else
+        locals[:users].push(perm)
+      end
+    end
   end
   erb :admin, :locals => locals
 end
 
-get '/auth/admin/:username' do
+get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
   locals = {}
+  mode = params[:captures].first
   if @@auth_module
     locals[:username] = session[:username]
     locals[:is_admin] = @user_perms[:is_admin]
     locals[:show_back] = true
-    
-    locals[:user_data] = @@storage_module.get_permissions(params[:username])
+    locals[:mode] = mode
+    if mode == "edit"
+      # the second match contains the '/' at the start, 
+      # so we take the substring starting at position 1
+      locals[:user_data] = @@storage_module.get_permissions(params[:captures].second[1..-1])
+    elsif mode == "new"
+    else
+      halt 404, "Invalid action"
+    end
   end
   erb :adminedit, :locals => locals
 end
@@ -178,8 +212,6 @@ post '/auth/admin/save' do
   username = params[:username]
   usertags = params[:usertags]
   is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
-
-  puts "is_admin = #{is_admin} (#{params[:is_admin]})"
 
   @@storage_module.set_permissions(username,usertags,is_admin)
 

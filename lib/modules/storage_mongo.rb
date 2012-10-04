@@ -36,12 +36,18 @@ class StorageMongo
     end
   end
 
+  def get_all_permissions()
+    return Permissions.all(:sort => [[:username,:asc]]).to_a
+  end
+
   # Required function, sets the user's permissions
   def set_permissions(username,tags,is_admin = false)
     begin
       p = lookup_permissions(username)
       if !p
-        raise "Username not found"
+        # upsert
+        p = Permissions.create!
+        p.username = username
       end
       p[:tags] = tags
       p[:is_admin] = is_admin

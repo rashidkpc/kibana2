@@ -4,7 +4,12 @@
       </div>
  
       <div class="content span10" id=main>
-      <% if locals[:user_data] %>
+      <% if locals[:mode] == "edit" && !locals[:user_data] %>
+      <div class="alert alert-error">
+        <h2>User not found!</h2>
+        <p>Please go back and try again.</p>
+      </div>
+      <% else %>
       <div id="alltags" class="well well-small">
        <ul class="nav nav-list">
        <% if locals[:alltags] %>
@@ -15,8 +20,21 @@
        </ul>
       </div>
       <form id="userdata" class="form-horizontal" method="post" action="/auth/admin/save">
+        <% if locals[:mode] == "edit" %>
         <legend>Editing <%= locals[:user_data][:username] %></legend>
+        <% else %>
+        <legend>Adding New User/Group</legend>
+        <% end %>
         <div class="control-group">
+          <% if locals[:mode] == "new" %>
+          <label class="control-label" for="username">User/Group Name</label>
+          <div class="controls">
+            <input name="username" type="text" class="span4" placeholder="user/group name" />
+          </div>
+          <% else %>
+          <input name="username" type="hidden" value="<%= locals[:user_data][:username] %>" />
+          <% end %>
+          <input name="mode" type="hidden" value="<%= locals[:mode] %>" />
           <label class="control-label" for="tag">Allowed Tags</label>
           <div class="controls">
             <div class="input-append">
@@ -27,7 +45,7 @@
           </div>
           <div class="controls">
             <select id="usertags" name="usertags[]" multiple="multiple" class="span4">
-            <% if locals[:user_data][:tags] %>
+            <% if locals[:mode] == "edit" && locals[:user_data][:tags] %>
               <% locals[:user_data][:tags].each do |tag| %>
               <option value="<%= tag %>"><%= tag %></option>
               <% end %>
@@ -38,12 +56,11 @@
           </div>
           <div class="controls">
             <label class="checkbox">
-              <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:user_data][:is_admin] %> checked<% end %>> Is Admin?</input>
+              <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:mode] == "edit" && locals[:user_data][:is_admin] %> checked<% end %>> Is Admin?</input>
             </label>
           </div>
         </div>
         <div class="form-actions">
-          <input type="hidden" name="username" value="<%= locals[:user_data][:username] %>" />
           <button type="submit" class="btn btn-primary">Save Changes</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
@@ -98,11 +115,6 @@
         });
       });
       </script>
-      <% else %>
-      <div class="alert alert-error">
-        <h2>User not found!</h2>
-        <p>Please go back and try again.</p>
-      </div>
       <% end %>
       </div>
 <%= erb :footer, :locals => locals %>
