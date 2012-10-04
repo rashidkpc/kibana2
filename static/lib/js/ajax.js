@@ -945,6 +945,7 @@ function renderDateTimePicker(from, to, force) {
         new Date(o_to.getTime() + tOffset),
         true
       );
+      window.hashjson.timeframe = 'custom'
       $('#timeinput').val('custom');
       $('#timechange').css('visibility', 'visible');
     })
@@ -959,6 +960,7 @@ function renderDateTimePicker(from, to, force) {
         new Date(o_to.getTime() + tOffset),
         true
       );
+      window.hashjson.timeframe = 'custom'
       $('#timeinput').val('custom');
       $('#timechange').css('visibility', 'visible');
     })
