@@ -230,7 +230,7 @@ function getGraph(interval) {
           if (!($(".graphloading").length > 0)) {
             $('div.legend table, div.legend table td').css({
               "background-image": "url("
-                + "/images/barload.gif)",
+                + "images/barload.gif)",
               "background-size":  "100% 100%"
             });
           }
