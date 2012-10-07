@@ -42,8 +42,14 @@ i.jlink {
 .positive { font-weight: bold; color: #5c8c5c; }
 .negative { font-weight: bold; color: #873535; }
 
-.pagelinks {
-	margin: 5px;
+table.pagelinks {
+  width: 100%;
+  background-color: #FFF;
+  text-align: center;
+}
+
+div.pagelinks {
+  border-bottom: 1px dashed #CCCCCC;
 }
 
 table.logs {

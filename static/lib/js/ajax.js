@@ -573,19 +573,22 @@ function microAnalysisTable (json,field,count) {
 function pageLinks() {
   // Pagination
   var perpage = window.resultjson.kibana.per_page
-  var str = "<center>";
-  if (window.hashjson.offset - perpage >= 0) {
-    str += "<i data-action='firstpage' " +
-      "class='page jlink icon-circle-arrow-left'></i> " +
-      "<i data-action='prevpage' class='page icon-arrow-left jlink'></i> ";
-  }
+  var str = "<table class='pagelinks'><tr>";
   var end = window.hashjson.offset + window.resultjson.hits.hits.length;
-  str += "<strong>" + window.hashjson.offset + " TO " + end + "</strong> ";
   if (end < resultjson.hits.total)
   {
-    str += "<i data-action='nextpage' class='page icon-arrow-right jlink'></i> "
+    //str += "<i data-action='nextpage' class='page icon-arrow-right jlink'></i> "
+    str += "<td width='1%'><a data-action='nextpage' class='page jlink'>Older</a></td>"
   }
-  str += "</center>";
+  str += "<td width='99%'><strong>" + window.hashjson.offset + " TO " + end + "</strong></td>";
+  if (window.hashjson.offset - perpage >= 0) {
+    //str += "<i data-action='firstpage' " +
+    //  "class='page jlink icon-circle-arrow-left'></i> " +
+    //  "<i data-action='prevpage' class='page icon-arrow-left jlink'></i> ";
+    str += "<td width='1%'><a data-action='prevpage' class='page jlink'>Newer</a></td> " + 
+    "<td width='1%'> <a data-action='firstpage' class='page jlink'>Newest</a></td>";
+  }
+  str += "</tr></table>";
 
   $('.pagelinks').html(str);
 }
@@ -667,7 +670,8 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     return (n);
   });
 
-  var str = '<table class="' + theme + '">';
+  var str = "<div class='pagelinks'></div>";
+  str += '<table class="' + theme + '">';
 
   // table head
   if (enableHeader) {
@@ -706,6 +710,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   }
 
   str += '</tbody></table>';
+  str += "<div class='pagelinks'></div>";
   return str;
 }
 
@@ -1302,13 +1307,14 @@ function bind_clicks() {
   );
 
 
-  $("div.pagelinks").delegate("i.page", "click",
+  $("#logs").delegate("a.page", "click",
     function () {
+      console.log('fired')
       var per_page = window.resultjson.kibana.per_page;
       var action = $(this).attr('data-action')
       switch (action) {
       case 'nextpage':
-        window.hashjson.offset += window.hashjson.offset + per_page;
+        window.hashjson.offset += per_page;
       break;
       case 'prevpage':
         window.hashjson.offset = window.hashjson.offset - per_page;
