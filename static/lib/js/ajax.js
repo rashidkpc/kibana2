@@ -101,7 +101,7 @@ function getPage() {
 
         if (typeof window.resultjson.kibana.error !== 'undefined') {
           setMeta(0);
-          showError('No logs matched',"Sorry, I couldn't find anything for " +
+          showError('No events matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
           return;
         }
@@ -118,7 +118,7 @@ function getPage() {
         // Make sure we get some results before doing anything
         if (!(resultjson.hits.total > 0)) {
           setMeta(0);
-          showError('No logs matched',"Sorry, I couldn't find anything for " +
+          showError('No events matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
           return;
         }
@@ -327,7 +327,7 @@ function getAnalysis() {
 
         if(resultjson.hits.total == 0) {
           setMeta(resultjson.hits.total);
-          showError('No logs matched '+
+          showError('No events matched '+
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>',
@@ -1021,6 +1021,7 @@ function logGraph(data, interval, metric) {
     metric = 'count';
 
   var array = new Array();
+  var from, to; 
   if(typeof window.resultjson.kibana.time !== 'undefined') {
     // add null value at time from.
     if(window.hashjson.timeframe != 'all') {
@@ -1031,7 +1032,7 @@ function logGraph(data, interval, metric) {
   }
 
   for (var index in data) {
-    value = data[index][metric];
+    var value = data[index][metric];
     array.push(Array(data[index].time + tOffset, value));
   }
 
@@ -1041,7 +1042,11 @@ function logGraph(data, interval, metric) {
     array.push(
       Array(to, null));
   }
-  renderDateTimePicker((array[0][0]),(array[array.length -1][0]),true);
+
+  from = array[0][0];
+  to = array[array.length -1][0]
+
+  renderDateTimePicker(from,to,true);
 
   // Make sure we get results before calculating graph stuff
   if (!jQuery.isEmptyObject(data)) {
@@ -1199,10 +1204,11 @@ function showError(title,text) {
   // get a resultjson on error, usually
   if(typeof window.hashjson.time !== 'undefined') {
     renderDateTimePicker(
-      Date.parse(window.hashjson.time.from),
-      Date.parse(window.hashjson.time.to)
+      Date.parse(window.hashjson.time.from)+tOffset,
+      Date.parse(window.hashjson.time.to)+tOffset
     );
   }
+  sbctl('hide')
 }
 
 function getGraphColor(mode) {
@@ -1272,7 +1278,7 @@ function bind_clicks() {
       var d = new Date()
       var startDate = new Date(d - (15 * 60 * 1000));
       renderDateTimePicker(
-        startDate.getTime(), d.getTime());
+        startDate, d);
     }
   });
 
