@@ -290,6 +290,7 @@ function getAnalysis() {
   setMeta('loading');
   //generate the parameter for the php script
   var sendhash = window.location.hash.replace(/^#/, '');
+
   //Get the data and display it
   window.request = $.ajax({
     url: "api/analyze/" + window.hashjson.analyze_field + "/" +
@@ -886,6 +887,15 @@ $(function () {
     else {
       window.hashjson.timeframe = $('#timeinput').val();
     }
+    
+    if (window.hashjson.search.search("|") != -1) {
+      var search = $.trim(window.hashjson.search.split('|')[0]);
+      var mode = $.trim(window.hashjson.search.split('|')[1]).split(' ')[0];
+      var field = $.trim(window.hashjson.search.split('|')[1]).split(' ')[1];
+
+      window.hashjson.mode = mode;
+      window.hashjson.analyze_field = field;
+    }
 
     if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
       pageload(window.location.hash);
@@ -1290,6 +1300,9 @@ function bind_clicks() {
   // Go back to the logs
   $("#logs").delegate("button#back_to_logs", "click",
     function () {
+      if (window.hashjson.search.search("|") != -1) {
+        window.hashjson.search = $.trim(window.hashjson.search.split('|')[0])
+      }
       window.hashjson.mode = '';
       window.hashjson.graphmode = 'count';
       window.hashjson.analyze_field = '';
