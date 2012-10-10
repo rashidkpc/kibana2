@@ -6,18 +6,18 @@ require 'date'
 require 'rss/maker'
 require 'yaml'
 require 'tzinfo'
+require 'settingslogic'
 
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
 
-require 'KibanaConfig'
 Dir['./lib/*.rb'].each{ |f| require f }
 ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
 
 configure do
-  set :bind, defined?(KibanaConfig::KibanaHost) ? KibanaConfig::KibanaHost : '0.0.0.0'
-  set :port, KibanaConfig::KibanaPort
+  set :bind, KibanaConfig[:host] || '0.0.0.0'
+  set :port, KibanaConfig[:port]
   set :public_folder, Proc.new { File.join(root, "static") }
   enable :sessions
 end
@@ -62,7 +62,7 @@ get '/api/search/:hash' do
   # server communication
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}
-  result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
+  result.response['kibana']['default_fields'] = KibanaConfig[:default_fields]
 
   JSON.generate(result.response)
 end
@@ -93,8 +93,8 @@ get '/api/id/:id/:index' do
 end
 
 get '/api/analyze/:field/trend/:hash' do
-  limit = KibanaConfig::Analyze_limit
-  show  = KibanaConfig::Analyze_show
+  limit = KibanaConfig[:analyze_limit]
+  show  = KibanaConfig[:analyze_show]
   req           = ClientRequest.new(params[:hash])
 
   query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
@@ -142,8 +142,8 @@ get '/api/analyze/:field/trend/:hash' do
 end
 
 get '/api/analyze/:field/score/:hash' do
-  limit = KibanaConfig::Analyze_limit
-  show  = KibanaConfig::Analyze_show
+  limit = KibanaConfig[:analyze_limit]
+  show  = KibanaConfig[:analyze_show]
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,req.from,req.to,0,limit)
   indices = Kelastic.index_range(req.from,req.to)
@@ -212,7 +212,7 @@ end
 
 get '/rss/:hash/?:count?' do
   # TODO: Make the count number above/below functional w/ hard limit setting
-  count = KibanaConfig::Rss_show
+  count = KibanaConfig[:rss_show]
   # count = params[:count].nil? ? 30 : params[:count].to_i
   span  = (60 * 60 * 24)
   from  = Time.now - span
@@ -246,10 +246,10 @@ end
 
 get '/export/:hash/?:count?' do
 
-  count = KibanaConfig::Export_show
+  count = KibanaConfig[:export_show]
   # TODO: Make the count number above/below functional w/ hard limit setting
   # count = params[:count].nil? ? 20000 : params[:count].to_i
-  sep   = KibanaConfig::Export_delimiter
+  sep   = KibanaConfig[:export_delimiter]
 
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,req.from,req.to,0,count)

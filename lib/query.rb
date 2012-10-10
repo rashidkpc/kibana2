@@ -4,7 +4,7 @@ require 'tzinfo'
 
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
-require 'KibanaConfig'
+require 'kibana_config'
 require 'compat'
 
 =begin
@@ -23,16 +23,16 @@ class Query
   def initialize(question, from = nil, to = nil)
     # Build query part of the filtered query
     question = question == "" ? "*" : question
-    question = KibanaConfig::Filter == "" ?
-      question : "(#{question}) AND #{KibanaConfig::Filter}"
+    question = KibanaConfig[:filter] == "" ?
+      question : "(#{question}) AND #{KibanaConfig[:filter]}"
 
     if (question == "*")
       @question = { "match_all" => {}}
     else
       @question = {
         "query_string" => {
-          "default_operator" => KibanaConfig::Default_operator,
-          "default_field" => KibanaConfig::Primary_field,
+          "default_operator" => KibanaConfig[:default_operator],
+          "default_field" => KibanaConfig[:primary_field],
           "query" => question
         }
       }
@@ -99,7 +99,7 @@ end
 =end
 class SortedQuery < Query
   attr_accessor :query,:from,:to
-  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
+  def initialize(question, from, to, offset = 0, size = KibanaConfig[:per_page], field = "@timestamp", order = "desc")
     super(question, from, to)
     @query['from'] = offset
     @query['size'] = size

@@ -7,7 +7,7 @@ $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'query'
 require 'compat'
-require 'KibanaConfig'
+require 'kibana_config'
 
 =begin
 = Class: Kelastic
@@ -49,25 +49,25 @@ class Kelastic
     end
 
     def index_range(from,to)
-      if KibanaConfig::Smart_index == true
+      if KibanaConfig[:smart_index]
       	index_pattern = "logstash-%Y.%m.%d"
-      	if KibanaConfig::Smart_index_pattern != ""
-      	  index_pattern = KibanaConfig::Smart_index_pattern
+      	if KibanaConfig[:smart_index_pattern] != ""
+      	  index_pattern = KibanaConfig[:smart_index_pattern]
       	end
         requested = date_range(from,to).map{ |date| date.strftime(index_pattern) }
         intersection = requested & all_indices
-        if intersection.length <= KibanaConfig::Smart_index_limit
+        if intersection.length <= KibanaConfig[:smart_index_limit]
           intersection.sort.reverse
         else
-          KibanaConfig::Default_index
+          KibanaConfig[:default_index]
         end
       else
-        KibanaConfig::Default_index
+        KibanaConfig[:default_index]
       end
     end
 
     def server
-      list = KibanaConfig::Elasticsearch
+      list = KibanaConfig[:elasticsearch]
       if list.kind_of?(Array)
         $eslb ||= 0
         $eslb = $eslb < list.length ? $eslb : 0
@@ -81,14 +81,14 @@ class Kelastic
 
     # TODO: Verify this index exists?
     def current_index
-      if KibanaConfig::Smart_index == true
+      if KibanaConfig[:smart_index]
         index_pattern = "logstash-%Y.%m.%d"
-      	if KibanaConfig::Smart_index_pattern != ""
-      	  index_pattern = KibanaConfig::Smart_index_pattern
+      	if KibanaConfig[:smart_index_pattern] != ""
+      	  index_pattern = KibanaConfig[:smart_index_pattern]
       	end
         (Time.now.utc).strftime(index_pattern)
       else
-        KibanaConfig::Default_index
+        KibanaConfig[:default_index]
       end
     end
 
@@ -135,7 +135,7 @@ class Kelastic
       end
       parsed = JSON.parse(c.body_str)
       parsed['kibana'] = {
-        'per_page'    => KibanaConfig::Per_page
+        'per_page'    => KibanaConfig[:per_page]
       }
       if c.response_code == 500
         parsed['kibana']['error'] = "Invalid query"
@@ -144,8 +144,8 @@ class Kelastic
     end
 
     def index_path(index)
-      if KibanaConfig::Type != ''
-        path = "http://#{Kelastic.server}/#{index}/#{KibanaConfig::Type}"
+      if KibanaConfig[:type] != ''
+        path = "http://#{Kelastic.server}/#{index}/#{KibanaConfig[:type]}"
       else
         path = "http://#{Kelastic.server}/#{index}"
       end

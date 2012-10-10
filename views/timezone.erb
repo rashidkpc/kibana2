@@ -1,9 +1,9 @@
 var tmp_offset = "<%="#{
-	KibanaConfig::Timezone == 'user' ?
-	'user' : ((TZInfo::Timezone.get(KibanaConfig::Timezone).current_period.offset.utc_total_offset).to_f / 3600.0).to_s
+	KibanaConfig[:timezone] == 'user' ?
+	'user' : ((TZInfo::Timezone.get(KibanaConfig[:timezone]).current_period.offset.utc_total_offset).to_f / 3600.0).to_s
 }"%>"
 
-window.time_format = "<%= defined?(KibanaConfig::Time_format) ? KibanaConfig::Time_format : "mm/dd HH:MM:ss" %>"
+window.time_format = "<%= defined?(KibanaConfig[:time_format]) ? KibanaConfig[:time_format] : "mm/dd HH:MM:ss" %>"
 
 if (tmp_offset == 'user') {
 	var d = new Date()
