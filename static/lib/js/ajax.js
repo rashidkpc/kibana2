@@ -57,6 +57,7 @@ function pageload(hash) {
       window.hashjson.graphmode = 'count';
 
     switch (window.hashjson.mode) {
+    case 'terms_facet':
     case 'score':
     case 'trend':
     case 'mean':
@@ -338,6 +339,22 @@ function getAnalysis() {
 
         setMeta(resultjson.hits.total);
         switch (window.hashjson.mode) {
+        case 'terms_facet':
+          var title = '<h2>Terms Facet of ' +
+            '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
+            '<button class="btn tiny btn-info" ' +
+            'style="display: inline-block" id="back_to_logs">back to logs' +
+            '</button>' +
+            '</h2>' +
+            'This analysis is based on all'  +
+            ' events for your query in your selected timeframe.<br><br>';
+          $('#logs').html(
+            title+CreateTableView(termsTable(resultjson),'logs analysis'));
+          sbctl('hide',false)
+          graphLoading();
+          window.hashjson.graphmode = 'count'
+          getGraph(window.interval);
+          break;
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
             var basedon = "<strong>all "
@@ -455,6 +472,26 @@ function analysisTable(resultjson) {
   return tblArray;
 }
 
+function termsTable(resultjson) {
+  var i = 0;
+  var tblArray = new Array();
+  console.log(resultjson.facets.terms.terms);
+  for (var obj in resultjson.facets.terms.terms) {
+    var object = resultjson.facets.terms.terms[obj],
+    metric = {};
+    metric['Rank'] = i+1;
+    metric[window.hashjson.analyze_field] = object.term;
+    metric['Count'] = addCommas(object.count);
+    metric['Percent'] =  Math.round(
+      object.count / resultjson.hits.total * 10000
+      ) / 100 + '%';
+
+    tblArray[i] = metric;
+    i++;
+  }
+  return tblArray;
+}
+
 function setMeta(hits, mode) {
   if ( hits == 'loading' ) {
     $('#meta').html('<img src=images/ajax-loader.gif>');
@@ -530,6 +567,8 @@ function enable_popovers() {
       }
       return microAnalysisTable(window.resultjson,field,5) + str +
         "<div class='btn-group'>" +
+          "<button class='btn btn-small analyze_btn' rel='terms_facet' " +
+          "data-field="+field+"><i class='icon-th-list'></i> Terms Facet</button>" +
           "<button class='btn btn-small analyze_btn' rel='score' " +
           "data-field="+field+"><i class='icon-list-ol'></i> Score</button>" +
           "<button class='btn btn-small analyze_btn' rel='trend' " +

@@ -48,6 +48,9 @@ module KibanaConfig
   # Show this many results in analyze/ mode
   Analyze_show = 25
 
+  # Show this many facets in terms_facet mode
+  Terms_limit = 25
+
   # Show this many results in an rss feed
   Rss_show = 20
 
