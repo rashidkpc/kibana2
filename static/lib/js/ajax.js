@@ -897,9 +897,9 @@ $(function () {
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
       var search = $.trim(results[1]);
-      var fields = results[2].split(' ');
-      var field = fields.slice(2).join(',,');
-      var mode = fields[1];
+      var fields = $.trim(results[2]).split(' ');
+      var field = fields.slice(1).join(',,');
+      var mode = fields[0];
 
 
       window.hashjson.mode = mode;
