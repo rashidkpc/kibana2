@@ -109,12 +109,14 @@ get '/api/analyze/:field/trend/:hash' do
     result_end    = KelasticMulti.new(query_end,indices_end)
   end
 
-  count_end     = KelasticResponse.count_field(result_end.response,params[:field])
+  fields = Array.new
+  fields = params[:field].split(',,')
+  count_end     = KelasticResponse.count_field(result_end.response,fields)
 
   query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
   indices_begin = Kelastic.index_range(req.from,req.to).reverse
   result_begin  = KelasticMulti.new(query_begin,indices_begin)
-  count_begin   = KelasticResponse.count_field(result_begin.response,params[:field])
+  count_begin   = KelasticResponse.count_field(result_begin.response,fields)
 
 
 

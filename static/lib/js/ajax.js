@@ -337,6 +337,7 @@ function getAnalysis() {
         }
 
         setMeta(resultjson.hits.total);
+        var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
         switch (window.hashjson.mode) {
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
@@ -346,7 +347,6 @@ function getAnalysis() {
             var basedon = 'the <strong>' +
               resultjson.hits.count + ' most recent</strong>';
           }
-          var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
           var title = '<h2>Quick analysis of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
@@ -365,7 +365,7 @@ function getAnalysis() {
         case 'trend':
           var basedon = "<strong>" + resultjson.hits.count + "</strong>";
           var title = '<h2>Trend analysis of <strong>' +
-            window.hashjson.analyze_field + '</strong> field ' +
+            analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
@@ -381,7 +381,7 @@ function getAnalysis() {
           break;
         case 'mean':
           var title = '<h2>Statistical analysis of <strong>' +
-            window.hashjson.analyze_field + '</strong> field ' +
+            analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
