@@ -779,10 +779,26 @@ function mSearch(field, value, mode) {
     window.hashjson.mode = mode;
     window.hashjson.analyze_field = '';
   }
-  var glue = $('#queryinput').val() != "" ? " AND " : " ";
-  var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
-
-  window.hashjson.search = $('#queryinput').val() + glue + query;
+  var pattern=/^(.*)\|([^"']*)$/;
+  var queryinput=$('#queryinput').val();
+  if (pattern.test(queryinput) == true) {
+    var results = queryinput.match(pattern);
+    var queryinput = $.trim(results[1]);
+    var fields = $.trim(results[2]).split(' ').slice(1);
+    var values = value.toString().split('||');
+    var query = '';
+    var glue = ''
+    for (var count=0;count<fields.length;count++) {
+      value=values[count];
+      field=fields[count];
+      query = query + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
+      glue = " AND ";
+    }
+  } else {
+    var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
+  }
+  var glue = queryinput != "" ? " AND " : " ";
+  window.hashjson.search = queryinput + glue + query;
   setHash(window.hashjson);
   scroll(0, 0);
 }
