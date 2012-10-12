@@ -148,7 +148,9 @@ get '/api/analyze/:field/score/:hash' do
   query   = SortedQuery.new(req.search,req.from,req.to,0,limit)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
-  count   = KelasticResponse.count_field(result.response,params[:field])
+  fields = Array.new
+  fields = params[:field].split(',,')
+  count   = KelasticResponse.count_field(result.response,fields)
 
   # Not sure this is required. This should be able to be handled without
   # server communication

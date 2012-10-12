@@ -346,8 +346,9 @@ function getAnalysis() {
             var basedon = 'the <strong>' +
               resultjson.hits.count + ' most recent</strong>';
           }
+          var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
           var title = '<h2>Quick analysis of ' +
-            '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
+            '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
@@ -429,7 +430,12 @@ function analysisTable(resultjson) {
     var metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
-    metric[window.hashjson.analyze_field] = object.id;
+    var idv = object.id.split('||');
+    var fields = window.hashjson.analyze_field.split(',,');
+    for (var count=0;count<fields.length;count++) {
+      metric[fields[count]]=idv[count];
+    }
+    var analyze_field = fields.join(' ')
     metric['Count'] = object.count;
     metric['Percent'] =  Math.round(
       metric['Count'] / resultjson.hits.count * 10000
@@ -444,9 +450,9 @@ function analysisTable(resultjson) {
       }
     }
     metric['Action'] =  "<span class='raw'>" + object.id + "</span>"+
-      "<i data-mode='' data-field='" + window.hashjson.analyze_field + "' "+
+      "<i data-mode='' data-field='" + analyze_field + "' "+
         "class='msearch icon-search icon-large jlink'></i> " +
-      "<i data-mode='analysis' data-field='"+window.hashjson.analyze_field+"' "+
+      "<i data-mode='analysis' data-field='"+analyze_field+"' "+
         "class='msearch icon-cog icon-large jlink'></i>";
 
     tblArray[i] = metric;
@@ -887,6 +893,19 @@ $(function () {
       window.hashjson.timeframe = $('#timeinput').val();
     }
 
+   var pattern=/^(.*)\|([^"']*)$/;
+   if (pattern.test(window.hashjson.search) == true) {
+      var results = window.hashjson.search.match(pattern);
+      var search = $.trim(results[1]);
+      var fields = results[2].split(' ');
+      var field = fields.slice(2).join(',,');
+      var mode = fields[1];
+
+
+      window.hashjson.mode = mode;
+      window.hashjson.analyze_field = field;
+    }
+
     if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
       pageload(window.location.hash);
     } else {
@@ -1290,6 +1309,11 @@ function bind_clicks() {
   // Go back to the logs
   $("#logs").delegate("button#back_to_logs", "click",
     function () {
+      var pattern=/^(.*)\|([^"']*)$/;
+      if (pattern.test(window.hashjson.search) == true) {
+         var results = window.hashjson.search.match(pattern);
+         window.hashjson.search = $.trim(results[1]);
+      }
       window.hashjson.mode = '';
       window.hashjson.graphmode = 'count';
       window.hashjson.analyze_field = '';
