@@ -143,6 +143,21 @@ get '/api/analyze/:field/trend/:hash' do
   JSON.generate(result_end.response)
 end
 
+get '/api/analyze/:field/terms_facet/:hash' do
+  limit = KibanaConfig::Terms_limit
+  req     = ClientRequest.new(params[:hash])
+  query   = TermsFacet.new(req.search,req.from,req.to,params[:field])
+  indices = Kelastic.index_range(req.from,req.to)
+  result  = KelasticMultiFlat.new(query,indices)
+
+  # Not sure this is required. This should be able to be handled without
+  # server communication
+  result.response['kibana']['time'] = {
+    "from" => req.from.iso8601, "to" => req.to.iso8601}
+
+  JSON.generate(result.response)
+end
+
 get '/api/analyze/:field/score/:hash' do
   limit = KibanaConfig::Analyze_limit
   show  = KibanaConfig::Analyze_show
