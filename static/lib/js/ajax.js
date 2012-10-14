@@ -745,7 +745,7 @@ function details_table(objid,theme) {
       try {
         var json = JSON.parse(value);
         value = JSON.stringify(json,null,4);
-        buttons = "";
+//        buttons = "";
       } catch(e) {
       }
     }
