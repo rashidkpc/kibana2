@@ -335,15 +335,21 @@ class KelasticResponse
 
     # Very similar to flatten_response, except only returns an array of field
     # values, without seperating into hit objects things.
-    def collect_field_values(response,field)
+    def collect_field_values(response,fields)
       @hit_list = Array.new
+      fvs = Array.new
       response['hits']['hits'].each do |hit|
-        fv = get_field_value(hit,field)
-        if fv.kind_of?(Array)
-          @hit_list = @hit_list + fv.map(&:to_s)
-        else
-          @hit_list << fv.to_s
+        count = 0
+        fields.each do |field|
+          fv = get_field_value(hit,field) 
+          if fv.kind_of?(Array)
+            fvs[count] = fv.map(&:to_s)
+          else
+            fvs[count] = fv.to_s
+          end
+          count=count+1
         end
+        @hit_list << fvs.join('||')
       end
       @hit_list
     end
