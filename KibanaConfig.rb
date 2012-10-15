@@ -1,4 +1,9 @@
 module KibanaConfig
+
+  # A Note: While the only option you really have to set is "Elasticsearch" it
+  # is HIGHLY recommended you glance over every option. I personally consider
+  # 'Facet_index_limit' really important.
+
   # Your elastic search server(s). This may be set as an array for round robin
   # load balancing
   # Elasticsearch = ["elasticsearch1:9200","elasticsearch2:9200"]
@@ -9,7 +14,6 @@ module KibanaConfig
 
   # The adress ip Kibana should listen on
   KibanaHost = '127.0.0.1'
-
 
   # The record type as defined in your logstash configuration.
   # Seperate multiple types with a comma, no spaces. Leave blank
@@ -45,14 +49,11 @@ module KibanaConfig
   # results for user's query
   Analyze_limit = 2000
 
-  # Show this many results in analyze/ mode
+  # Show this many results in analyze/trend/terms/stats modes
   Analyze_show = 25
 
-  # Show this many facets in terms_facet mode
-  Terms_limit = 25
-
   # Show this many results in an rss feed
-  Rss_show = 20
+  Rss_show = 25
 
   # Show this many results in an exported file
   Export_show = 2000
@@ -77,11 +78,21 @@ module KibanaConfig
   # use something other than daily indexing. Pattern needs to have 
   # date formatting like '%Y.%m.%d'
   Smart_index_pattern = 'logstash-%Y.%m.%d'
-  
+
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many
-  # indices. Use this to set that 'too many' number.
-  Smart_index_limit = 60
+  # indices. Use this to set that 'too many' number. By default this
+  # is set really high, ES might not like this
+  Smart_index_limit = 150
+
+  # Elasticsearch has an internal mechanism called "faceting" for performing
+  # analysis that we use for the "Stats" and "Terms" modes. However, on large
+  # data sets/queries facetting can cause ES to crash if there isn't enough 
+  # memory available. It is suggested that you limit the number of indices that
+  # Kibana will use for the "Stats" and "Terms" to prevent ES crashes. For very
+  # large data sets and undersized ES clusers, a limit of 1 is not unreasonable.
+  # Default is 0 (unlimited)
+  Facet_index_limit = 1
 
   # You probably don't want to touch anything below this line
   # unless you really know what you're doing

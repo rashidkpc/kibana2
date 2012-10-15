@@ -48,7 +48,7 @@ class Kelastic
       (Date.parse(from.getutc.to_s)..Date.parse(to.getutc.to_s)).to_a
     end
 
-    def index_range(from,to)
+    def index_range(from,to,limit = 0)
       if KibanaConfig::Smart_index == true
       	index_pattern = "logstash-%Y.%m.%d"
       	if KibanaConfig::Smart_index_pattern != ""
@@ -57,7 +57,11 @@ class Kelastic
         requested = date_range(from,to).map{ |date| date.strftime(index_pattern) }
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
-          intersection.sort.reverse
+          if limit != 0
+            intersection.sort.reverse
+          else
+            intersection.sort.reverse[0..limit]
+          end
         else
           KibanaConfig::Default_index
         end

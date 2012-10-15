@@ -143,11 +143,11 @@ get '/api/analyze/:field/trend/:hash' do
   JSON.generate(result_end.response)
 end
 
-get '/api/analyze/:field/terms_facet/:hash' do
-  limit = KibanaConfig::Terms_limit
+get '/api/analyze/:field/terms/:hash' do
+  limit   = KibanaConfig::Analyze_show
   req     = ClientRequest.new(params[:hash])
   query   = TermsFacet.new(req.search,req.from,req.to,params[:field])
-  indices = Kelastic.index_range(req.from,req.to)
+  indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
   # Not sure this is required. This should be able to be handled without
@@ -191,7 +191,7 @@ end
 get '/api/analyze/:field/mean/:hash' do
   req     = ClientRequest.new(params[:hash])
   query   = StatsFacet.new(req.search,req.from,req.to,params[:field])
-  indices = Kelastic.index_range(req.from,req.to)
+  indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   type    = Kelastic.field_type(indices.first,params[:field])
   if ['long','integer','double','float'].include? type
     result  = KelasticMultiFlat.new(query,indices)

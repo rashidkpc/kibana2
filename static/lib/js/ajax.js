@@ -57,7 +57,7 @@ function pageload(hash) {
       window.hashjson.graphmode = 'count';
 
     switch (window.hashjson.mode) {
-    case 'terms_facet':
+    case 'terms':
     case 'score':
     case 'trend':
     case 'mean':
@@ -340,15 +340,18 @@ function getAnalysis() {
         setMeta(resultjson.hits.total);
         var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
         switch (window.hashjson.mode) {
-        case 'terms_facet':
+        case 'terms':
+          var index_count  = $.isArray(resultjson.kibana.index) ? 
+            resultjson.kibana.index : 1;
           var title = '<h2>Terms Facet of ' +
             '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
             '</h2>' +
-            'This analysis is based on all'  +
-            ' events for your query in your selected timeframe.<br><br>';
+            'This analysis is based on the events in the <strong>' +
+            index_count +'</strong> most recent indices ' + 
+            'for your query in your selected timeframe.<br><br>';
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
           sbctl('hide',false)
@@ -481,7 +484,6 @@ function analysisTable(resultjson) {
 function termsTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
-  console.log(resultjson.facets.terms.terms);
   for (var obj in resultjson.facets.terms.terms) {
     var object = resultjson.facets.terms.terms[obj],
     metric = {};
@@ -491,6 +493,11 @@ function termsTable(resultjson) {
     metric['Percent'] =  Math.round(
       object.count / resultjson.hits.total * 10000
       ) / 100 + '%';
+    metric['Action'] =  "<span class='raw'>" + object.term + "</span>"+
+      "<i data-mode='' data-field='" + window.hashjson.analyze_field + "' "+
+        "class='msearch icon-search icon-large jlink'></i> " +
+      "<i data-mode='analysis' data-field='"+window.hashjson.analyze_field+"' "+
+        "class='msearch icon-cog icon-large jlink'></i>";
 
     tblArray[i] = metric;
     i++;
@@ -573,12 +580,12 @@ function enable_popovers() {
       }
       return microAnalysisTable(window.resultjson,field,5) + str +
         "<div class='btn-group'>" +
-          "<button class='btn btn-small analyze_btn' rel='terms_facet' " +
-          "data-field="+field+"><i class='icon-th-list'></i> Terms Facet</button>" +
           "<button class='btn btn-small analyze_btn' rel='score' " +
           "data-field="+field+"><i class='icon-list-ol'></i> Score</button>" +
           "<button class='btn btn-small analyze_btn' rel='trend' " +
           "data-field="+field+"><i class='icon-tasks'></i> Trend</button>" +
+          //"<button class='btn btn-small analyze_btn' rel='terms' " +
+          //"data-field="+field+"><i class='icon-th-list'></i> Terms</button>" +
           "<button class='btn btn-small analyze_btn' rel='mean' " +
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
@@ -1388,7 +1395,6 @@ function bind_clicks() {
 
   $("#logs").delegate("a.page", "click",
     function () {
-      console.log('fired')
       var per_page = window.resultjson.kibana.per_page;
       var action = $(this).attr('data-action')
       switch (action) {

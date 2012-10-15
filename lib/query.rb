@@ -147,7 +147,7 @@ end
   field::   Field to facet
 =end
 class TermsFacet < Query
-  def initialize(question, from, to, field, limit = KibanaConfig::Terms_limit)
+  def initialize(question, from, to, field, limit = KibanaConfig::Analyze_show)
     super(question, from, to)
     @query['facets'] = {
       "terms" => {
