@@ -148,14 +148,19 @@ function top_field_values(json,field,count) {
  /**
    * Calculate a graph interval
    *
-   * from:: Date object containing the start time
-   * to::   Date object containing the finish time
-   * size:: Calculate to approximately this many bars
+   * from::           Date object containing the start time
+   * to::             Date object containing the finish time
+   * size::           Calculate to approximately this many bars
+   * user_interval::  User specified histogram interval
    *
    */
-function calculate_interval(from,to,size) {
-  var interval = round_interval((to - from)/size)
-  return interval
+function calculate_interval(from,to,size,user_interval) {
+  switch (true) {
+    case (user_interval == 'minute'): return 1000*60;
+    case (user_interval == 'hour'):   return 1000*60*60;
+    case (user_interval == 'day'):    return 1000*60*60*24;
+    default:                          return round_interval((to - from)/size);
+  }
 }
 
 function round_interval (interval) {

@@ -177,7 +177,8 @@ function getPage() {
         window.interval = calculate_interval(
           Date.parse(window.resultjson.kibana.time.from),
           Date.parse(window.resultjson.kibana.time.to),
-          100
+          100,
+          window.hashjson.time.user_interval
         )
 
         if(typeof window.sb == 'undefined') {
@@ -322,7 +323,8 @@ function getAnalysis() {
         window.interval = calculate_interval(
           Date.parse(window.resultjson.kibana.time.from),
           Date.parse(window.resultjson.kibana.time.to),
-          100
+          100,
+          window.hashjson.time.user_interval
         )
 
         if(resultjson.hits.total == 0) {
@@ -897,15 +899,27 @@ $(function () {
 });
 
 function datepickers(from,to) {
-  $('#graphheader').html(
-    "<div class='form-inline'>"+
+
+  var graph_interval = window.hashjson.time.user_interval;
+  var interval_opts = ['auto','minute','hour','day'];
+
+  var html = "<div class='form-inline'>"+
     "<input size=19 id=timefrom class='datetimeRange'" +
     " type=text name=timefrom> to " +
     "<input size=19 id=timeto class='datetimeRange'" +
-    " type=text name=timeto> " +
+    " type=text name=timeto> group by: " +
+    "<select id=user_interval name=user_interval> ";
+
+  $.each(interval_opts,function(i,interval) {
+    html += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
+      '>'+interval+'</option>';
+  });
+
+  html += "</select>" +
     "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
-    "> filter</button></div>"
-  );
+    "> filter</button></div>";
+    
+  $('#graphheader').html(html);
 
   $('#timefrom').datetimeEntry({
     maxDatetime : new Date(to - tOffset),
@@ -977,11 +991,12 @@ function renderDateTimePicker(from, to, force) {
         $(this).datetimeEntry('getDatetime'));
     });
 
-    $('#timefrom,#timeto').change(function () {
+    $('#timefrom,#timeto,#user_interval').change(function () {
       $('#timechange').css('visibility', 'visible');
       var time = {
         "from": field_time('#timefrom'),
-        "to": field_time('#timeto')
+        "to": field_time('#timeto'),
+        "user_interval": $('#user_interval').val()
       };
       window.hashjson.offset = 0;
       window.hashjson.time = time;
@@ -993,7 +1008,8 @@ function renderDateTimePicker(from, to, force) {
     $("#timechange").click(function () {
       var time = {
         "from": field_time('#timefrom'),
-        "to": field_time('#timeto')
+        "to": field_time('#timeto'),
+        "user_interval": $('#user_interval').val()
       };
       window.hashjson.offset = 0;
       window.hashjson.time = time;
@@ -1238,6 +1254,10 @@ function resetAll() {
       '"graphmode":"count"'+
     '}'
   );
+
+  // set the default histogram user_interval to auto
+  window.hashjson.time = {user_interval:'auto'};
+  
   setHash(window.hashjson);
 }
 
