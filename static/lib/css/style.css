@@ -335,6 +335,12 @@ input#timefrom,input#timeto {
   text-align: center;
 }
 
+select#user_interval {
+  height:28px;
+  width:75px;
+  margin-right:5px;
+}
+
 /* DateTimeEntry styles */
 .datetimeEntry_control {
   vertical-align: middle;
