@@ -92,7 +92,7 @@ module KibanaConfig
   # Kibana will use for the "Stats" and "Terms" to prevent ES crashes. For very
   # large data sets and undersized ES clusers, a limit of 1 is not unreasonable.
   # Default is 0 (unlimited)
-  Facet_index_limit = 1
+  Facet_index_limit = 0
 
   # You probably don't want to touch anything below this line
   # unless you really know what you're doing

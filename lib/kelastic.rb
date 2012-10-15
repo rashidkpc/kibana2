@@ -58,9 +58,9 @@ class Kelastic
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
           if limit != 0
-            intersection.sort.reverse
-          else
             intersection.sort.reverse[0..limit]
+          else
+            intersection.sort.reverse
           end
         else
           KibanaConfig::Default_index
