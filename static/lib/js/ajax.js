@@ -57,7 +57,7 @@ function pageload(hash) {
       window.hashjson.graphmode = 'count';
 
     switch (window.hashjson.mode) {
-    case 'terms_facet':
+    case 'terms':
     case 'score':
     case 'trend':
     case 'mean':
@@ -340,16 +340,20 @@ function getAnalysis() {
         }
 
         setMeta(resultjson.hits.total);
+        var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
         switch (window.hashjson.mode) {
-        case 'terms_facet':
+        case 'terms':
+          var index_count  = $.isArray(resultjson.kibana.index) ? 
+            resultjson.kibana.index : 1;
           var title = '<h2>Terms Facet of ' +
             '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
             '</h2>' +
-            'This analysis is based on all'  +
-            ' events for your query in your selected timeframe.<br><br>';
+            'This analysis is based on the events in the <strong>' +
+            index_count +'</strong> most recent indices ' + 
+            'for your query in your selected timeframe.<br><br>';
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
           sbctl('hide',false)
@@ -366,7 +370,7 @@ function getAnalysis() {
               resultjson.hits.count + ' most recent</strong>';
           }
           var title = '<h2>Quick analysis of ' +
-            '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
+            '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
@@ -383,7 +387,7 @@ function getAnalysis() {
         case 'trend':
           var basedon = "<strong>" + resultjson.hits.count + "</strong>";
           var title = '<h2>Trend analysis of <strong>' +
-            window.hashjson.analyze_field + '</strong> field ' +
+            analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
@@ -399,7 +403,7 @@ function getAnalysis() {
           break;
         case 'mean':
           var title = '<h2>Statistical analysis of <strong>' +
-            window.hashjson.analyze_field + '</strong> field ' +
+            analyze_field + '</strong> field ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
@@ -448,7 +452,12 @@ function analysisTable(resultjson) {
     var metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
-    metric[window.hashjson.analyze_field] = object.id;
+    var idv = object.id.split('||');
+    var fields = window.hashjson.analyze_field.split(',,');
+    for (var count=0;count<fields.length;count++) {
+      metric[fields[count]]=idv[count];
+    }
+    var analyze_field = fields.join(' ')
     metric['Count'] = object.count;
     metric['Percent'] =  Math.round(
       metric['Count'] / resultjson.hits.count * 10000
@@ -463,9 +472,9 @@ function analysisTable(resultjson) {
       }
     }
     metric['Action'] =  "<span class='raw'>" + object.id + "</span>"+
-      "<i data-mode='' data-field='" + window.hashjson.analyze_field + "' "+
+      "<i data-mode='' data-field='" + analyze_field + "' "+
         "class='msearch icon-search icon-large jlink'></i> " +
-      "<i data-mode='analysis' data-field='"+window.hashjson.analyze_field+"' "+
+      "<i data-mode='analysis' data-field='"+analyze_field+"' "+
         "class='msearch icon-cog icon-large jlink'></i>";
 
     tblArray[i] = metric;
@@ -477,7 +486,6 @@ function analysisTable(resultjson) {
 function termsTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
-  console.log(resultjson.facets.terms.terms);
   for (var obj in resultjson.facets.terms.terms) {
     var object = resultjson.facets.terms.terms[obj],
     metric = {};
@@ -487,6 +495,11 @@ function termsTable(resultjson) {
     metric['Percent'] =  Math.round(
       object.count / resultjson.hits.total * 10000
       ) / 100 + '%';
+    metric['Action'] =  "<span class='raw'>" + object.term + "</span>"+
+      "<i data-mode='' data-field='" + window.hashjson.analyze_field + "' "+
+        "class='msearch icon-search icon-large jlink'></i> " +
+      "<i data-mode='analysis' data-field='"+window.hashjson.analyze_field+"' "+
+        "class='msearch icon-cog icon-large jlink'></i>";
 
     tblArray[i] = metric;
     i++;
@@ -569,12 +582,12 @@ function enable_popovers() {
       }
       return microAnalysisTable(window.resultjson,field,5) + str +
         "<div class='btn-group'>" +
-          "<button class='btn btn-small analyze_btn' rel='terms_facet' " +
-          "data-field="+field+"><i class='icon-th-list'></i> Terms Facet</button>" +
           "<button class='btn btn-small analyze_btn' rel='score' " +
           "data-field="+field+"><i class='icon-list-ol'></i> Score</button>" +
           "<button class='btn btn-small analyze_btn' rel='trend' " +
           "data-field="+field+"><i class='icon-tasks'></i> Trend</button>" +
+          //"<button class='btn btn-small analyze_btn' rel='terms' " +
+          //"data-field="+field+"><i class='icon-th-list'></i> Terms</button>" +
           "<button class='btn btn-small analyze_btn' rel='mean' " +
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
@@ -814,10 +827,26 @@ function mSearch(field, value, mode) {
     window.hashjson.mode = mode;
     window.hashjson.analyze_field = '';
   }
-  var glue = $('#queryinput').val() != "" ? " AND " : " ";
-  var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
-
-  window.hashjson.search = $('#queryinput').val() + glue + query;
+  var pattern=/^(.*)\|([^"']*)$/;
+  var queryinput=$('#queryinput').val();
+  if (pattern.test(queryinput) == true) {
+    var results = queryinput.match(pattern);
+    var queryinput = $.trim(results[1]);
+    var fields = $.trim(results[2]).split(' ').slice(1);
+    var values = value.toString().split('||');
+    var query = '';
+    var glue = ''
+    for (var count=0;count<fields.length;count++) {
+      value=values[count];
+      field=fields[count];
+      query = query + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
+      glue = " AND ";
+    }
+  } else {
+    var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
+  }
+  var glue = queryinput != "" ? " AND " : " ";
+  window.hashjson.search = queryinput + glue + query;
   setHash(window.hashjson);
   scroll(0, 0);
 }
@@ -926,6 +955,19 @@ $(function () {
     }
     else {
       window.hashjson.timeframe = $('#timeinput').val();
+    }
+
+   var pattern=/^(.*)\|([^"']*)$/;
+   if (pattern.test(window.hashjson.search) == true) {
+      var results = window.hashjson.search.match(pattern);
+      var search = $.trim(results[1]);
+      var fields = $.trim(results[2]).split(' ');
+      var field = fields.slice(1).join(',,');
+      var mode = fields[0];
+
+
+      window.hashjson.mode = mode;
+      window.hashjson.analyze_field = field;
     }
 
     if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
@@ -1349,6 +1391,11 @@ function bind_clicks() {
   // Go back to the logs
   $("#logs").delegate("button#back_to_logs", "click",
     function () {
+      var pattern=/^(.*)\|([^"']*)$/;
+      if (pattern.test(window.hashjson.search) == true) {
+         var results = window.hashjson.search.match(pattern);
+         window.hashjson.search = $.trim(results[1]);
+      }
       window.hashjson.mode = '';
       window.hashjson.graphmode = 'count';
       window.hashjson.analyze_field = '';
@@ -1368,7 +1415,6 @@ function bind_clicks() {
 
   $("#logs").delegate("a.page", "click",
     function () {
-      console.log('fired')
       var per_page = window.resultjson.kibana.per_page;
       var action = $(this).attr('data-action')
       switch (action) {

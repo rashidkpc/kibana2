@@ -109,12 +109,14 @@ get '/api/analyze/:field/trend/:hash' do
     result_end    = KelasticMulti.new(query_end,indices_end)
   end
 
-  count_end     = KelasticResponse.count_field(result_end.response,params[:field])
+  fields = Array.new
+  fields = params[:field].split(',,')
+  count_end     = KelasticResponse.count_field(result_end.response,fields)
 
   query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
   indices_begin = Kelastic.index_range(req.from,req.to).reverse
   result_begin  = KelasticMulti.new(query_begin,indices_begin)
-  count_begin   = KelasticResponse.count_field(result_begin.response,params[:field])
+  count_begin   = KelasticResponse.count_field(result_begin.response,fields)
 
 
 
@@ -141,11 +143,11 @@ get '/api/analyze/:field/trend/:hash' do
   JSON.generate(result_end.response)
 end
 
-get '/api/analyze/:field/terms_facet/:hash' do
-  limit = KibanaConfig::Terms_limit
+get '/api/analyze/:field/terms/:hash' do
+  limit   = KibanaConfig::Analyze_show
   req     = ClientRequest.new(params[:hash])
   query   = TermsFacet.new(req.search,req.from,req.to,params[:field])
-  indices = Kelastic.index_range(req.from,req.to)
+  indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
   # Not sure this is required. This should be able to be handled without
@@ -163,7 +165,9 @@ get '/api/analyze/:field/score/:hash' do
   query   = SortedQuery.new(req.search,req.from,req.to,0,limit)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
-  count   = KelasticResponse.count_field(result.response,params[:field])
+  fields = Array.new
+  fields = params[:field].split(',,')
+  count   = KelasticResponse.count_field(result.response,fields)
 
   # Not sure this is required. This should be able to be handled without
   # server communication
@@ -187,7 +191,7 @@ end
 get '/api/analyze/:field/mean/:hash' do
   req     = ClientRequest.new(params[:hash])
   query   = StatsFacet.new(req.search,req.from,req.to,params[:field])
-  indices = Kelastic.index_range(req.from,req.to)
+  indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   type    = Kelastic.field_type(indices.first,params[:field])
   if ['long','integer','double','float'].include? type
     result  = KelasticMultiFlat.new(query,indices)
