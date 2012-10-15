@@ -243,6 +243,8 @@ get '/rss/:hash/?:count?' do
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
 
+  headers "Content-Type" => "application/rss+xml", "charset" => "utf-8"
+
   content = RSS::Maker.make('2.0') do |m|
     m.channel.title = "Kibana #{req.search}"
     m.channel.link  = "www.example.com"
