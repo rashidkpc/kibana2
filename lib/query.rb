@@ -137,6 +137,30 @@ class DateHistogram < Query
 end
 
 =begin
+= Class: TermsFacet < Query
+  Perform a terms facet query on a field
+
+== Parameters:
+  query::   The query text. Blank or * queries are converted to match_all
+  from::    Beginning of time range
+  to::      End of time range (Default: NOW)
+  field::   Field to facet
+=end
+class TermsFacet < Query
+  def initialize(question, from, to, field, limit = KibanaConfig::Terms_limit)
+    super(question, from, to)
+    @query['facets'] = {
+      "terms" => {
+        "terms" => {
+          "field" => field,
+          "size"  => limit
+        }
+      }
+    }
+  end
+end
+
+=begin
 = Class: StatsFacet < Query
   Perform statistical analysis on a field
 
