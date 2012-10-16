@@ -15,21 +15,29 @@ logstash >= 1.1.0
 elasticsearch >= 0.18.0  
 
 ## Installation
-Install:  
-  git clone --branch=kibana-ruby https://github.com/rashidkpc/Kibana.git	
-  cd Kibana  
-	gem install bundler  
-	bundle install  
+Install:
 
-Configure:  
-Set your elasticsearch server in KibanaConfig.rb:  
-	Elasticsearch = "elasticsearch:9200"  
+    git clone --branch=kibana-ruby https://github.com/rashidkpc/Kibana.git
+    cd Kibana
+    gem install bundler
+    bundle install
 
-Run:  
+Configure:
+
+Kibana is configured using [settingslogic gem](https://github.com/binarylogic/settingslogic) to edit your configuration
+run the following command to copy the default configuration and edit it to fit your needs.
+
+    cp config/config.sample.yml config/config.yml
+
+The current configuration scheme supports multiple configuration enviroments. The configuration is loaded using the
+environment variable `SINATRA_ENV`. See settingslogic documentation for its usage.
+
+Run:
+
 	ruby kibana.rb  
 
 Use:  
-  Point your browser at http://localhost:5601
+  Point your browser at [http://localhost:5601](http://localhost:5601)
 
 ## FAQ
 Q: Why is there no last button?  
