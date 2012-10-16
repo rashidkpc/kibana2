@@ -1043,6 +1043,7 @@ function datepickers(from,to) {
 function renderDateTimePicker(from, to, force) {
   $('.datepicker').remove()
 
+
   if (!$('#timechange').length || force == true) {
 
     datepickers(from,to)
@@ -1321,7 +1322,10 @@ function showError(title,text) {
 
   // We have to use hashjson's time here since we won't
   // get a resultjson on error, usually
-  if(typeof window.hashjson.time !== 'undefined') {
+  if(
+    typeof window.hashjson.time.from !== 'undefined' &&
+    typeof window.hashjson.time.to !== 'undefined'
+    ) {
     renderDateTimePicker(
       Date.parse(window.hashjson.time.from)+tOffset,
       Date.parse(window.hashjson.time.to)+tOffset
