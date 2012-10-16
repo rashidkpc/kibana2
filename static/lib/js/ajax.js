@@ -349,7 +349,7 @@ function getAnalysis() {
         var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
         switch (window.hashjson.mode) {
         case 'terms':
-          var index_count  = $.isArray(resultjson.kibana.index) ? 
+          var index_count  = $.isArray(resultjson.kibana.index) ?
             resultjson.kibana.index : 1;
           var title = '<h2>Terms Facet of ' +
             '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
@@ -358,7 +358,7 @@ function getAnalysis() {
             '</button>' +
             '</h2>' +
             'This analysis is based on the events in the <strong>' +
-            index_count +'</strong> most recent indices ' + 
+            index_count +'</strong> most recent indices ' +
             'for your query in your selected timeframe.<br><br>';
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
@@ -645,7 +645,7 @@ function pageLinks() {
     //str += "<i data-action='firstpage' " +
     //  "class='page jlink icon-circle-arrow-left'></i> " +
     //  "<i data-action='prevpage' class='page icon-arrow-left jlink'></i> ";
-    str += "<td width='1%'><a data-action='prevpage' class='page jlink'>Newer</a></td> " + 
+    str += "<td width='1%'><a data-action='prevpage' class='page jlink'>Newer</a></td> " +
     "<td width='1%'> <a data-action='firstpage' class='page jlink'>Newest</a></td>";
   }
   str += "</tr></table>";
@@ -971,7 +971,10 @@ $(function () {
       var mode = fields[0];
 
       window.hashjson.mode = mode;
-      window.hashjson.analyze_field = field;
+      if (mode == 'columns')
+        window.hashjson.fields = field.split(',,')
+      else
+        window.hashjson.analyze_field = field;
     }
 
     if (window.location.hash == "#" + JSON.stringify(window.hashjson))
@@ -1011,7 +1014,7 @@ function datepickers(from,to) {
   html += "</select>" +
     "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
     "> filter</button></div>";
-    
+
   $('#graphheader').html(html);
 
   $('#timefrom').datetimeEntry({
@@ -1141,7 +1144,7 @@ function logGraph(data, interval, metric) {
     metric = 'count';
 
   var array = new Array();
-  var from, to; 
+  var from, to;
   if(typeof window.resultjson.kibana.time !== 'undefined') {
     // add null value at time from.
     if(window.hashjson.timeframe != 'all') {
@@ -1359,7 +1362,7 @@ function resetAll() {
 
   // set the default histogram user_interval to auto
   // window.hashjson.time = {user_interval:'auto'};
-  
+
   setHash(window.hashjson);
 }
 
