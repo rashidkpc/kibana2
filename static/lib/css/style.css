@@ -331,14 +331,16 @@ del {
 }
 
 input#timefrom,input#timeto {
-  width: 150px;
+  width: 140px;
   text-align: center;
 }
 
 select#user_interval {
   height:28px;
-  width:75px;
+  width:80px;
   margin-right:5px;
+  color: #808080;
+  font-size: 13px;
 }
 
 /* DateTimeEntry styles */

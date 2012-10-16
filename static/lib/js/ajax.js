@@ -53,8 +53,14 @@ function pageload(hash) {
     $('#queryinput').val(window.hashjson.search);
     $('#timeinput').val(window.hashjson.timeframe);
 
+    // Figure out defaults. Need more here
     if(typeof window.hashjson.graphmode == 'undefined')
       window.hashjson.graphmode = 'count';
+
+    if(typeof window.hashjson.time == 'undefined')
+      window.hashjson.time = {user_interval:0};
+    else if (typeof window.hashjson.time.user_interval == 'undefined')
+        window.hashjson.time.user_interval = 0;
 
     switch (window.hashjson.mode) {
     case 'terms':
@@ -944,18 +950,17 @@ function feedLinks(obj) {
 
 $(function () {
   $('form').submit(function () {
+
     if (window.hashjson.search != $('#queryinput').val()) {
       window.hashjson.offset = 0;
       window.hashjson.search = $('#queryinput').val();
     }
     window.hashjson.stamp = new Date().getTime();
 
-    if (window.hashjson.timeframe == "custom") {
+    if (window.hashjson.timeframe == "custom")
       $('#timechange').click();
-    }
-    else {
+    else
       window.hashjson.timeframe = $('#timeinput').val();
-    }
 
    var pattern=/^(.*)\|([^"']*)$/;
    if (pattern.test(window.hashjson.search) == true) {
@@ -965,16 +970,15 @@ $(function () {
       var field = fields.slice(1).join(',,');
       var mode = fields[0];
 
-
       window.hashjson.mode = mode;
       window.hashjson.analyze_field = field;
     }
 
-    if (window.location.hash == "#" + JSON.stringify(window.hashjson)) {
+    if (window.location.hash == "#" + JSON.stringify(window.hashjson))
       pageload(window.location.hash);
-    } else {
+    else
       setHash(window.hashjson);
-    }
+
     return false;
   });
 });
@@ -982,18 +986,26 @@ $(function () {
 function datepickers(from,to) {
 
   var graph_interval = window.hashjson.time.user_interval;
-  var interval_opts = ['auto','minute','hour','day'];
+  var interval_opts = [
+    'auto','minute','hour','day'];
+  var interval_opts = {
+    auto:0,
+    second:1000,
+    minute:60*1000,
+    hour:60*60*1000,
+    day:60*60*24*1000
+  };
 
   var html = "<div class='form-inline'>"+
     "<input size=19 id=timefrom class='datetimeRange'" +
     " type=text name=timefrom> to " +
     "<input size=19 id=timeto class='datetimeRange'" +
-    " type=text name=timeto> group by: " +
+    " type=text name=timeto> grouped by " +
     "<select id=user_interval name=user_interval> ";
 
   $.each(interval_opts,function(i,interval) {
     html += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
-      '>'+interval+'</option>';
+      '>'+i+'</option>';
   });
 
   html += "</select>" +
@@ -1047,7 +1059,6 @@ function renderDateTimePicker(from, to, force) {
       );
       window.hashjson.timeframe = 'custom'
       $('#timeinput').val('custom');
-      $('#timechange').css('visibility', 'visible');
     })
 
     $('#timeto').datepicker().on('changeDate', function(ev) {
@@ -1062,7 +1073,6 @@ function renderDateTimePicker(from, to, force) {
       );
       window.hashjson.timeframe = 'custom'
       $('#timeinput').val('custom');
-      $('#timechange').css('visibility', 'visible');
     })
 
     $('input.datetimeRange').datetimeEntry({datetimeFormat: 'Y-O-D H:M:S'}).
@@ -1072,8 +1082,15 @@ function renderDateTimePicker(from, to, force) {
         $(this).datetimeEntry('getDatetime'));
     });
 
-    $('#timefrom,#timeto,#user_interval').change(function () {
-      $('#timechange').css('visibility', 'visible');
+    $('#user_interval').change(function () {
+      var interval = $('#user_interval').val()
+      if(typeof window.hashjson.time == 'undefined')
+        window.hashjson.time = {user_interval:interval};
+      else
+        window.hashjson.time.user_interval = interval;
+    });
+
+    $('#timefrom,#timeto').change(function () {
       var time = {
         "from": field_time('#timefrom'),
         "to": field_time('#timeto'),
@@ -1337,7 +1354,7 @@ function resetAll() {
   );
 
   // set the default histogram user_interval to auto
-  window.hashjson.time = {user_interval:'auto'};
+  // window.hashjson.time = {user_interval:'auto'};
   
   setHash(window.hashjson);
 }

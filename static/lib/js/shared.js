@@ -155,12 +155,11 @@ function top_field_values(json,field,count) {
    *
    */
 function calculate_interval(from,to,size,user_interval) {
-  switch (true) {
-    case (user_interval == 'minute'): return 1000*60;
-    case (user_interval == 'hour'):   return 1000*60*60;
-    case (user_interval == 'day'):    return 1000*60*60*24;
-    default:                          return round_interval((to - from)/size);
-  }
+  return user_interval == 0 ? round_interval((to - from)/size) : user_interval;
+}
+
+function get_bar_count(from,to,interval) {
+  return (to - from)/interval;
 }
 
 function round_interval (interval) {
