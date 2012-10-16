@@ -11,9 +11,11 @@ Gem::Specification.new do |gem|
   gem.version = "0.0.1"
 
   # Dependencies
-	gem.add_runtime_dependency 'sinatra'
-	gem.add_runtime_dependency 'json'
-	gem.add_runtime_dependency 'faster_csv'
-	gem.add_runtime_dependency 'curb'
+gem.add_runtime_dependency 'sinatra'
+gem.add_runtime_dependency 'json'
+gem.add_runtime_dependency 'fastercsv'
+gem.add_runtime_dependency 'curb'
+gem.add_runtime_dependency 'tzinfo'
+gem.add_runtime_dependency 'settingslogic'
 
 end
