@@ -29,7 +29,8 @@ class ClientRequest
     @index  = @request['index']
     @offset = @request['offset'].nil? ? 0 : @request['offset']
 
-    @fields = @request['fields']
+    @fields = @request['fields'].length == 0 ?
+      KibanaConfig::Default_fields : @request['fields']
 
     @analyze = @request['analyze_field']
 
