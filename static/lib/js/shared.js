@@ -87,7 +87,7 @@ function get_field_value(object,field,opt) {
   if(value === null)
     return ''
   if($.isArray(value))
-    return opt == 'raw' ? value : JSON.stringify(value, null, 4);
+    return opt == 'raw' ? value : value.toString();
   if(typeof value === 'object' && value != null)
     // Leaving this out for now
     //return opt == 'raw' ? value : JSON.stringify(value,null,4)
