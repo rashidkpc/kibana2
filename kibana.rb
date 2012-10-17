@@ -44,7 +44,7 @@ helpers do
 end
 
 get '/' do
-  headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0"
+  headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" if KibanaConfig::Allow_iframed
   send_file File.join(settings.public_folder, 'index.html')
 end
 
