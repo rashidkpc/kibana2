@@ -96,7 +96,7 @@ class Kelastic
 
     def mapping(index)
       url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
-      JSON.parse(Net::HTTP.get(url).body)
+      JSON.parse(Net::HTTP.get(url))
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -339,7 +339,7 @@ class KelasticResponse
       response['hits']['hits'].each do |hit|
         count = 0
         fields.each do |field|
-          fv = get_field_value(hit,field) 
+          fv = get_field_value(hit,field)
           if fv.kind_of?(Array)
             fvs[count] = fv.map(&:to_s)
           else
