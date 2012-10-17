@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'json'
 require 'time'
-require 'curb'
+require 'net/http'
 
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
@@ -37,10 +37,8 @@ class Kelastic
 
   class << self
     def all_indices
-      url = "http://#{Kelastic.server}/_status"
-      c = Curl::Easy.new(url)
-      c.perform
-      @status = JSON.parse(c.body_str)
+      url = URI.parse("http://#{Kelastic.server}/_status")
+      @status = JSON.parse(Net::HTTP.get(url))
       @status['indices'].keys.sort
     end
 
@@ -97,10 +95,8 @@ class Kelastic
     end
 
     def mapping(index)
-      url = "http://#{Kelastic.server}/#{index}/_mapping"
-      c = Curl::Easy.new(url)
-      c.perform
-      JSON.parse(c.body_str)
+      url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
+      JSON.parse(Net::HTTP.get(url).body)
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -133,18 +129,16 @@ class Kelastic
     end
 
     def run(url,query)
-      c = Curl::Easy.http_post(url, query.to_s) do |curl|
-        curl.headers['Accept'] = 'application/json'
-        curl.headers['Content-Type'] = 'application/json'
-      end
-      parsed = JSON.parse(c.body_str)
-      parsed['kibana'] = {
-        'per_page'    => KibanaConfig::Per_page
-      }
-      if c.response_code == 500
-        parsed['kibana']['error'] = "Invalid query"
-      end
-      parsed
+      url = URI.parse(url)
+      http = Net::HTTP.new(url.host, url.port)
+      res = http.post(url.path, query.to_s,
+                      'Accept' => 'application/json',
+                      'Content-Type' => 'application/json')
+
+      o = JSON.parse(res.body)
+      o['kibana'] = {'per_page' => KibanaConfig::Per_page}
+      o['kibana']['error'] = "Invalid query" if res.code.to_i.between?(500, 599)
+      o
     end
 
     def index_path(index)
