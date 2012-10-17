@@ -44,6 +44,7 @@ helpers do
 end
 
 get '/' do
+  headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0"
   send_file File.join(settings.public_folder, 'index.html')
 end
 
