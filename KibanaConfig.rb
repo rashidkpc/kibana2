@@ -110,4 +110,7 @@ module KibanaConfig
   # Prevent wildcard search terms which result in extremely slow queries
   # See: http:#www.elasticsearch.org/guide/reference/query-dsl/wildcard-query.html
   Disable_fullscan = false
+
+  # Set headers to allow kibana to be loaded in an iframe from a different origin.
+  Allow_iframed = false
 end
