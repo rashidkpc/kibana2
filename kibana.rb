@@ -10,7 +10,11 @@ require 'tzinfo'
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
 
-require 'KibanaConfig'
+if ENV["KIBANA_CONFIG"] 
+  require ENV["KIBANA_CONFIG"]
+else
+  require 'KibanaConfig'
+end
 Dir['./lib/*.rb'].each{ |f| require f }
 ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
