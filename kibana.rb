@@ -288,10 +288,12 @@ get '/export/:hash/?:count?' do
 
   if RUBY_VERSION < "1.9"
     FasterCSV.generate({:col_sep => sep}) do |file|
+      file << req.fields
       flat.each { |row| file << row }
     end
   else
     CSV.generate({:col_sep => sep}) do |file|
+      file << req.fields
       flat.each { |row| file << row }
     end
   end
