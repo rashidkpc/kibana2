@@ -45,7 +45,7 @@ class Kelastic
           indices.concat(@status[index]['aliases'].keys)
         end
       end
-      indices.sort
+      indices.uniq.sort
     end
 
     def date_range(from,to)
