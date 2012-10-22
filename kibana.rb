@@ -151,7 +151,9 @@ end
 get '/api/analyze/:field/terms/:hash' do
   limit   = KibanaConfig::Analyze_show
   req     = ClientRequest.new(params[:hash])
-  query   = TermsFacet.new(req.search,req.from,req.to,params[:field])
+  fields = Array.new
+  fields = params[:field].split(',,')
+  query   = TermsFacet.new(req.search,req.from,req.to,fields)
   indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
