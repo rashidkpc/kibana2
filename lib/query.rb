@@ -149,14 +149,26 @@ end
 class TermsFacet < Query
   def initialize(question, from, to, field, limit = KibanaConfig::Analyze_show)
     super(question, from, to)
-    @query['facets'] = {
-      "terms" => {
-        "terms" => {
-          "field" => field,
-          "size"  => limit
+    if (field.kind_of?(Array))
+	script = "doc['" + field.join("'].value + '||' + doc['") + "'].value"
+        @query['facets'] = {
+          "terms" => {
+            "terms" => {
+              "script" => script,
+              "size"  => limit
+          }
         }
       }
-    }
+    else
+      @query['facets'] = {
+        "terms" => {
+          "terms" => {
+            "field" => field,
+            "size"  => limit
+          }
+        }
+      }
+   end
   end
 end
 

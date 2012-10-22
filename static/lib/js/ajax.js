@@ -350,9 +350,9 @@ function getAnalysis() {
         switch (window.hashjson.mode) {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
-            resultjson.kibana.index : 1;
+            resultjson.kibana.index : resultjson.kibana.index.split(',').length;
           var title = '<h2>Terms Facet of ' +
-            '<strong>' + window.hashjson.analyze_field + '</strong> field ' +
+            '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
@@ -496,15 +496,20 @@ function termsTable(resultjson) {
     var object = resultjson.facets.terms.terms[obj],
     metric = {};
     metric['Rank'] = i+1;
-    metric[window.hashjson.analyze_field] = object.term;
+    var termv = object.term.split('||');
+    var fields = window.hashjson.analyze_field.split(',,');
+    for (var count=0;count<fields.length;count++) {
+      metric[fields[count]]=termv[count];
+    }
+    var analyze_field = fields.join(' ')
     metric['Count'] = addCommas(object.count);
     metric['Percent'] =  Math.round(
       object.count / resultjson.hits.total * 10000
       ) / 100 + '%';
     metric['Action'] =  "<span class='raw'>" + object.term + "</span>"+
-      "<i data-mode='' data-field='" + window.hashjson.analyze_field + "' "+
+      "<i data-mode='' data-field='" + analyze_field + "' "+
         "class='msearch icon-search icon-large jlink'></i> " +
-      "<i data-mode='analysis' data-field='"+window.hashjson.analyze_field+"' "+
+      "<i data-mode='analysis' data-field='"+analyze_field+"' "+
         "class='msearch icon-cog icon-large jlink'></i>";
 
     tblArray[i] = metric;
@@ -592,8 +597,8 @@ function enable_popovers() {
           "data-field="+field+"><i class='icon-list-ol'></i> Score</button>" +
           "<button class='btn btn-small analyze_btn' rel='trend' " +
           "data-field="+field+"><i class='icon-tasks'></i> Trend</button>" +
-          //"<button class='btn btn-small analyze_btn' rel='terms' " +
-          //"data-field="+field+"><i class='icon-th-list'></i> Terms</button>" +
+          "<button class='btn btn-small analyze_btn' rel='terms' " +
+          "data-field="+field+"><i class='icon-th-list'></i> Terms</button>" +
           "<button class='btn btn-small analyze_btn' rel='mean' " +
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
