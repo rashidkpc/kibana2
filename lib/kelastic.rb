@@ -37,9 +37,15 @@ class Kelastic
 
   class << self
     def all_indices
-      url = URI.parse("http://#{Kelastic.server}/_status")
+      url = URI.parse("http://#{Kelastic.server}/_aliases")
       @status = JSON.parse(Net::HTTP.get(url))
-      @status['indices'].keys.sort
+      indices = @status.keys
+      @status.keys.each do |index|
+        if @status[index]['aliases'].count > 0
+          indices.concat(@status[index]['aliases'].keys)
+        end
+      end
+      indices.uniq.sort
     end
 
     def date_range(from,to)

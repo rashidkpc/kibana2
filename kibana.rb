@@ -151,7 +151,9 @@ end
 get '/api/analyze/:field/terms/:hash' do
   limit   = KibanaConfig::Analyze_show
   req     = ClientRequest.new(params[:hash])
-  query   = TermsFacet.new(req.search,req.from,req.to,params[:field])
+  fields = Array.new
+  fields = params[:field].split(',,')
+  query   = TermsFacet.new(req.search,req.from,req.to,fields)
   indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
@@ -288,10 +290,12 @@ get '/export/:hash/?:count?' do
 
   if RUBY_VERSION < "1.9"
     FasterCSV.generate({:col_sep => sep}) do |file|
+      file << req.fields
       flat.each { |row| file << row }
     end
   else
     CSV.generate({:col_sep => sep}) do |file|
+      file << req.fields
       flat.each { |row| file << row }
     end
   end
