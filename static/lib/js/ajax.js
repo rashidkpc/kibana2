@@ -523,12 +523,13 @@ function setMeta(hits, mode) {
 }
 
 function sidebar_field_string(field, icon) {
+  var sfield = field.replace('@fields.','')
   var afield = field_alias(field) + "_field";
   return '<li class="mfield ' + afield + '">'+
           '<i class="icon-'+icon+' jlink mfield ' + afield +'" '+
           'data-field="'+field+'"></i> '+
           '<a style="display:inline-block" class="popup-marker jlink field" '+
-          'rel="popover">' + field +
+          'rel="popover" data-field="'+field+'">' + sfield +
           "<i class='field icon-caret-right'></i></a></li>";
 }
 
@@ -553,7 +554,7 @@ function enable_popovers() {
     html: true,
     trigger: 'manual',
     title: function() {
-      var field = $(this).text();
+      var field = $(this).attr('data-field');
       var objids = get_objids_with_field(window.resultjson,field);
       var buttons = "<span class='raw'>" + field + "</span>" +
         "<i class='jlink icon-search msearch' data-action='' "+
@@ -568,7 +569,7 @@ function enable_popovers() {
     },
     content: function() {
       var related_limit = 10;
-      var field = $(this).text()
+      var field = $(this).attr('data-field');
       var objids = get_objids_with_field(window.resultjson,field);
       var counts = get_related_fields(window.resultjson,field);
       var str = ''
@@ -720,7 +721,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   }
 
   if (fields.length == 0)
-    fields = window.resultjson.kibana.default_fields;
+    fields = window.resultjson.kibana.default_fields;  
 
   // If the returned data is an object do nothing, else try to parse
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
@@ -739,7 +740,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<th scope="col" class=firsttd>Time</th>';
     for (var index in fields) {
       var field = fields[index];
-      str += '<th scope="col" class="column '+field_alias(field)+'_column">' +
+      str += '<th scope="col" class="column" data-field="'+field+'">' +
         field + '</th>';
     }
     str += '</tr></thead>';
@@ -762,7 +763,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var field = fields[index];
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
-      str += '<td class="column ' + field_alias(field)+'_column">' +
+      str += '<td class="column" data-field="'+field+'">' +
         xmlEnt(wbr(value, 10)) + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
@@ -779,28 +780,28 @@ function details_table(objid,theme) {
   if (theme === undefined) theme = 'logdetails table table-bordered';
 
   obj = window.resultjson.hits.hits[objid];
-  obj_fields = get_object_fields(obj);
+  
+  //obj_fields = get_object_fields(obj);
+  obj_fields = flatten_json(obj['_source'])
   str = "<table class='"+theme+"'>" +
     "<tr><th>Field</th><th>Action</th><th>Value</th></tr>";
 
-  var field = '';
-  var field_id = '';
-  var value = '';
+
   var orig = '';
-  var buttons = '';
 
   var i = 1;
   for (index in obj_fields) {
-    field = obj_fields[index];
-    field_id = field.replace('@', 'ATSYM');
-    value = get_field_value(obj,field);
-
-    buttons = "<span class='raw'>" + xmlEnt(value) + "</span>" +
+    var field = index
+    var value = obj_fields[index];
+    var field_id = field.replace('@', 'ATSYM');
+    //var value = get_field_value(obj,field);
+    var buttons = "<span class='raw'>" + xmlEnt(value) + "</span>" +
       "<i class='jlink icon-large icon-search msearch' " +
       "data-action='' data-field='"+field+"'></i> " +
       "<i class='jlink icon-large icon-ban-circle msearch' " +
       "data-action='NOT ' data-field='"+field+"'></i> ";
 
+    /*
     if (isNaN(value)) {
       try {
         var json = JSON.parse(value);
@@ -809,12 +810,13 @@ function details_table(objid,theme) {
       } catch(e) {
       }
     }
+    */
 
     trclass = (i % 2 == 0) ?
       'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
 
     str += "<tr " + trclass + ">" +
-      "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
+      "<td class='firsttd " + field_id + "_field'>" + field.replace('@fields.','') + "</td>" +
       "<td style='width: 60px'>" + buttons + "</td>" +
       '<td>' + xmlEnt(wbr(value, 10)) +
       "</td></tr>";
@@ -862,7 +864,6 @@ function field_alias(field) {
 }
 
 function mFields(field) {
-
   var afield = field_alias(field) + "_field";
   var cfield = field_alias(field) + "_column";
   // If the field is not in the hashjson, add it
@@ -872,7 +873,7 @@ function mFields(field) {
     // remove default fields
     if (window.hashjson.fields.length == 0) {
       $('#logs').find('tr.logrow').each(function(){
-        $(".column").remove();
+        $(".column[data-field='"+field+"']").remove();
       });
     }
 
@@ -882,19 +883,19 @@ function mFields(field) {
     if($('#fields ul.selected li.' + afield).length == 0) {
       $('#fields ul.selected').append(sidebar_field_string(field,'caret-down'));
     }
-
+    console.log(hashjson.fields)
     // Add column
     $('#logs').find('tr.logrow').each(function(){
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
         var value = get_field_value(obj,field)
         $(this).find('td').last().after(
-          '<td class="column '+cfield+'">' + xmlEnt(wbr(value, 10)) + '</td>');
+          '<td class="column" data-field='+field+'">' + xmlEnt(wbr(value, 10)) + '</td>');
     });
     $('#logs thead tr').find('th').last().after(
-      '<th scope="col" class="column '+cfield+'">' + field + '</th>');
+      '<th scope="col" class="column" data-field="'+field+'">' + field + '</th>');
 
   } else {
-    $('#logs .' + cfield).remove();
+    $('#logs .column[data-field="'+field+'"').remove();
 
     // Otherwise, remove it
     window.hashjson.fields = jQuery.grep(
@@ -902,6 +903,8 @@ function mFields(field) {
         return value != field;
       }
     );
+    console.log(hashjson.fields)
+
     $('#fields ul.selected li.' + afield).remove();
     $('#fields ul.unselected li.' + afield).show();
 
@@ -911,11 +914,11 @@ function mFields(field) {
           var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
           var value = get_field_value(obj,field)
           $(this).find('td').last().after(
-            '<td class="column '+field_alias(field)+'_column">' +
+            '<td class="column" data-field"'+field+'">' +
             xmlEnt(wbr(value, 10)) + '</td>');
         });
         $('#logs thead tr').find('th').last().after(
-          '<th scope="col" class="column '+field_alias(field)+'_column">' +
+          '<th scope="col" class="column" data-field="'+field+'">' +
           field + '</th>');
       });
     }

@@ -1,12 +1,48 @@
+// reduce() polyfill. This needs to move to a polyfill.js
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function reduce(accumulator){
+    if (this===null || this===undefined) throw new TypeError("Object is null or undefined");
+    var i = 0, l = this.length >> 0, curr;
+ 
+    if(typeof accumulator !== "function") // ES5 : "If IsCallable(callbackfn) is false, throw a TypeError exception."
+      throw new TypeError("First argument is not callable");
+ 
+    if(arguments.length < 2) {
+      if (l === 0) throw new TypeError("Array length is 0 and no second argument");
+      curr = this[0];
+      i = 1; // start accumulating at the second element
+    }
+    else
+      curr = arguments[1];
+ 
+    while (i < l) {
+      if(i in this) curr = accumulator.call(undefined, curr, this[i], i, this);
+      ++i;
+    }
+ 
+    return curr;
+  };
+}
 
 function get_object_fields(obj) {
   var field_array = [];
-  for (field in obj._source['@fields']) {
+  obj = flatten_json(obj._source)
+  for (field in obj) {
     field_array.push(field);
   }
-  for (field in obj._source) {
-    if (field != '@fields')
-      field_array.push(field);
+  return field_array.sort();
+}
+
+function get_all_fields(json) {
+  var field_array = [];
+  var obj_fields;
+  for (hit in json.hits.hits) {
+    obj_fields = get_object_fields(json.hits.hits[hit]);
+    for (index in obj_fields) {
+      if ($.inArray(obj_fields[index],field_array) < 0) {
+        field_array.push(obj_fields[index]);
+      }
+    }
   }
   return field_array.sort();
 }
@@ -50,6 +86,10 @@ function get_objids_with_field_value(json,field,value) {
   return objid_array;
 }
 
+function objat(obj,i) {
+  return obj[i]
+}
+
 function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {
@@ -64,23 +104,14 @@ function get_related_fields(json,field) {
   return counts;
 }
 
-function get_all_fields(json) {
-  var field_array = [];
-  var obj_fields;
-  for (hit in json.hits.hits) {
-    obj_fields = get_object_fields(json.hits.hits[hit]);
-    for (index in obj_fields) {
-      if ($.inArray(obj_fields[index],field_array) < 0) {
-        field_array.push(obj_fields[index]);
-      }
-    }
-  }
-  return field_array.sort();
-}
-
 function get_field_value(object,field,opt) {
-  var value = field.charAt(0) == '@' ?
-    object['_source'][field] : object['_source']['@fields'][field];
+  try {
+    var value = field.split('.').reduce(objat, object['_source'])
+  } catch(e) {
+    var value = null
+  }
+  //var value = field.charAt(0) == '@' ?
+  //  object['_source'][field] : object['_source']['@fields'][field];
 
   if(typeof value === 'undefined')
     return ''
@@ -264,17 +295,41 @@ function is_int(value) {
   }
 }
 
+function flatten_json(object,root,array) {
+  if (typeof array === 'undefined')
+    var array = {};
+  if (typeof root === 'undefined')
+    var root = '';
+  for(var index in object) {
+    var obj = object[index]
+    var rootname = root.length == 0 ? index : root + '.' + index;
+    if(typeof obj == 'object' ) {
+      if($.isArray(obj))
+        array[rootname] = typeof obj === 'undefined' ? null : obj.join(',');
+      else
+        flatten_json(obj,rootname,array)
+    } else {
+      array[rootname] = typeof obj === 'undefined' ? null : obj;
+    }
+  }
+  return sortObj(array);
+} 
+
 function xmlEnt(value) {
+  if($.type(value) == 'string') {
   var stg1 = value.replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/\r\n/g, '<br/>')
     .replace(/\r/g, '<br/>')
     .replace(/\n/g, '<br/>')
     .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
-    .replace(/  /g, '&nbsp;&nbsp;');
-
-  return stg1.replace(/&lt;del&gt;/g, '<del>')
+    .replace(/  /g, '&nbsp;&nbsp;')
+    .replace(/&lt;del&gt;/g, '<del>')
     .replace(/&lt;\/del&gt;/g, '</del>');
+  return stg1
+  } else {
+    return value
+  }
 }
 
 function sortObj(arr) {
@@ -351,4 +406,3 @@ function wbr(str, num) {
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-
