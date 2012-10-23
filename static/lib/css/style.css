@@ -57,7 +57,7 @@ width: 100%;
 background-color: #FFF;
 }
 
-.well h5 {
+.sidebar h5 {
 	margin: 0px;
 }
 
@@ -291,6 +291,7 @@ ul.selected, ul.unselected {
 
 #fields > ul > li > a {
   padding: 1px;
+  font-size: 10px;
 }
 
 ul#analyze_list > li > a {

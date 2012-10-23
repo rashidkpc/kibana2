@@ -151,7 +151,7 @@ function getPage() {
         for (var index in all_fields) {
           var field_name = all_fields[index].toString();
           var afield = field_alias(field_name) + "_field";
-          fieldstr += sidebar_field_string(field_name,'caret-up');
+          fieldstr += sidebar_field_string(field_name,'plus');
         }
         $('#fields ul.unselected').append(fieldstr)
 
@@ -160,7 +160,7 @@ function getPage() {
           var field_name = window.hashjson.fields[index].toString();
           var afield = field_alias(field_name) + "_field";
           $('#fields ul.unselected li.' + afield).hide();
-          fieldstr += sidebar_field_string(field_name,'caret-down');
+          fieldstr += sidebar_field_string(field_name,'minus');
         }
         $('#fields ul.selected').append(fieldstr)
 
@@ -529,12 +529,11 @@ function setMeta(hits, mode) {
 
 function sidebar_field_string(field, icon) {
   var sfield = field.replace('@fields.','')
-  var afield = field_alias(field) + "_field";
-  return '<li class="mfield ' + afield + '">'+
-          '<i class="icon-'+icon+' jlink mfield ' + afield +'" '+
+  return '<li class="mfield" data-field="'+field+'">'+
+          '<i class="small icon-'+icon+' jlink mfield" '+
           'data-field="'+field+'"></i> '+
           '<a style="display:inline-block" class="popup-marker jlink field" '+
-          'rel="popover" data-field="'+field+'">' + sfield +
+          'rel="popover" data-field="'+field+'">' + field +
           "<i class='field icon-caret-right'></i></a></li>";
 }
 
@@ -869,8 +868,6 @@ function field_alias(field) {
 }
 
 function mFields(field) {
-  var afield = field_alias(field) + "_field";
-  var cfield = field_alias(field) + "_column";
   // If the field is not in the hashjson, add it
   if ($.inArray(field, window.hashjson.fields) < 0) {
 
@@ -878,15 +875,15 @@ function mFields(field) {
     // remove default fields
     if (window.hashjson.fields.length == 0) {
       $('#logs').find('tr.logrow').each(function(){
-        $(".column[data-field='"+field+"']").remove();
+        $('.column').remove();
       });
     }
 
     // Add field to hashjson
     window.hashjson.fields.push(field);
-    $('#fields ul.unselected li.' + afield).hide();
-    if($('#fields ul.selected li.' + afield).length == 0) {
-      $('#fields ul.selected').append(sidebar_field_string(field,'caret-down'));
+    $('#fields ul.unselected li[data-field="' + field + '"]').hide();
+    if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
+      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
     }
     console.log(hashjson.fields)
     // Add column
@@ -894,13 +891,13 @@ function mFields(field) {
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
         var value = get_field_value(obj,field)
         $(this).find('td').last().after(
-          '<td class="column" data-field='+field+'">' + xmlEnt(wbr(value, 10)) + '</td>');
+          '<td class="column" data-field="'+field+'">' + xmlEnt(wbr(value, 10)) + '</td>');
     });
     $('#logs thead tr').find('th').last().after(
       '<th scope="col" class="column" data-field="'+field+'">' + field + '</th>');
 
   } else {
-    $('#logs .column[data-field="'+field+'"').remove();
+    $('#logs .column[data-field="'+field+'"]').remove();
 
     // Otherwise, remove it
     window.hashjson.fields = jQuery.grep(
@@ -910,8 +907,8 @@ function mFields(field) {
     );
     console.log(hashjson.fields)
 
-    $('#fields ul.selected li.' + afield).remove();
-    $('#fields ul.unselected li.' + afield).show();
+    $('#fields ul.selected li[data-field="' + field + '"]').remove();
+    $('#fields ul.unselected li[data-field="' + field + '"]').show();
 
     if (window.hashjson.fields.length == 0) {
       $.each(window.resultjson.kibana.default_fields, function(index,field){
@@ -919,7 +916,7 @@ function mFields(field) {
           var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
           var value = get_field_value(obj,field)
           $(this).find('td').last().after(
-            '<td class="column" data-field"'+field+'">' +
+            '<td class="column" data-field="'+field+'">' +
             xmlEnt(wbr(value, 10)) + '</td>');
         });
         $('#logs thead tr').find('th').last().after(
