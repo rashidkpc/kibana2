@@ -74,6 +74,11 @@ background-color: #FFF;
 
 #logs th {
   text-align: left;
+  line-height: 70%;
+}
+
+#logs th span.small {
+  color: #BBB;
 }
 
 #meta {

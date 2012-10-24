@@ -687,7 +687,7 @@ function CreateTableView(objArray, theme, enableHeader, widths) {
   if (enableHeader) {
     str += '<thead><tr>';
     for (var index in array[0]) {
-      str += '<th scope="col">' + index + '</th>';
+      str += '<th scope="col">' + field_slim(index) + '</th>';
     }
     str += '</tr></thead>';
   }
@@ -745,7 +745,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     for (var index in fields) {
       var field = fields[index];
       str += '<th scope="col" class="column" data-field="'+field+'">' +
-        field + '</th>';
+        field_slim(field) + '</th>';
     }
     str += '</tr></thead>';
   }
@@ -867,6 +867,10 @@ function field_alias(field) {
   return field.replace('@', 'ATSYM');
 }
 
+function field_slim(field) {
+  return field.replace(/(.*)\.(.*)/,"<span class=small>$1.</span><br>$2");
+}
+
 function mFields(field) {
   // If the field is not in the hashjson, add it
   if ($.inArray(field, window.hashjson.fields) < 0) {
@@ -885,7 +889,6 @@ function mFields(field) {
     if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
       $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
     }
-    console.log(hashjson.fields)
     // Add column
     $('#logs').find('tr.logrow').each(function(){
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
@@ -894,7 +897,8 @@ function mFields(field) {
           '<td class="column" data-field="'+field+'">' + xmlEnt(wbr(value, 10)) + '</td>');
     });
     $('#logs thead tr').find('th').last().after(
-      '<th scope="col" class="column" data-field="'+field+'">' + field + '</th>');
+      '<th scope="col" class="column" data-field="'+field+'">' + 
+        field_slim(field) + '</th>');
 
   } else {
     $('#logs .column[data-field="'+field+'"]').remove();
@@ -905,7 +909,6 @@ function mFields(field) {
         return value != field;
       }
     );
-    console.log(hashjson.fields)
 
     $('#fields ul.selected li[data-field="' + field + '"]').remove();
     $('#fields ul.unselected li[data-field="' + field + '"]').show();
@@ -921,7 +924,7 @@ function mFields(field) {
         });
         $('#logs thead tr').find('th').last().after(
           '<th scope="col" class="column" data-field="'+field+'">' +
-          field + '</th>');
+          field_slim(field) + '</th>');
       });
     }
 

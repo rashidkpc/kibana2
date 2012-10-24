@@ -334,7 +334,14 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      field[0,1] == '@' ? hit['_source'][field] : hit['_source']['@fields'][field];
+      field.split(".").inject(hit['_source']) { |hash, key| 
+        if defined?hash[key]
+          hash[key]
+        else
+          nil
+        end 
+      }
+      #field[0,1] == '@' ? hit['_source'][field] : hit['_source']['@fields'][field];
     end
 
     # Very similar to flatten_response, except only returns an array of field
