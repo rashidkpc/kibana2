@@ -2,6 +2,7 @@ require 'rubygems'
 require 'json'
 require 'time'
 require 'net/http'
+require 'pp'
 
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
@@ -108,22 +109,22 @@ class Kelastic
     # It would be nice to handle different types here, but we don't do that
     # anywhere else.
     def field_type(index,field)
-      attributes = collect_item_attributes(mapping(index),field)
+      attributes = collect_item_attributes(mapping(index),field)[0]
       attributes['type']
     end
 
     def collect_item_attributes(h,field)
-      result = {}
-      h.each do |k, v|
-        if k == field
-          h[k].each {|k, v| result[k] = v }
-        elsif v.is_a? Hash
-          collect_item_attributes(h[k],field).each do |k, v|
-            result[k] = v
+      r = []
+      field = field.sub(".",".properties.")
+      types = h.sort_by { |k,v| v }[0][1]
+      types.each do | type |
+        r << field.split(".").inject(type[1]['properties']) { |hash, key|
+          if defined?hash[key]
+            hash[key]
           end
-        end
+        }
       end
-      result
+      r.reject! { |c| c == nil }
     end
 
     def error_msg(error)
@@ -334,14 +335,13 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      field.split(".").inject(hit['_source']) { |hash, key| 
+      field.split(".").inject(hit['_source']) { |hash, key|
         if defined?hash[key]
           hash[key]
         else
           nil
-        end 
+        end
       }
-      #field[0,1] == '@' ? hit['_source'][field] : hit['_source']['@fields'][field];
     end
 
     # Very similar to flatten_response, except only returns an array of field
