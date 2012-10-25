@@ -2,7 +2,6 @@ require 'rubygems'
 require 'json'
 require 'time'
 require 'net/http'
-require 'pp'
 
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
