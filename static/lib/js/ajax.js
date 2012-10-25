@@ -528,7 +528,6 @@ function setMeta(hits, mode) {
 }
 
 function sidebar_field_string(field, icon) {
-  var sfield = field.replace('@fields.','')
   return '<li class="mfield" data-field="'+field+'">'+
           '<i class="small icon-'+icon+' jlink mfield" '+
           'data-field="'+field+'"></i> '+
@@ -725,7 +724,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   }
 
   if (fields.length == 0)
-    fields = window.resultjson.kibana.default_fields;  
+    fields = window.resultjson.kibana.default_fields;
 
   // If the returned data is an object do nothing, else try to parse
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
@@ -784,7 +783,7 @@ function details_table(objid,theme) {
   if (theme === undefined) theme = 'logdetails table table-bordered';
 
   obj = window.resultjson.hits.hits[objid];
-  
+
   //obj_fields = get_object_fields(obj);
   obj_fields = flatten_json(obj['_source'])
   str = "<table class='"+theme+"'>" +
@@ -820,7 +819,7 @@ function details_table(objid,theme) {
       'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
 
     str += "<tr " + trclass + ">" +
-      "<td class='firsttd " + field_id + "_field'>" + field.replace('@fields.','') + "</td>" +
+      "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
       "<td style='width: 60px'>" + buttons + "</td>" +
       '<td>' + xmlEnt(wbr(value, 10)) +
       "</td></tr>";
@@ -897,7 +896,7 @@ function mFields(field) {
           '<td class="column" data-field="'+field+'">' + xmlEnt(wbr(value, 10)) + '</td>');
     });
     $('#logs thead tr').find('th').last().after(
-      '<th scope="col" class="column" data-field="'+field+'">' + 
+      '<th scope="col" class="column" data-field="'+field+'">' +
         field_slim(field) + '</th>');
 
   } else {
