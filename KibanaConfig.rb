@@ -117,12 +117,16 @@ module KibanaConfig
   # Authentication Module
   Auth_module = 'pam'
 
+  Auth_Admin_User  = 'kibana'
+  Auth_Admin_Pass  = 'password'
+  Auth_Admin_Perms  = { 'is_admin' => 1, 'tags' => ['*'] }
+
   # Authentication options for the auth_ldap module
   Ldap_host = '127.0.0.1'
   Ldap_port = 389
 
   # Storage Module
-  Storage_module = 'mongo'
+  Storage_module = 'nil'  # mongo
 
   #Mongo_host = '127.0.0.1'
   #Mongo_port = 27017
