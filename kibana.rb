@@ -123,17 +123,14 @@ before do
 end
 
 get '/' do
-#<<<<<<< HEAD
   headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" if KibanaConfig::Allow_iframed
-#  send_file File.join(settings.public_folder, 'index.html')
-#=======
+
   locals = {}
   if @@auth_module 
     locals[:username] = session[:username]
     locals[:is_admin] = @user_perms[:is_admin]
   end
   erb :index, :locals => locals
-#>>>>>>> d991ef2519af9ae0509c0568ecb1a8e3a8c8909d
 end
 
 get '/stream' do
