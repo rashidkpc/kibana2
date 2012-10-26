@@ -528,7 +528,7 @@ function setMeta(hits, mode) {
 }
 
 function sidebar_field_string(field, icon) {
-  return '<li class="mfield" data-field="'+field+'">'+
+  return '<li data-field="'+field+'">'+
           '<i class="small icon-'+icon+' jlink mfield" '+
           'data-field="'+field+'"></i> '+
           '<a style="display:inline-block" class="popup-marker jlink field" '+
@@ -582,8 +582,9 @@ function enable_popovers() {
         var i = 0
         $.each(counts, function(index,value) {
           var display = i < related_limit ? 'inline-block' : 'none';
-          str += "<span style='display:"+display+"'>" + value[0] +
-                  " (" + to_percent(value[1],objids.length) + "), </span>";
+          str += "<span style='display:"+display+"'><a data-field='" + value[0] + "' "+
+                  "class='jlink mfield'>" + value[0] +
+                  "</a> (" + to_percent(value[1],objids.length) + "), </span>";
           i++;
         });
         str += (i > related_limit) ? ' <a class="jlink micro more">' +
@@ -618,10 +619,11 @@ function microAnalysisTable (json,field,count) {
   var counts = top_field_values(json,field,count)
   var table = []
   $.each(counts, function(index,value){
+    var show_val = value[0] == '' ? '<i>blank</i>' : xmlEnt(value[0]);
     var objids = get_objids_with_field_value(window.resultjson,field,value[0])
     var field_val = "<a class='jlink micro highlight_events' data-mode='value'"+
-    " data-field='"+field+"' data-objid='"+objids+"'>"+xmlEnt(value[0])+"</a>";
-    var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
+    " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
+    var buttons = "<span class='raw'>" + show_val + "</span>" +
               "<i class='jlink icon-large icon-search msearch'"+
               " data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch'"+
@@ -1485,7 +1487,7 @@ function bind_clicks() {
   });
 
   // Column selection
-  $("body").delegate("i.mfield", "click", function () {
+  $("body").delegate(".mfield", "click", function () {
     mFields($(this).attr('data-field'));
   });
 

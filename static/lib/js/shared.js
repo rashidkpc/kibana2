@@ -93,9 +93,10 @@ function objat(obj,i) {
 function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {
-    var obj_fields = jQuery.grep(get_object_fields(json.hits.hits[hit]), function(value){
-      return (value.charAt(0) != '@');
-    });
+    var obj_fields = get_object_fields(json.hits.hits[hit])
+    //var obj_fields = jQuery.grep(get_object_fields(json.hits.hits[hit]), function(value){
+    //  return (value.charAt(0) != '@');
+    //});
     if ($.inArray(field,obj_fields) >= 0) {
       field_array.push.apply(field_array,obj_fields);
     }
