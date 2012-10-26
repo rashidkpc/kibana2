@@ -583,7 +583,7 @@ function enable_popovers() {
         $.each(counts, function(index,value) {
           var display = i < related_limit ? 'inline-block' : 'none';
           str += "<span style='display:"+display+"'><a data-field='" + value[0] + "' "+
-                  "class='jlink mfield'>" + value[0] +
+                  "class='jlink micro mfield'>" + value[0] +
                   "</a> (" + to_percent(value[1],objids.length) + "), </span>";
           i++;
         });
