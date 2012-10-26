@@ -20,7 +20,7 @@ require 'compat'
 =end
 class Query
   attr_accessor :query,:from,:to
-  def initialize(question, from = nil, to = nil)
+  def initialize(question, perms = nil, from = nil, to = nil)
     # Build query part of the filtered query
     question = question == "" ? "*" : question
     question = KibanaConfig::Filter == "" ?
@@ -43,13 +43,31 @@ class Query
 
     # Build the filter part
     @filter = {
-      "range" => {
-        "@timestamp" => {
-          "from" => from,
-          "to" => to
-        }
+      "and" => {
+        "filters" => [
+          {
+            "range" => {
+              "@timestamp" => {
+                "from" => from,
+                "to" => to
+              }
+            }
+          }
+        ]
       }
     }
+
+    # If we received an array of permissions, add them
+    # to the filter to restrict the user results
+    #
+    # TODO: 
+    #  * default allow/deny for non-tagged items?
+    #  * error if perms nil?
+    if perms
+      if perms[:tags] && !perms[:tags].include?("*")
+        @filter["and"]["filters"].push({ "terms" => { "@tags" => perms[:tags] } })
+      end
+    end
 
     # Put it all together
     @query = {
@@ -78,9 +96,9 @@ end
 =end
 class IDQuery < Query
   attr_accessor :query
-  def initialize(id)
+  def initialize(id, perms)
     question = "_id:\"#{id}\""
-    super(question)
+    super(question, perms)
     @query['size'] = 1
   end
 end
@@ -99,8 +117,8 @@ end
 =end
 class SortedQuery < Query
   attr_accessor :query,:from,:to
-  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
-    super(question, from, to)
+  def initialize(question, perms, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
+    super(question, perms, from, to)
     @query['from'] = offset
     @query['size'] = size
     @query['sort'] = {
@@ -123,8 +141,8 @@ end
   order::   desc/asc
 =end
 class DateHistogram < Query
-  def initialize(question, from, to, interval, field = '@timestamp')
-    super(question, from, to)
+  def initialize(question, perms, from, to, interval, field = '@timestamp')
+    super(question, perms, from, to)
     @query['facets'] = {
       "count" => {
         "date_histogram" => {
@@ -183,8 +201,8 @@ end
   field::   Field to analyze
 =end
 class StatsFacet < Query
-  def initialize(question, from, to, field)
-    super(question, from, to)
+  def initialize(question, perms, from, to, field)
+    super(question, perms, from, to)
     @query['facets'] = {
       "stats" => {
         "statistical" => {
@@ -206,8 +224,8 @@ end
   field::   Field to analyze
 =end
 class StatsHistogram < Query
-  def initialize(question, from, to, field, interval, key_field = '@timestamp')
-    super(question, from, to)
+  def initialize(question, perms, from, to, field, interval, key_field = '@timestamp')
+    super(question, perms, from, to)
     @query['facets'] = {
       "mean" => {
         "date_histogram" => {

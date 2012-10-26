@@ -113,4 +113,18 @@ module KibanaConfig
 
   # Set headers to allow kibana to be loaded in an iframe from a different origin.
   Allow_iframed = false
+
+  # Authentication Module
+  Auth_module = 'pam'
+
+  # Authentication options for the auth_ldap module
+  Ldap_host = '127.0.0.1'
+  Ldap_port = 389
+
+  # Storage Module
+  Storage_module = 'mongo'
+
+  #Mongo_host = '127.0.0.1'
+  #Mongo_port = 27017
+  #Mongo_db = 'kibana'
 end
