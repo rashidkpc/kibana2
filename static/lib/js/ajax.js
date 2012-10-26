@@ -623,7 +623,7 @@ function microAnalysisTable (json,field,count) {
     var objids = get_objids_with_field_value(window.resultjson,field,value[0])
     var field_val = "<a class='jlink highlight_events' data-mode='value'"+
     " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
-    var buttons = "<span class='raw'>" + show_val + "</span>" +
+    var buttons = "<span class='raw'>" + value[0] + "</span>" +
               "<i class='jlink icon-large icon-search msearch'"+
               " data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch'"+

@@ -3,10 +3,10 @@ if (!Array.prototype.reduce) {
   Array.prototype.reduce = function reduce(accumulator){
     if (this===null || this===undefined) throw new TypeError("Object is null or undefined");
     var i = 0, l = this.length >> 0, curr;
- 
+
     if(typeof accumulator !== "function") // ES5 : "If IsCallable(callbackfn) is false, throw a TypeError exception."
       throw new TypeError("First argument is not callable");
- 
+
     if(arguments.length < 2) {
       if (l === 0) throw new TypeError("Array length is 0 and no second argument");
       curr = this[0];
@@ -14,12 +14,12 @@ if (!Array.prototype.reduce) {
     }
     else
       curr = arguments[1];
- 
+
     while (i < l) {
       if(i in this) curr = accumulator.call(undefined, curr, this[i], i, this);
       ++i;
     }
- 
+
     return curr;
   };
 }
@@ -81,6 +81,9 @@ function get_objids_with_field_value(json,field,value) {
           objid_array.push(hit);
         }
       }
+    } else {
+      if ( value == '')
+        objid_array.push(hit);
     }
   }
   return objid_array;
@@ -314,7 +317,7 @@ function flatten_json(object,root,array) {
     }
   }
   return sortObj(array);
-} 
+}
 
 function xmlEnt(value) {
   if($.type(value) == 'string') {
