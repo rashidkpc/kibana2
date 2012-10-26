@@ -566,7 +566,7 @@ function enable_popovers() {
         "data-field='_missing_'></i> ";
       return buttons + " " + field +
         "<small> micro analysis <span class='small event_count'>"+
-        "(<a class='jlink micro highlight_events' data-field='"+field+"'" +
+        "(<a class='jlink highlight_events' data-field='"+field+"'" +
           " data-mode='field' data-objid='"+objids+"'>" +
           objids.length+" events</a> on this page)</span></small>  ";
     },
@@ -621,7 +621,7 @@ function microAnalysisTable (json,field,count) {
   $.each(counts, function(index,value){
     var show_val = value[0] == '' ? '<i>blank</i>' : xmlEnt(value[0]);
     var objids = get_objids_with_field_value(window.resultjson,field,value[0])
-    var field_val = "<a class='jlink micro highlight_events' data-mode='value'"+
+    var field_val = "<a class='jlink highlight_events' data-mode='value'"+
     " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
     var buttons = "<span class='raw'>" + show_val + "</span>" +
               "<i class='jlink icon-large icon-search msearch'"+
