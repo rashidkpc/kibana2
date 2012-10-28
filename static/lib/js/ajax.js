@@ -39,9 +39,7 @@ function pageload(hash) {
   if (typeof window.request !== 'undefined') {
     window.request.abort();
     window.segment = undefined;
-    try{
-      delete window.segment;
-    }catch(e){}
+    try { delete window.segment; } catch (e) {}
   }
   //if hash value exists, run the ajax
   if (hash) {
@@ -106,13 +104,6 @@ function getPage() {
         //Parse out the result
         window.resultjson = JSON.parse(json);
 
-        if (typeof window.resultjson.kibana.error !== 'undefined') {
-          setMeta(0);
-          showError('No events matched',"Sorry, I couldn't find anything for " +
-            "that query. Double check your spelling and syntax.");
-          return;
-        }
-
         //console.log(
         //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.index+
         //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
@@ -121,9 +112,11 @@ function getPage() {
         $('#graphheader,#graph').text("");
         $('#feedlinks').html(feedLinks(window.hashjson));
 
-
         // Make sure we get some results before doing anything
-        if (!(resultjson.hits.total > 0)) {
+        if (
+          (!(resultjson.hits.total > 0)) || 
+          (typeof window.resultjson.kibana.error !== 'undefined')
+        ) {
           setMeta(0);
           showError('No events matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
@@ -131,11 +124,8 @@ function getPage() {
         }
 
         // Determine fields to be displayed
-        if (window.hashjson.fields.length == 0) {
-          var fields = resultjson.kibana.default_fields;
-        } else {
-          var fields = window.hashjson.fields
-        }
+        var fields = window.hashjson.fields.length == 0 ? 
+          resultjson.kibana.default_fields : window.hashjson.fields
 
         // Create 'Columns' section
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
@@ -171,15 +161,11 @@ function getPage() {
           window.resultjson.hits.hits, fields,
           'table logs table-condensed'
         ));
+
         pageLinks();
 
         // Populate hit and total
         setMeta(window.resultjson.hits.total);
-
-        // Create and populate graph
-        $('#graph').html(
-          '<center><br><p><img src=' +
-          'images/barload.gif></center>');
 
         window.interval = calculate_interval(
           Date.parse(window.resultjson.kibana.time.from),
@@ -188,13 +174,17 @@ function getPage() {
           window.hashjson.time.user_interval
         )
 
-        if(typeof window.sb == 'undefined') {
-          sbctl('show',false)
-        } else {
-          sbctl(window.sb,false)
+        if (typeof window.sb == 'undefined') {
+          sbctl('show',false); 
+        } else { 
+          sbctl(window.sb,false); 
         }
 
+        // Create and populate graph
+        $('#graph').html(
+          '<center><br><p><img src=images/barload.gif></center>');
         getGraph(window.interval);
+      
       }
     }
   });
@@ -237,19 +227,15 @@ function getGraph(interval) {
           window.segment = graphjson.kibana.next;
           if (!($(".graphloading").length > 0)) {
             $('div.legend table, div.legend table td').css({
-              "background-image": "url("
-                + "images/barload.gif)",
+              "background-image": "url(images/barload.gif)",
               "background-size":  "100% 100%"
             });
           }
           getGraph(interval);
         } else {
           if(typeof window.segment !== 'undefined')
-            //delete window.segment
             window['segment'] = undefined;
-            try{
-              delete window['segment'];
-            }catch(e){}
+            try { delete window['segment'] } catch (e) {}
         }
 
       }
@@ -1055,7 +1041,6 @@ function datepickers(from,to) {
 function renderDateTimePicker(from, to, force) {
   $('.datepicker').remove()
 
-
   if (!$('#timechange').length || force == true) {
 
     datepickers(from,to)
@@ -1296,8 +1281,6 @@ function showTooltip(x, y, contents) {
   }).appendTo("body").fadeIn(200);
 }
 
-
-
 function sbctl(mode,user_selected) {
   var sb = $('#sidebar'),
     main = $('#main'),
@@ -1368,9 +1351,6 @@ function resetAll() {
       '"graphmode":"count"'+
     '}'
   );
-
-  // set the default histogram user_interval to auto
-  // window.hashjson.time = {user_interval:'auto'};
 
   setHash(window.hashjson);
 }

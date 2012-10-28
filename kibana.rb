@@ -57,7 +57,9 @@ get '/stream' do
 end
 
 # Returns
-get '/api/search/:hash' do
+get '/api/search/:hash/?:segment?' do
+  segment = params[:segment].nil? ? 0 : params[:segment].to_i
+
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
