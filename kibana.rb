@@ -325,7 +325,7 @@ get '/api/analyze/:field/terms/:hash' do
   req     = ClientRequest.new(params[:hash])
   fields = Array.new
   fields = params[:field].split(',,')
-  query   = TermsFacet.new(req.search,req.from,req.to,fields)
+  query   = TermsFacet.new(req.search,@user_perms,req.from,req.to,fields)
   indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
@@ -369,7 +369,7 @@ end
 
 get '/api/analyze/:field/mean/:hash' do
   req     = ClientRequest.new(params[:hash])
-  query   = StatsFacet.new(req.search,req.from,req.to,params[:field])
+  query   = StatsFacet.new(req.search,@user_perms,req.from,req.to,params[:field])
   indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   type    = Kelastic.field_type(indices.first,params[:field])
   if ['long','integer','double','float'].include? type

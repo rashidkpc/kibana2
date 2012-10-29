@@ -165,8 +165,8 @@ end
   field::   Field to facet
 =end
 class TermsFacet < Query
-  def initialize(question, from, to, field, limit = KibanaConfig::Analyze_show)
-    super(question, from, to)
+  def initialize(question, perms, from, to, field, limit = KibanaConfig::Analyze_show)
+    super(question, perms, from, to)
     if (field.kind_of?(Array))
 	script = "doc['" + field.join("'].value + '||' + doc['") + "'].value"
         @query['facets'] = {
