@@ -207,7 +207,7 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
     if mode == "edit"
       # the second match contains the '/' at the start, 
       # so we take the substring starting at position 1
-      locals[:user_data] = @@storage_module.get_permissions(params[:captures].second[1..-1])
+      locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
     elsif mode == "new"
     else
       halt 404, "Invalid action"

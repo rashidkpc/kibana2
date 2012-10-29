@@ -119,14 +119,14 @@ module KibanaConfig
 
   Auth_Admin_User  = 'kibana'
   Auth_Admin_Pass  = 'password'
-  Auth_Admin_Perms  = { 'is_admin' => 1, 'tags' => ['*'] }
+  Auth_Admin_Perms  = { 'is_admin' => true, 'enabled' => true, 'tags' => ['*'] }
 
   # Authentication options for the auth_ldap module
   Ldap_host = '127.0.0.1'
   Ldap_port = 389
 
   # Storage Module
-  Storage_module = 'nil'  # mongo
+  Storage_module = 'elasticsearch'  # mongo
 
   #Mongo_host = '127.0.0.1'
   #Mongo_port = 27017
