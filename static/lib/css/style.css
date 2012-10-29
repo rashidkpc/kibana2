@@ -154,11 +154,11 @@ table.formatting td {
   padding-top: 10px;
 }
 
-.well hr {
+#sidebar hr {
   margin: 5px 0px 5px 0px;
 }
 
-#fields ul {
+#sidebar ul {
   padding: 0px;
   margin: 0px;
 }
@@ -177,6 +177,15 @@ table.formatting td {
   color: #A92C10;
   border-bottom-color: #A92C10;
   border-top-color: #A92C10;
+}
+
+#sidebar a {
+  padding: 1px;
+  font-size: 11px;
+}
+
+#sidebar div.login {
+  padding-bottom: 10px;
 }
 
 span.raw {
@@ -307,16 +316,6 @@ ul.login {
   margin: 0px;
 }
 
-#fields > ul > li > a {
-  padding: 1px;
-  font-size: 11px;
-}
-
-ul#analyze_list > li > a {
-  padding-top: 1px;
-  padding-bottom: 1px;
-  padding-left: 1px;
-}
 
 h3.popover-title {
   font-weight: bold;

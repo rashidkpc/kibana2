@@ -2,7 +2,7 @@
       <div class="span2" id=sidebar>
         <%= erb :loginmenu, :locals => locals %>
       </div>
- 
+
       <div class="content span10" id=main>
       <% if locals[:mode] == "edit" && !locals[:user_data] %>
       <div class="alert alert-error">
@@ -34,15 +34,17 @@
           <% else %>
           <input name="username" type="hidden" value="<%= locals[:user_data][:username] %>" />
           <% end %>
+        </div>
+        <div class="control-group">
           <input name="mode" type="hidden" value="<%= locals[:mode] %>" />
           <label class="control-label" for="tag">Allowed Tags</label>
           <div class="controls">
-            <div class="input-append">
-              <input id="tag" type="text" class="span8" placeholder="enter a tag..." />
-              <button id="showtags" class="btn"><i class="icon-chevron-down"></i></button>
-              <button id="addtag" class="btn"><i class="icon-plus"></i></button>
-            </div>
+            <input id="tag" type="text" class=span4 placeholder="enter a tag..." />
+            <!-- <button id="showtags" class="btn btn-small"><i class="icon-chevron-down"></i></button> -->
+            <button id="addtag" class="btn"><i class="icon-plus"></i></button>
           </div>
+        </div>
+        <div class="control-group">
           <div class="controls">
             <select id="usertags" name="usertags[]" multiple="multiple" class="span4">
             <% if locals[:mode] == "edit" && locals[:user_data][:tags] %>
@@ -56,7 +58,7 @@
           </div>
           <div class="controls">
             <label class="checkbox">
-              <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:mode] == "edit" && locals[:user_data][:is_admin] %> checked<% end %>> Is Admin?</input>
+              <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:mode] == "edit" && locals[:user_data][:is_admin] %> checked<% end %>> Admin</input>
             </label>
           </div>
         </div>
@@ -76,7 +78,7 @@
         $('#addtag').click(function() {
           var s = $('#tag').val().trim();
           var exists = $("#usertags option[value='"+s+"']").length !== 0;
- 
+
           if (s != "" && !exists) {
             //$('#usertags').append('<option value="'+s+'">'+s+'</option>');
             $('#usertags').append(new Option(s,s,false,false));
