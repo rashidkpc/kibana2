@@ -154,8 +154,8 @@ table.formatting td {
   padding-top: 10px;
 }
 
-#fields hr {
-  margin: 5px;
+.well hr {
+  margin: 5px 0px 5px 0px;
 }
 
 #fields ul {
@@ -250,7 +250,15 @@ tr.showdetails td {
 }
 
 .small {
-	font-size: 0.7em;
+font-size: 0.7em;
+}
+
+.large {
+font-size: 1.4em;
+}
+
+.welcome img {
+margin: 5px;
 }
 
 table.logdetails th {
@@ -290,8 +298,13 @@ div.sidebar-collapsed #sbctl {
   left:3px;
 }
 
-ul.selected, ul.unselected {
+ul.selected, ul.unselected, ul.login {
   white-space: nowrap;
+}
+
+ul.login {
+  padding: 0px;
+  margin: 0px;
 }
 
 #fields > ul > li > a {
@@ -334,6 +347,16 @@ del {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+
+#login { width: 250px; margin: auto; padding-top: 100px; text-align: center; }
+#login input { text-align: center;}
+#login input[type=text], #login input[type=password] { width: 200px; }
+
+#alltags {
+  display: none;
+  height: 200px;
+  overflow-y: scroll;
 }
 
 input#timefrom,input#timeto {

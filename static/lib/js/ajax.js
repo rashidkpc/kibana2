@@ -190,6 +190,11 @@ function getPage() {
         getGraph(window.interval);
 
       }
+    },
+    statusCode: {
+      401: function() {
+        window.location = '/auth/login';
+      }
     }
   });
   window.inprogress = false;
