@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Kibana Login</title>
+
+  <script type="text/javascript" src="/lib/bootstrap/js/bootstrap.js"></script>
+
+  <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/lib/css/style.css">
+  <link rel="stylesheet" href="/lib/css/font-awesome.css">
+  <link rel="stylesheet" href="/lib/css/jquery-ui-1.8.16.custom.css">
+  <link rel="stylesheet" href="/lib/css/jquery.ui.datepicker.css">
+  <style type="text/css">
+    body {
+    padding-top: 55px;
+    padding-bottom: 40px;
+    }
+  </style>
+  <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+</head>
+
+<body>
+  <script>
+  $('document').ready(function(){
+    $(".alert").alert();
+  });
+  </script>
+  <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+      <table class=formatting>
+        <tr><td><span class="welcome large"><img src='/images/logo.png' /> Welcome to Kibana!</span></td></tr>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="login">
+    <form id="searchform" class="form-search form-horizontal" action="/auth/login" method="POST">
+    <table class=formatting>
+      <% if locals[:login_message] %>
+      <div class="alert">
+        <%= locals[:login_message] %>
+      </div>
+      <tr><td width='1%'><%= locals[:login_message] %></td></tr>
+      <% end %>
+      <tr><td width='1%'><input type="text" placeholder="Username" id="username" name="username" /></td></tr>
+      <tr><td width='1%'><input type="password" placeholder="Password" id="password" name="password" /></td></tr>
+      <tr><td width='1%'><button class="btn btn-primary" type=submit>Login</button></td></tr>
+    </table>
+    </form>
+  </div>
+</body>
+
+</html>
