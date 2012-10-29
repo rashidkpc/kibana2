@@ -13,7 +13,7 @@ include Rpam
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
 
-if ENV["KIBANA_CONFIG"] 
+if ENV["KIBANA_CONFIG"]
   require ENV["KIBANA_CONFIG"]
 else
   require 'KibanaConfig'
@@ -84,7 +84,7 @@ before do
       if !@user_perms and session[:username]==KibanaConfig::Auth_Admin_User
         @user_perms=KibanaConfig::Auth_Admin_Perms
       elsif !@user_perms
-        # User is authenticated, but not authorized. Put them in 
+        # User is authenticated, but not authorized. Put them in
         # a holding state until an admin grants them authorization
         if request.path.start_with?("/api")
           halt 401, JSON.generate({"error" => "Not authorized for any security groups"})
@@ -111,7 +111,7 @@ before do
               @user_perms[:is_admin] ||= g_perms[:is_admin]
             end
           end
-        end        
+        end
 
         if request.path.start_with?("/auth/admin")
           # only admins get to go here
@@ -128,7 +128,7 @@ get '/' do
   headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" if KibanaConfig::Allow_iframed
 
   locals = {}
-  if @@auth_module 
+  if @@auth_module
     locals[:username] = session[:username]
     locals[:is_admin] = @user_perms[:is_admin]
   end
@@ -156,7 +156,12 @@ post '/auth/login' do
   end
   username = params[:username]
   password = params[:password]
-  if @@auth_module.authenticate(username,password) or (username==KibanaConfig::Auth_Admin_User and password==KibanaConfig::Auth_Admin_Pass)
+  puts username
+  puts password
+  if (username==KibanaConfig::Auth_Admin_User and
+      password==KibanaConfig::Auth_Admin_Pass) or
+        @@auth_module.authenticate(username,password)
+
     session[:username] = username
     session[:login_message] = ""
     redirect '/'
@@ -205,7 +210,7 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
     locals[:show_back] = true
     locals[:mode] = mode
     if mode == "edit"
-      # the second match contains the '/' at the start, 
+      # the second match contains the '/' at the start,
       # so we take the substring starting at position 1
       locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
     elsif mode == "new"
