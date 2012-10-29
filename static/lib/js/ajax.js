@@ -113,10 +113,7 @@ function getPage() {
         $('#feedlinks').html(feedLinks(window.hashjson));
 
         // Make sure we get some results before doing anything
-        if (
-          (!(resultjson.hits.total > 0)) || 
-          (typeof window.resultjson.kibana.error !== 'undefined')
-        ) {
+        if ((!(resultjson.hits.total > 0)) || (typeof window.resultjson.kibana.error !== 'undefined')) {
           setMeta(0);
           showError('No events matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
