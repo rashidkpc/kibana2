@@ -348,9 +348,10 @@ del {
   user-select: none;
 }
 
-#login { width: 250px; margin: auto; padding-top: 100px; text-align: center; }
+#login { width: 300px; margin: auto; padding-top: 50px; text-align: center; }
 #login input { text-align: center;}
-#login input[type=text], #login input[type=password] { width: 200px; }
+#login input[type=text], #login input[type=password] { width: 200px; margin-bottom: 5px; }
+#login img  { padding-bottom: 40px;}
 
 #alltags {
   display: none;
