@@ -113,7 +113,14 @@ function getPage() {
         $('#feedlinks').html(feedLinks(window.hashjson));
 
         // Make sure we get some results before doing anything
-        if ((!(resultjson.hits.total > 0)) || (typeof window.resultjson.kibana.error !== 'undefined')) {
+        if ((typeof window.resultjson.kibana.error !== 'undefined') || (!(resultjson.hits))) {
+          setMeta(0);
+          showError('No events matched',"Sorry, I couldn't find anything for " +
+            "that query. Double check your spelling and syntax.");
+          return;
+        }
+
+        if (!(resultjson.hits.total > 0)) {
           setMeta(0);
           showError('No events matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
@@ -121,7 +128,7 @@ function getPage() {
         }
 
         // Determine fields to be displayed
-        var fields = window.hashjson.fields.length == 0 ? 
+        var fields = window.hashjson.fields.length == 0 ?
           resultjson.kibana.default_fields : window.hashjson.fields
 
         // Create 'Columns' section
@@ -172,16 +179,16 @@ function getPage() {
         )
 
         if (typeof window.sb == 'undefined') {
-          sbctl('show',false); 
-        } else { 
-          sbctl(window.sb,false); 
+          sbctl('show',false);
+        } else {
+          sbctl(window.sb,false);
         }
 
         // Create and populate graph
         $('#graph').html(
           '<center><br><p><img src=images/barload.gif></center>');
         getGraph(window.interval);
-      
+
       }
     }
   });
