@@ -18,8 +18,9 @@
   <link rel="stylesheet" href="../../lib/css/jquery.ui.datepicker.css">
   <style type="text/css">
     body {
-    padding-top: 55px;
+    padding-top: 150px;
     padding-bottom: 40px;
+    background-image:url('../../images/grey.png');: 
     }
   </style>
   <link href="../../favicon.ico" rel="shortcut icon" type="image/x-icon" />
@@ -32,18 +33,35 @@
   });
   </script>
 
+  <div class="hugeotron masthead">
+    <div class="container">
+      <div class=row>
+        <h1><img src='../../images/kibana_text.png'></h1>
+        <p>Make sense of a mountain of logs</p>
+        <form action="/auth/login" method="POST">
+          <input type="text" placeholder="Username" id="username" name="username" /><br>
+          <input type="password" placeholder="Password" id="password" name="password" /><br>
+          <button class="btn btn-success" type=submit>Login</button>
+       </form>
+    </div>
+    </div>
 
+  </div>
+
+
+<!--
   <div id="login" class="well">
     <img src='../../images/kibana_login.png'>
     <form class="form-horizontal" action="/auth/login" method="POST">
       <% if locals[:login_message] %>
-      <!--<%= locals[:login_message] %><br>-->
+      <%= locals[:login_message] %><br>
       <% end %>
       <input type="text" placeholder="Username" id="username" name="username" /><br>
       <input type="password" placeholder="Password" id="password" name="password" /><br>
       <button class="btn btn-primary" type=submit>Login</button>
     </form>
   </div>
+-->
 </body>
 
 </html>

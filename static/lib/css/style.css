@@ -348,10 +348,26 @@ del {
   user-select: none;
 }
 
-#login { width: 300px; margin: auto; padding-top: 50px; text-align: center; }
-#login input { text-align: center;}
-#login input[type=text], #login input[type=password] { width: 200px; margin-bottom: 5px; }
-#login img  { padding-bottom: 40px;}
+.hugeotron {
+  background: url("../../images/cards.jpg") repeat scroll center center transparent;
+  background-size: 100%;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4) inset, 0 -3px 7px rgba(0, 0, 0, 0.4) inset;
+    color: #FFFFFF;
+    padding: 60px 0;
+    position: relative;
+    text-align: left;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 0, 0, 0.075);
+}
+
+.hugeotron p {
+  font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.hugeotron a {
+    -moz-transition: all 0.2s ease-in-out 0s;
+    color: rgba(255, 255, 255, 0.5);
+}
 
 #alltags {
   display: none;
