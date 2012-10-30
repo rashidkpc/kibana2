@@ -115,7 +115,7 @@ module KibanaConfig
   Allow_iframed = false
 
   # Authentication Module
-  Auth_module = 'pam'
+  Auth_module = 'elasticsearch'
 
   Auth_Admin_User  = 'kibana'
   Auth_Admin_Pass  = 'password'

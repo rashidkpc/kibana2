@@ -17,7 +17,7 @@
        <tbody>
        <% for user in locals[:users] %>
         <tr>
-         <td><a href="../../auth/admin/edit/<%= user[:username] %>"><i class="icon-edit"></i> <%= user[:username] %></a></td>
+         <td><a href="admin/edit/<%= user[:username] %>"><i class="icon-edit"></i> <%= user[:username] %></a></td>
          <td><label class="checkbox"><input type="checkbox" <% if user[:is_admin] %>checked<% end %> disabled></label></td>
          <td><% if user[:tags] %><%= user[:tags].join(", ") %><% else %>(no tags assigned)<% end %></td>
         </tr>
@@ -37,7 +37,7 @@
        <% if locals[:groups].length > 0 %>
         <% for group in locals[:groups] %>
          <tr>
-          <td><a href="../../auth/admin/edit/<%= group[:username] %>"><i class="icon-edit"></i>
+          <td><a href="admin/edit/<%= group[:username] %>"><i class="icon-edit"></i>
            <%= group[:username] %></a></td>
           <td><label class="checkbox"><input type="checkbox" <% if group[:is_admin] %>checked<% end %> disabled></label></td>
           <td><% if group[:tags] %><%= group[:tags].join(", ") %><% else %>(no tags assigned)<% end %></td>
@@ -52,7 +52,7 @@
       <script>
       $('document').ready(function() {
         $('#adduser').click(function() {
-          window.location = '../../auth/admin/new';
+          window.location = 'new';
         });
       });
       </script>
