@@ -10,6 +10,13 @@ class AuthElasticSearch
     @qu_url = "#{Kelastic.index_path(@index)}/#{@utype}/_search"
     @qg_url = "#{Kelastic.index_path(@index)}/#{@gtype}/_search"
     puts "Initializing elasticsearch for kibana auth..."
+    # Make sure the default admin user is present
+    p = lookup_user(config::Auth_Admin_User)
+    if p['total']!=1
+      puts "Adding default admin user #{config::Auth_Admin_User} ..."
+      add_user(config::Auth_Admin_User,config::Auth_Admin_Pass)
+    end
+    
   end
 
   def lookup_user_groups(username)
@@ -31,14 +38,16 @@ class AuthElasticSearch
       salt=user['salt']
       hashpass=Digest::SHA256.hexdigest(salt + password)
       if(hashpass == user['password'])
+#        puts "#{username} succesfully auth'd"
         return true
       end
     end
+#    puts "#{username} failed auth"
     return false
   end
 
   def add_user(username,password)
-    c_url = "#{Kelastic.index_path(@index)}/#{@utype}"
+    c_url = "#{Kelastic.index_path(@index)}/#{@utype}/#{username}"
     salt = rand(65536)
     salt = salt.to_s(16)
     hashpass = Digest::SHA256.hexdigest(salt + password)

@@ -81,9 +81,7 @@ before do
       end
     else
       @user_perms = @@storage_module.get_permissions(session[:username])
-      if !@user_perms and session[:username]==KibanaConfig::Auth_Admin_User
-        @user_perms=KibanaConfig::Auth_Admin_Perms
-      elsif !@user_perms
+      if !@user_perms
         # User is authenticated, but not authorized. Put them in
         # a holding state until an admin grants them authorization
         if request.path.start_with?("/api")
@@ -156,11 +154,7 @@ post '/auth/login' do
   end
   username = params[:username]
   password = params[:password]
-  puts username
-  puts password
-  if (username==KibanaConfig::Auth_Admin_User and
-      password==KibanaConfig::Auth_Admin_Pass) or
-        @@auth_module.authenticate(username,password)
+  if @@auth_module.authenticate(username,password)
 
     session[:username] = username
     session[:login_message] = ""
