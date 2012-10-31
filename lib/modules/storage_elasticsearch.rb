@@ -1,7 +1,5 @@
-
-# MongoID class for storing permissions
+# class for storing permissions
 class Permissions
-
   %w(username enabled is_admin tags).each do |meth|
     define_method(meth) { @data[meth.to_sym] }
   end
@@ -23,23 +21,17 @@ class StorageElasticSearch
     @config = config
     @index = 'kibana'
     @type = 'permission'
-    @q_url = "#{Kelastic.index_path(@index)}/#{@type}/_search"
+    @q_url = "#{Kelastic.index_path(@index)}/#{@type}"
     puts "Initializing elasticsearch for kibana storage..."
-    result  = Kelastic.run(@q_url, '{}')
-    if result['status'] == 404 
-      puts "Kibana index does not exist ... creating and populating with default admin account"
-      c_url = "#{Kelastic.index_path(@index)}/#{@type}/1"
-      values = config::Auth_Admin_Perms
-      values["username"] = config::Auth_Admin_User
-      query = values.to_json
-      result  = Kelastic.run(c_url, query)
-      # FIXME: Make sure this was successful
+    if ! get_permissions(config::Auth_Admin_User)
+      puts "Default Kibana admin user does not exist ... creating"
+      set_permissions(config::Auth_Admin_User,config::Auth_Admin_Perms['tags'],true,true)
     end
   end
 
   # Helper function
   def lookup_permissions(username)
-    p = Kelastic.run(@q_url, '{ "query": { "term": { "username": "'+username+'" } } }')
+    p = Kelastic.run("#{@q_url}/_search", '{"query" : { "ids" : {"values" : ["'+username+'"]} }}')
     p = p['hits']
     return p
   end
@@ -59,7 +51,7 @@ class StorageElasticSearch
 
   def get_all_permissions()
     perms = Array.new
-    response = Kelastic.run(@q_url, '{}')
+    response = Kelastic.run("#{@q_url}/_search", '{}')
     response['hits']['hits'].each do |hit|
       perm = Permissions.new hit['_source']
       perms << perm
@@ -68,12 +60,12 @@ class StorageElasticSearch
   end
 
   # Required function, sets the user's permissions
-  def set_permissions(username,tags,is_admin = false)
-    c_url = "#{Kelastic.index_path(@index)}/#{@type}"
+  def set_permissions(username,tags,is_admin = false,is_enabled = true)
     values = {"username" => username, "tags" => tags, "is_admin" => is_admin}
     query = values.to_json
-    result  = Kelastic.run(c_url, query)
-    return false
+    result  = Kelastic.run("#{@q_url}/#{username}", query)
+    p result
+    return true
   end
 
   # Required function, enables a user
