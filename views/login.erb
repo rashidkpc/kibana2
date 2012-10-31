@@ -20,7 +20,7 @@
     body {
     padding-top: 150px;
     padding-bottom: 40px;
-    background-image:url('../../images/grey.png');: 
+    background-image:url('../../images/grey.png');:
     }
   </style>
   <link href="../../favicon.ico" rel="shortcut icon" type="image/x-icon" />
@@ -38,6 +38,9 @@
       <div class=row>
         <h1><img src='../../images/kibana_text.png'></h1>
         <p>Make sense of a mountain of logs</p>
+        <% if locals[:login_message] %>
+        <p><span class="label label-success"><%= locals[:login_message] %></span></p>
+        <% end %>
         <form action="/auth/login" method="POST">
           <input type="text" placeholder="Username" id="username" name="username" /><br>
           <input type="password" placeholder="Password" id="password" name="password" /><br>
