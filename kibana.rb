@@ -22,7 +22,7 @@ ruby_19 { require 'csv' }
 configure do
   set :bind, defined?(KibanaConfig::KibanaHost) ? KibanaConfig::KibanaHost : '0.0.0.0'
   set :port, KibanaConfig::KibanaPort
-  set :public_folder, Proc.new { File.join(root, "static") }
+  set :public_folder, Proc.new { File.join(root, "public") }
   enable :sessions
 end
 
