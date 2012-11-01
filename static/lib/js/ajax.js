@@ -133,30 +133,29 @@ function getPage() {
 
         // Create 'Columns' section
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
-          "<h5><small>selected</small></h5>" +
-          "<ul class='selected nav nav-pills nav-stacked'></ul>" +
-          "<hr>"+
-          "<h5><small>available</small></h5>" +
           "<ul class='unselected nav nav-pills nav-stacked'></ul>");
 
-        var all_fields = get_all_fields(resultjson);
+        var all_fields = array_unique(get_all_fields(resultjson).concat(fields))
 
+        // Create sidebar field list
         var fieldstr = '';
         for (var index in all_fields) {
           var field_name = all_fields[index].toString();
           var afield = field_alias(field_name) + "_field";
-          fieldstr += sidebar_field_string(field_name,'plus');
+          var mode = $.inArray(field_name,window.hashjson.fields) >= 0 ?
+            'selected' : 'unselected'
+          fieldstr += sidebar_field_string(field_name,mode);
         }
         $('#fields ul.unselected').append(fieldstr)
 
-        var fieldstr = '';
-        for (var index in window.hashjson.fields) {
-          var field_name = window.hashjson.fields[index].toString();
-          var afield = field_alias(field_name) + "_field";
-          $('#fields ul.unselected li.' + afield).hide();
-          fieldstr += sidebar_field_string(field_name,'minus');
-        }
-        $('#fields ul.selected').append(fieldstr)
+        //var fieldstr = '';
+        //for (var index in window.hashjson.fields) {
+        //  var field_name = window.hashjson.fields[index].toString();
+        //  var afield = field_alias(field_name) + "_field";
+        //  $('#fields ul.unselected li.' + afield).hide();
+        //  fieldstr += sidebar_field_string(field_name,'minus');
+        //}
+        //$('#fields ul.selected').append(fieldstr)
 
         enable_popovers();
 
@@ -517,13 +516,13 @@ function setMeta(hits, mode) {
   }
 }
 
-function sidebar_field_string(field, icon) {
+function sidebar_field_string(field, mode) {
+  var icon = mode == 'selected' ? 'minus' : 'plus';
   return '<li data-field="'+field+'">'+
-          '<i class="small icon-'+icon+' jlink mfield" '+
-          'data-field="'+field+'"></i> '+
-          '<a style="display:inline-block" class="popup-marker jlink field" '+
-          'rel="popover" data-field="'+field+'">' + field +
-          "<i class='field icon-caret-right'></i></a></li>";
+    '<i class="small icon-'+icon+' jlink mfield" data-field="'+field+'"></i> '+
+    '<a style="display:inline-block" class="' + mode +
+    ' popup-marker jlink field" rel="popover" data-field="'+field+'">'+ field +
+    "<i class='field icon-caret-right'></i></a></li>";
 }
 
 function popover_setup() {
@@ -736,7 +735,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     for (var index in fields) {
       var field = fields[index];
       str += '<th scope="col" class="column" data-field="'+field+'">' +
-        field_slim(field) + '</th>';
+      '<i data-mode="left" class="shift_column jlink icon-caret-left"></i>' +
+      '<div style="display:inline-block;text-align:center">'+field_slim(field) + '</div>'+
+      ' <i data-mode="right" class="shift_column jlink icon-caret-right"></i></th>';
     }
     str += '</tr></thead>';
   }
@@ -876,10 +877,15 @@ function mFields(field) {
 
     // Add field to hashjson
     window.hashjson.fields.push(field);
-    $('#fields ul.unselected li[data-field="' + field + '"]').hide();
-    if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
-      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
-    }
+    $('#fields ul.unselected a[data-field="' + field + '"]').addClass('selected');
+    $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-plus');
+    $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-minus');
+    // Add field to selected list and hide unselected
+    //$('#fields ul.unselected li[data-field="' + field + '"]').hide();
+    //if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
+    //  $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
+    //}
+
     // Add column
     $('#logs').find('tr.logrow').each(function(){
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
@@ -889,7 +895,10 @@ function mFields(field) {
     });
     $('#logs thead tr').find('th').last().after(
       '<th scope="col" class="column" data-field="'+field+'">' +
-        field_slim(field) + '</th>');
+      '<i data-mode="left" class="shift_column jlink icon-caret-left"></i>' +
+      '<div style="display:inline-block;text-align:center">'+field_slim(field) + '</div>'+
+      ' <i data-mode="right" class="shift_column jlink icon-caret-right"></i></th>'
+      );
 
   } else {
     $('#logs .column[data-field="'+field+'"]').remove();
@@ -901,8 +910,12 @@ function mFields(field) {
       }
     );
 
-    $('#fields ul.selected li[data-field="' + field + '"]').remove();
-    $('#fields ul.unselected li[data-field="' + field + '"]').show();
+    // Remove from selected, add to unselected
+    $('#fields ul.unselected a[data-field="' + field + '"]').removeClass('selected');
+    $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-minus');
+    $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-plus');
+    // $('#fields ul.selected li[data-field="' + field + '"]').remove();
+    // $('#fields ul.unselected li[data-field="' + field + '"]').show();
 
     if (window.hashjson.fields.length == 0) {
       $.each(window.resultjson.kibana.default_fields, function(index,field){
@@ -1314,6 +1327,34 @@ function sbctl(mode,user_selected) {
   }
 }
 
+function move_column(field,dir) {
+  var x = dir == 'right' ? 1 : -2
+  var len = $('#logs thead th').length
+  var thi = $('#logs th.column[data-field="'+field+'"]').index()
+
+  dest = thi+x
+  if (x == -2 && thi == 1)
+    dest = len-1
+  if (x == 1 && thi == (len-1))
+    dest = 0
+
+
+  var th1 = $('#logs thead th:eq('+thi+')')
+  var th2 = $('#logs thead th:eq('+dest+')')
+  th1.detach().insertAfter(th2)
+
+  $('#logs tr.logrow').each(function() {
+    var tr = $(this);
+    var td1 = tr.find('td:eq('+thi+')');
+    var td2 = tr.find('td:eq('+dest+')');
+    td1.detach().insertAfter(td2);
+  });
+
+
+  window.hashjson.fields = $('#logs th.column').map(
+    function(){return $(this).attr("data-field");}
+    ).get()
+}
 
 function showError(title,text) {
   blank_page();
@@ -1376,6 +1417,11 @@ function unhighlight_all_events() {
 }
 
 function bind_clicks() {
+
+  $('body').delegate("i.shift_column", "click",
+    function () {
+      move_column($(this).parent().attr('data-field'),$(this).attr('data-mode'))
+    });
 
   // Side bar expand/collapse
   $('#sbctl').click(function () {
