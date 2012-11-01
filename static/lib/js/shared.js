@@ -89,10 +89,6 @@ function get_objids_with_field_value(json,field,value) {
   return objid_array;
 }
 
-function objat(obj,i) {
-  return obj[i]
-}
-
 function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {
@@ -110,7 +106,12 @@ function get_related_fields(json,field) {
 
 function get_field_value(object,field,opt) {
   try {
-    var value = field.split('.').reduce(objat, object['_source'])
+    nested = field.match(/(.*?)\.(.*)/)
+    var value;
+    if (nested)
+      value = object['_source'][nested[1]][nested[2]]
+    else
+      value = object['_source'][field]
   } catch(e) {
     var value = null
   }
