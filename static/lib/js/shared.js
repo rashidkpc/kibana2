@@ -56,6 +56,18 @@ function has_field(obj,field) {
   }
 }
 
+// Retuns a sorted array with duplicates removed
+function array_unique(arr) {
+  var sorted_arr = arr.sort();
+  var results = [];
+  for (var i = 0; i < arr.length - 1; i++) {
+    if (sorted_arr[i + 1] != sorted_arr[i]) {
+        results.push(sorted_arr[i]);
+    }
+  }
+  return results
+}
+
 function get_objids_with_field(json,field) {
   var objid_array = [];
   for (hit in json.hits.hits) {

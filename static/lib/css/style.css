@@ -73,12 +73,19 @@ background-color: #FFF;
 }
 
 #logs th {
-  text-align: left;
   line-height: 70%;
+  white-space: nowrap;
 }
 
 #logs th span.small {
   color: #BBB;
+}
+
+i.shift_column {
+  text-align: center;
+  padding-top: 4px;
+  margin-left: -5px;
+
 }
 
 #meta {
@@ -173,10 +180,8 @@ table.formatting td {
   color: #000;
 }
 
-#fields ul.selected .field {
+#fields a.selected {
   color: #A92C10;
-  border-bottom-color: #A92C10;
-  border-top-color: #A92C10;
 }
 
 #sidebar a {
