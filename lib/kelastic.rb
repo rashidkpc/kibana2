@@ -124,6 +124,7 @@ class Kelastic
         }
       end
       r.reject! { |c| c == nil }
+      r
     end
 
     def error_msg(error)
