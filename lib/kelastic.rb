@@ -58,7 +58,11 @@ class Kelastic
       	if KibanaConfig::Smart_index_pattern != ""
       	  index_pattern = KibanaConfig::Smart_index_pattern
       	end
-        requested = date_range(from,to).map{ |date| date.strftime(index_pattern) }
+        requested = [] # Initialize empty array
+        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
+        for index in index_pattern do
+            requested.concat(date_range(from,to).map{ |date| date.strftime(index) })
+        end
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
           if limit != 0
