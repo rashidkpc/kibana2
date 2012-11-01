@@ -1,5 +1,3 @@
-require 'net/ldap'
-
 class AuthElasticSearch
   # Required function, accepts a KibanaConfig object
   def initialize(config)
@@ -12,7 +10,7 @@ class AuthElasticSearch
     puts "Initializing elasticsearch for kibana auth..."
     # Make sure the default admin user is present
     p = lookup_user(config::Auth_Admin_User)
-    if p['total']!=1
+    if (p == nil or p['total']!=1)
       puts "Adding default admin user #{config::Auth_Admin_User} ..."
       add_user(config::Auth_Admin_User,config::Auth_Admin_Pass)
     end
