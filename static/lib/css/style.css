@@ -75,6 +75,7 @@ background-color: #FFF;
 #logs th {
   line-height: 70%;
   white-space: nowrap;
+  text-align: left;
 }
 
 #logs th span.small {
