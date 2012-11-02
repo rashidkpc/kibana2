@@ -9,6 +9,14 @@ body {
 	font-family: proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+.popover {
+  margin-top: 100px;
+}
+
+.popover.right .arrow {
+    margin-top: -110px !important;
+}
+
 .content {
   padding-left: 0px;
   padding-right: 0px;
