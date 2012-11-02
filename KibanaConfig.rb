@@ -35,7 +35,7 @@ module KibanaConfig
   Time_format = 'mm/dd HH:MM:ss'
 
   # Change which fields are shown by default. Must be set as an array
-  # Default_fields = ['vhost','response','request']
+  # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
   Default_fields = ['@message']
 
   # The default operator used if no explicit operator is specified.
