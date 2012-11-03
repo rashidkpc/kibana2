@@ -19,7 +19,11 @@
        <% end %>
        </ul>
       </div>
+      <% if locals[:mode] == "new" %>
+      <form id="userdata" class="form-horizontal" method="post" action="save">
+      <% else %>
       <form id="userdata" class="form-horizontal" method="post" action="../save">
+      <% end %>
         <% if locals[:mode] == "edit" %>
         <legend>Editing <%= locals[:user_data][:username] %></legend>
         <% else %>
@@ -64,13 +68,20 @@
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Save Changes</button>
+          <% if locals[:mode] == "edit" && locals[:can_delete]==true %>
+          <button name="delete" type="submit" class="btn btn-danger">Delete <%= locals[:user_data][:username] %></button>
+          <% end %>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
       </form>
       <script>
       $(document).ready(function(){
         $('#cancel').click(function() {
+          <% if locals[:mode] == "edit" %>
           window.location = '../../admin';
+          <% else %>
+          window.location = '../admin';
+          <% end %>
         });
         $('#userdata').submit(function() {
           $('#usertags option').attr('selected',true);

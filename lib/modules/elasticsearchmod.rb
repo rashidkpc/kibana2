@@ -20,6 +20,10 @@ class Elasticsearchmod
     result  = Elasticsearchmod.run("#{@query_url}/#{id}", values)
   end
 
+  def del_by_id(id)
+    result  = Elasticsearchmod.run("#{@query_url}/#{id}", '', 'delete')
+  end
+
   def get_all
     results = Array.new
     r = Elasticsearchmod.run("#{@query_url}/_search", '{}')
@@ -81,6 +85,8 @@ class Elasticsearchmod
                         'Content-Type' => 'application/json')
       when 'get' then
         res = http.get(url.path, 'Accept' => 'application/json')
+      when 'delete' then
+        res = http.delete(url.path, 'Accept' => 'application/json')
       end
 
       o = JSON.parse(res.body)
