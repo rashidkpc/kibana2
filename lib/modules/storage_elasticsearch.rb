@@ -1,3 +1,5 @@
+require 'lib/modules/elasticsearchmod'
+
 # class for storing permissions
 class Permissions
   %w(username enabled is_admin tags).each do |meth|
@@ -21,7 +23,8 @@ class StorageElasticSearch
     @config = config
     @index = 'kibana'
     @type = 'permission'
-    @q_url = "#{Kelastic.index_path(@index)}/#{@type}"
+    puts "Initializing elasticsearch module"
+    @esm = Elasticsearchmod.new(@index,@type)
     puts "Initializing elasticsearch for kibana storage..."
     if ! get_permissions(config::Auth_Admin_User)
       puts "Default Kibana admin user does not exist ... creating"
@@ -29,20 +32,11 @@ class StorageElasticSearch
     end
   end
 
-  # Helper function
-  def lookup_permissions(username)
-    p = Kelastic.run("#{@q_url}/_search", '{"query" : { "ids" : {"values" : ["'+username+'"]} }}')
-    p = p['hits']
-    return p
-  end
-
   # Required function, gets the user's permissions
   def get_permissions(username)
-    response = lookup_permissions(username)
-    p = response
-    if p['total'] == 1
-      hit = p['hits'][0]
-      perm = Permissions.new hit['_source']
+    p = @esm.get_by_id(username)
+    if p
+      perm = Permissions.new p
       return perm
     else
       return nil
@@ -51,9 +45,9 @@ class StorageElasticSearch
 
   def get_all_permissions()
     perms = Array.new
-    response = Kelastic.run("#{@q_url}/_search", '{}')
-    response['hits']['hits'].each do |hit|
-      perm = Permissions.new hit['_source']
+    response = @esm.get_all()
+    response.each do |item|
+      perm = Permissions.new item
       perms << perm
     end
     return perms
@@ -62,10 +56,13 @@ class StorageElasticSearch
   # Required function, sets the user's permissions
   def set_permissions(username,tags,is_admin = false,is_enabled = true)
     values = {"username" => username, "tags" => tags, "is_admin" => is_admin}
-    query = values.to_json
-    result  = Kelastic.run("#{@q_url}/#{username}", query)
-    p result
+    r = @esm.set_by_id(username, values)
+    puts "set_permissions: ", r.inspect
     return true
+  end
+
+  def del_permissions(username)
+    r = @esm.del_by_id(username)
   end
 
   # Required function, enables a user
