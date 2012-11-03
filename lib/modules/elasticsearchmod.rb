@@ -1,5 +1,4 @@
 class Elasticsearchmod
-  puts "Elasticsearchmod..."
 
   def initialize(index,type)
     @index=index
@@ -9,7 +8,11 @@ class Elasticsearchmod
 
   def get_by_id(id)
     r = Elasticsearchmod.run("#{@query_url}/#{id}", '', 'get')
-    r['_source']
+    if ! r['exists']
+      nil
+    else
+      r['_source']
+    end
   end
 
   def set_by_id(id, values)
@@ -22,6 +25,34 @@ class Elasticsearchmod
     r = Elasticsearchmod.run("#{@query_url}/_search", '{}')
     r['hits']['hits'].each do |hit|
       results << hit['_source']
+    end
+    return results
+  end
+
+  def del_term_from_record_array(id, term, value)
+    query = '{ "script" : "ctx._source.'+term+'.remove(value)", "params" : {"value" : "'+value+'"}}'
+    r = Elasticsearchmod.run("#{@query_url}/#{id}/_update", query)
+    return True
+  end
+
+  def add_term_to_record_array(id, term, value, defaults)
+    defaults = defaults.to_json
+    query = '{ "script" : "ctx._source.'+term+' += value",
+               "params" : {"value" : "'+value+'"},
+               "upsert" : '+defaults+'
+             }'
+    r = Elasticsearchmod.run("#{@query_url}/#{id}/_update", query)
+    return True
+  end
+
+  def get_record_ids_with_term(term, value)
+    results = Array.new
+    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } } }')
+    r = r['hits']
+    if r['total'] >= 1
+      r['hits'].each do |hit|
+        results << hit['_id']
+      end
     end
     return results
   end
