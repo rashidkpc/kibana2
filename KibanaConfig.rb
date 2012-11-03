@@ -115,4 +115,7 @@ module KibanaConfig
 
   # Set headers to allow kibana to be loaded in an iframe from a different origin.
   Allow_iframed = false
+
+  # Use this interval as fallback.
+  Fallback_interval = 900
 end

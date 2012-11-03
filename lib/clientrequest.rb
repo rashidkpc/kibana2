@@ -45,8 +45,9 @@ class ClientRequest
       @from = (Time.at(0))
       @to = (Time.now)
     else
-      # TODO: validation here
-      @from = (Time.now - @request['timeframe'].to_i)
+      diff = (@request['timeframe'].to_i <= 0 ? KibanaConfig::Fallback_interval  : @request['timeframe'].to_i)
+
+      @from = (Time.now - diff)
       @to = (Time.now)
     end
 
