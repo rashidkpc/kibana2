@@ -1335,6 +1335,9 @@ function sbctl(mode,user_selected) {
 function move_column(field,dir) {
   var x = dir == 'right' ? 1 : -2
   var len = $('#logs thead th').length
+  if (len == 2)
+    return
+  console.log(len)
   var thi = $('#logs th.column[data-field="'+field+'"]').index()
 
   dest = thi+x

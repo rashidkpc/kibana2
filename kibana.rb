@@ -204,6 +204,7 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
       # the second match contains the '/' at the start,
       # so we take the substring starting at position 1
       locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
+      locals[:can_delete] = (locals[:user_data][:username]==KibanaConfig::Auth_Admin_User) ? false : true
     elsif mode == "new"
     else
       halt 404, "Invalid action"
@@ -215,10 +216,16 @@ end
 post '/auth/admin/save' do
   username = params[:username]
   usertags = params[:usertags]
-  is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
-
-  @@storage_module.set_permissions(username,usertags,is_admin)
-
+  if params[:delete] != nil
+    puts "Deleting #{username}"
+    @@storage_module.del_permissions(username)
+  else
+    puts "Updating #{username}"
+    is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
+    @@storage_module.set_permissions(username,usertags,is_admin)
+  end
+  # FIXME: Find a better way to make sure the changes will show on page load
+  sleep(1)
   redirect '/auth/admin'
 end
 
