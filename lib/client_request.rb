@@ -3,12 +3,6 @@ require 'json'
 require 'base64'
 require 'time'
 
-$LOAD_PATH << './lib'
-$LOAD_PATH << '..'
-require 'KibanaConfig' unless defined?(KibanaConfig)
-require 'compat'
-require 'pp'
-
 =begin
 = Class: ClientRequest
   Creates an object out of the hash passed by a client
