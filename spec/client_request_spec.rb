@@ -1,7 +1,7 @@
 require "spec_helper"
 
 require "kibanaconfig"
-require "clientrequest"
+require "client_request"
 
 describe ClientRequest do
   context "#initialize" do
@@ -121,6 +121,15 @@ describe ClientRequest do
 
       cr.from.should == (reference_time - KibanaConfig::Fallback_interval)
       cr.to.should == reference_time
+    end
+  end
+
+  context "#hash" do
+    it "should convert Hash to encoded hash" do
+      h = {"search"=>"", "fields"=>[], "offset"=>0, "timeframe"=>"foobar", "graphmode"=>"count"}
+      b64_hash = Base64.encode64(JSON.generate(h))
+
+      ClientRequest.hash(h).should == b64_hash
     end
   end
 end
