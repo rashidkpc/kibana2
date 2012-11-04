@@ -49,7 +49,6 @@ class ClientRequest
       @from = (Time.now - diff)
       @to = (Time.now)
     end
-
   end
 
   def to_s

@@ -14,7 +14,7 @@ class IdRequest
     @request = {
       "id"        => "#{id}",
       "index"     => index,
-      "timeframe" => "900",
+      "timeframe" => "#{KibanaConfig::Fallback_interval}",
       "mode"      => "id",
       "fields"    => '',
       "offset"    => 0,
