@@ -3,12 +3,6 @@ require 'json'
 require 'time'
 require 'net/http'
 
-$LOAD_PATH << './lib'
-$LOAD_PATH << '..'
-require 'query'
-require 'compat'
-require 'KibanaConfig'
-
 =begin
 = Class: Kelastic
 	- Performs an elastic search request
