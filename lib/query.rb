@@ -2,11 +2,6 @@ require 'rubygems'
 require 'json'
 require 'tzinfo'
 
-$LOAD_PATH << './lib'
-$LOAD_PATH << '..'
-require 'KibanaConfig'
-require 'compat'
-
 =begin
 = Class: Query
   A basic query contains only the data needed to get results, without any

@@ -1,0 +1,6 @@
+require 'KibanaConfig'
+require 'compat'
+require 'clientrequest'
+require 'query'
+require 'kelastic'
+require 'kibana-app'
