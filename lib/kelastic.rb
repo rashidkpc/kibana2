@@ -149,6 +149,7 @@ class Kelastic
       o = JSON.parse(res.body)
       o['kibana'] = {'per_page' => KibanaConfig::Per_page}
       o['kibana']['error'] = "Invalid query" if res.code.to_i.between?(500, 599)
+      o['kibana']['curl_call'] = "curl -XGET #{url}?pretty -d '#{query}'"
       o
     end
 
