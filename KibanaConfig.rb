@@ -133,4 +133,7 @@ module KibanaConfig
   #Mongo_host = '127.0.0.1'
   #Mongo_port = 27017
   #Mongo_db = 'kibana'
+
+  # Use this interval as fallback if the client's request in not valid.
+  Fallback_interval = 900
 end

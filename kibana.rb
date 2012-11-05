@@ -267,7 +267,7 @@ get '/api/id/:id/:index' do
   ## TODO: Make this verify that the index matches the smart index pattern.
   id      = params[:id]
   index   = "#{params[:index]}"
-  query   = IDQuery.new(id,@user_perms)
+  query   = IdQuery.new(id,@user_perms)
   result  = Kelastic.new(query,index)
   JSON.generate(result.response)
 end
@@ -437,7 +437,7 @@ get '/rss/:hash/?:count?' do
 
     result.response['hits']['hits'].each do |hit|
       i = m.items.new_item
-      hash    = IDRequest.new(hit['_id'],hit['_index']).hash
+      hash    = IdRequest.new(hit['_id'],hit['_index']).hash
       i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
       i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
       i.link  = link_to("/##{hash}")
