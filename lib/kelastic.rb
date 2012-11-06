@@ -348,7 +348,7 @@ class KelasticResponse
       if !obj[field].nil?
         obj[field]
       elsif field =~ /(.*?)\.(.*)/
-        if !obj[$1][$2].nil?
+        if !obj[$1].nil? and !obj[$1][$2].nil?
           obj[$1][$2]
         elsif !obj[$1].nil?
           recurse_field_dots(obj[$1],$2)
