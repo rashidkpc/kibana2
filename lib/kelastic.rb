@@ -340,12 +340,19 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      if field =~ /(.*?)\.(.*)/
-        if defined? hit['_source'][$1][$2]
-          hit['_source'][$1][$2]
+      recurse_field_dots(hit['_source'],field)
+    end
+
+    # Recursively check for multi-dot fields and nested arrays
+    def recurse_field_dots(obj,field)
+      if !obj[field].nil?
+        obj[field]
+      elsif field =~ /(.*?)\.(.*)/
+        if !obj[$1][$2].nil?
+          obj[$1][$2]
+        elsif !obj[$1].nil?
+          recurse_field_dots(obj[$1],$2)
         end
-      elsif defined? hit['_source'][field]
-        hit['_source'][field]
       else
         nil
       end
