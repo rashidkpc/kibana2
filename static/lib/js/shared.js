@@ -119,15 +119,12 @@ function get_related_fields(json,field) {
 function recurse_field_dots(object,field) {
   var value;
   if (typeof object[field] != 'undefined')
-    value = object[field];  
-  else {
-    nested = field.match(/(.*?)\.(.*)/);
-    if (nested)
+    value = object[field];
+  else if (nested = field.match(/(.*?)\.(.*)/))
       value = (typeof object[nested[1]][nested[2]] != 'undefined') ?
         object[nested[1]][nested[2]] : recurse_field_dots(object[nested[1]],nested[2]);
-    else
-      value = null;
-  }
+  else
+    value = null;
 
   return value;
 }
