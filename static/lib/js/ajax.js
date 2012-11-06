@@ -246,6 +246,44 @@ function getGraph(interval) {
   });
 }
 
+// create a pie chart for a terms facet
+function getTermsPieChart(resultjson){
+  var data = [];
+  $.each(resultjson.facets.terms.terms,function(i,term) {
+    data[i] = { label: term['term'], data: term['count'] };
+  });
+
+  $.plot($("#piechart"), data, {
+    series: {
+      pie: {
+        innerRadius: 0.4,
+        show: true,
+        combine: {
+          color: '#999',
+          threshold: 0.02,
+          label: 'Remaining Combined'
+        },
+        label: {
+          show: true,
+          radius: 1,
+          formatter: function(label, series){
+            return '<div style="font-size:10pt;text-align:center;padding:1px;color:white;">'+
+                      label+'<strong> '+Math.round(series.percent)+'%</strong></div>';
+          },
+          background: { opacity: 1 }
+        }
+      }
+    },
+    legend: {
+      show: false
+    },
+    grid: {
+      hoverable: true,
+      clickable: true
+    }
+  });
+}
+
 function analyzeField(field, mode) {
   window.hashjson.mode = mode;
   window.hashjson.analyze_field = field;
@@ -340,6 +378,9 @@ function getAnalysis() {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
             resultjson.kibana.index : resultjson.kibana.index.split(',').length;
+          // add the missing count for the terms table and pie chart
+          resultjson.facets.terms.terms.push({term: '*Field Missing*',
+            count: resultjson.facets.terms.missing});
           var title = '<h2>Terms Facet of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
@@ -348,13 +389,15 @@ function getAnalysis() {
             '</h2>' +
             'This analysis is based on the events in the <strong>' +
             index_count +'</strong> most recent indices ' +
-            'for your query in your selected timeframe.<br><br>';
+            'for your query in your selected timeframe.<br><br>'+
+            '<div id="piechart" style="width:100%;height:500px"></div>';
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
           sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
+          getTermsPieChart(resultjson)
           break;
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
