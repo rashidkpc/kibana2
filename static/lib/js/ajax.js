@@ -339,6 +339,8 @@ function getAnalysis() {
         var field = window.hashjson.analyze_field;
         resultjson = JSON.parse(json);
 
+        console.log(resultjson)
+
         $('.pagelinks').html('');
         $('#fields').html('');
 
@@ -378,9 +380,13 @@ function getAnalysis() {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
             resultjson.kibana.index : resultjson.kibana.index.split(',').length;
+
           // add the missing count for the terms table and pie chart
-          resultjson.facets.terms.terms.push({term: '*Field Missing*',
-            count: resultjson.facets.terms.missing});
+          resultjson.facets.terms.terms.push({
+              term: '',
+              count: resultjson.facets.terms.missing
+            });
+
           var title = '<h2>Terms Facet of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
@@ -391,14 +397,17 @@ function getAnalysis() {
             index_count +'</strong> most recent indices ' +
             'for your query in your selected timeframe.<br><br>'+
             '<div id="piechart" style="width:100%;height:500px"></div>';
+
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
+
           sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
           getTermsPieChart(resultjson)
           break;
+
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
             var basedon = "<strong>all "
@@ -487,12 +496,12 @@ function analysisTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.hits.hits) {
-    var metric = {},
+    metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
     var idv = object.id.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
+    for (var count = 0; count < fields.length; count++) {
       metric[fields[count]]=idv[count];
     }
     var analyze_field = fields.join(' ')
@@ -522,16 +531,24 @@ function analysisTable(resultjson) {
 }
 
 function termsTable(resultjson) {
+  console.log(resultjson)
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
-    var object = resultjson.facets.terms.terms[obj],
+    object = resultjson.facets.terms.terms[obj],
     metric = {};
-    metric['Rank'] = i+1;
+    metric['Rank'] = i + 1;
     var termv = object.term.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
-      metric[fields[count]]=termv[count];
+    for (var count = 0; count < fields.length; count++) {
+      // TODO: This is so wrong, really shouldn't be matching a string here
+      if (typeof termv[count] === 'undefined' || termv[count] == "null" ) {
+        var value = ''
+      } else {
+        var value = termv[count]
+        console.log(value)
+      }
+      metric[fields[count]] = value;
     }
     var analyze_field = fields.join(' ')
     metric['Count'] = addCommas(object.count);
@@ -883,9 +900,15 @@ function mSearch(field, value, mode) {
     var values = value.toString().split('||');
     var query = '';
     var glue = ''
-    for (var count=0;count<fields.length;count++) {
-      value=values[count];
-      field=fields[count];
+    // TODO: This only works if a query already exists I think?
+    for (var count = 0;count < fields.length;count++) {
+      value = values[count];
+      if (value == "null" || typeof value === "undefined") {
+        value = fields[count];
+        field = '_missing_'
+      } else {
+        field = fields[count];
+      }
       query = query + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
       glue = " AND ";
     }
