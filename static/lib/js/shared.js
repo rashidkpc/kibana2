@@ -116,22 +116,21 @@ function get_related_fields(json,field) {
   return counts;
 }
 
-function get_field_value(object,field,opt) {
-  try {
-    nested = field.match(/(.*?)\.(.*)/)
-    var value;
-    if (nested)
-      value = object['_source'][nested[1]][nested[2]]
-    else
-      value = object['_source'][field]
-  } catch(e) {
-    var value = null
-  }
-  //var value = field.charAt(0) == '@' ?
-  //  object['_source'][field] : object['_source']['@fields'][field];
+function recurse_field_dots(object,field) {
+  var value = null;
+  if (typeof object[field] != 'undefined')
+    value = object[field];
+  else if (nested = field.match(/(.*?)\.(.*)/))
+    if(typeof object[nested[1]] != 'undefined')
+      value = (typeof object[nested[1]][nested[2]] != 'undefined') ?
+        object[nested[1]][nested[2]] : recurse_field_dots(object[nested[1]],nested[2]);
 
-  if(typeof value === 'undefined')
-    return ''
+  return value;
+}
+
+function get_field_value(object,field,opt) {
+  var value = recurse_field_dots(object['_source'],field);
+
   if(value === null)
     return ''
   if($.isArray(value))
