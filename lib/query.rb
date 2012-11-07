@@ -149,8 +149,13 @@ end
 class TermsFacet < Query
   def initialize(question, from, to, field, limit = KibanaConfig::Analyze_show)
     super(question, from, to)
-    if (field.kind_of?(Array))
-	script = "doc['" + field.join("'].value + '||' + doc['") + "'].value"
+    if (field.kind_of?(Array) and field.length > 1)
+        script = ''
+        glue = ''
+        field.each do |f|
+          script = script + glue + "(doc['"+f+"'].value !=null ? doc['"+f+"'].value : '')"
+          glue = "+'||'+"
+        end
         @query['facets'] = {
           "terms" => {
             "terms" => {
