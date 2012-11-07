@@ -105,9 +105,9 @@ function getPage() {
         window.resultjson = JSON.parse(json);
 
         //console.log(
-        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.index+
-        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(resultjson);
+        //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
+        //  '/_search?pretty=true\' -d\''+resultjson.kibana.es_query+'\'');
+        //console.log(resultjson.kibana.curl_call);
 
         $('#graphheader,#graph').text("");
         $('#feedlinks').html(feedLinks(window.hashjson));
