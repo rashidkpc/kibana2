@@ -896,7 +896,7 @@ function mSearch(field, value, mode) {
   if (pattern.test(queryinput) == true) {
     var results = queryinput.match(pattern);
     var queryinput = $.trim(results[1]);
-    var fields = $.trim(results[2]).split(' ').slice(1);
+    var fields = $.trim(results[2]).split(/\s+/).slice(1);
     var values = value.toString().split('||');
     var query = '';
     var glue = ''
@@ -1044,7 +1044,7 @@ $(function () {
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
       var search = $.trim(results[1]);
-      var fields = $.trim(results[2]).split(' ');
+      var fields = $.trim(results[2]).split(/\s+/);
       var field = fields.slice(1).join(',,');
       var mode = fields[0];
 
