@@ -58,7 +58,11 @@ class Kelastic
       	if KibanaConfig::Smart_index_pattern != ""
       	  index_pattern = KibanaConfig::Smart_index_pattern
       	end
-        requested = date_range(from,to).map{ |date| date.strftime(index_pattern) }
+        requested = [] # Initialize empty array
+        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
+        for index in index_pattern do
+            requested.concat(date_range(from,to).map{ |date| date.strftime(index) })
+        end
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
           if limit != 0
@@ -124,6 +128,7 @@ class Kelastic
         }
       end
       r.reject! { |c| c == nil }
+      r
     end
 
     def error_msg(error)
@@ -144,6 +149,7 @@ class Kelastic
       o = JSON.parse(res.body)
       o['kibana'] = {'per_page' => KibanaConfig::Per_page}
       o['kibana']['error'] = "Invalid query" if res.code.to_i.between?(500, 599)
+      o['kibana']['curl_call'] = "curl -XGET #{url}?pretty -d '#{query}'"
       o
     end
 
@@ -334,13 +340,15 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      field.split(".").inject(hit['_source']) { |hash, key|
-        if defined?hash[key]
-          hash[key]
-        else
-          nil
+      if field =~ /(.*?)\.(.*)/
+        if defined? hit['_source'][$1][$2]
+          hit['_source'][$1][$2]
         end
-      }
+      elsif defined? hit['_source'][field]
+        hit['_source'][field]
+      else
+        nil
+      end
     end
 
     # Very similar to flatten_response, except only returns an array of field

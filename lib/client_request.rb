@@ -8,7 +8,6 @@ $LOAD_PATH << '..'
 require 'KibanaConfig'
 require 'compat'
 
-
 =begin
 = Class: ClientRequest
   Creates an object out of the hash passed by a client
@@ -45,11 +44,11 @@ class ClientRequest
       @from = (Time.at(0))
       @to = (Time.now)
     else
-      # TODO: validation here
-      @from = (Time.now - @request['timeframe'].to_i)
+      diff = (@request['timeframe'].to_i <= 0 ? KibanaConfig::Fallback_interval  : @request['timeframe'].to_i)
+
+      @from = (Time.now - diff)
       @to = (Time.now)
     end
-
   end
 
   def to_s
@@ -63,33 +62,5 @@ class ClientRequest
     def hash(request)
       Base64.encode64(JSON.generate(request))
     end
-
-  end
-
-end
-
-=begin
-= Class: IDRequest
-  Creates an client request for a specific ID
-== Parameters:
-  id::    ID of log
-  index:: Index ID is found in
-=end
-class IDRequest
-  attr_accessor :request
-  def initialize(id,index)
-    @request = {
-      "id"        => "#{id}",
-      "index"     => index,
-      "timeframe" => "900",
-      "mode"      => "id",
-      "fields"    => '',
-      "offset"    => 0,
-    }
-  end
-
-  def hash
-    ClientRequest.hash(@request)
   end
 end
-

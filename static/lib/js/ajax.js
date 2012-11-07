@@ -39,9 +39,7 @@ function pageload(hash) {
   if (typeof window.request !== 'undefined') {
     window.request.abort();
     window.segment = undefined;
-    try{
-      delete window.segment;
-    }catch(e){}
+    try { delete window.segment; } catch (e) {}
   }
   //if hash value exists, run the ajax
   if (hash) {
@@ -106,23 +104,22 @@ function getPage() {
         //Parse out the result
         window.resultjson = JSON.parse(json);
 
-        if (typeof window.resultjson.kibana.error !== 'undefined') {
+        //console.log(
+        //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
+        //  '/_search?pretty=true\' -d\''+resultjson.kibana.es_query+'\'');
+        //console.log(resultjson.kibana.curl_call);
+
+        $('#graphheader,#graph').text("");
+        $('#feedlinks').html(feedLinks(window.hashjson));
+
+        // Make sure we get some results before doing anything
+        if ((typeof window.resultjson.kibana.error !== 'undefined') || (!(resultjson.hits))) {
           setMeta(0);
           showError('No events matched',"Sorry, I couldn't find anything for " +
             "that query. Double check your spelling and syntax.");
           return;
         }
 
-        //console.log(
-        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.index+
-        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(resultjson);
-
-        $('#graphheader,#graph').text("");
-        $('#feedlinks').html(feedLinks(window.hashjson));
-
-
-        // Make sure we get some results before doing anything
         if (!(resultjson.hits.total > 0)) {
           setMeta(0);
           showError('No events matched',"Sorry, I couldn't find anything for " +
@@ -131,38 +128,34 @@ function getPage() {
         }
 
         // Determine fields to be displayed
-        if (window.hashjson.fields.length == 0) {
-          var fields = resultjson.kibana.default_fields;
-        } else {
-          var fields = window.hashjson.fields
-        }
+        var fields = window.hashjson.fields.length == 0 ?
+          resultjson.kibana.default_fields : window.hashjson.fields
 
         // Create 'Columns' section
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
-          "<h5><small>selected</small></h5>" +
-          "<ul class='selected nav nav-pills nav-stacked'></ul>" +
-          "<hr>"+
-          "<h5><small>available</small></h5>" +
           "<ul class='unselected nav nav-pills nav-stacked'></ul>");
 
-        var all_fields = get_all_fields(resultjson);
+        var all_fields = array_unique(get_all_fields(resultjson).concat(fields))
 
+        // Create sidebar field list
         var fieldstr = '';
         for (var index in all_fields) {
           var field_name = all_fields[index].toString();
           var afield = field_alias(field_name) + "_field";
-          fieldstr += sidebar_field_string(field_name,'plus');
+          var mode = $.inArray(field_name,window.hashjson.fields) >= 0 ?
+            'selected' : 'unselected'
+          fieldstr += sidebar_field_string(field_name,mode);
         }
         $('#fields ul.unselected').append(fieldstr)
 
-        var fieldstr = '';
-        for (var index in window.hashjson.fields) {
-          var field_name = window.hashjson.fields[index].toString();
-          var afield = field_alias(field_name) + "_field";
-          $('#fields ul.unselected li.' + afield).hide();
-          fieldstr += sidebar_field_string(field_name,'minus');
-        }
-        $('#fields ul.selected').append(fieldstr)
+        //var fieldstr = '';
+        //for (var index in window.hashjson.fields) {
+        //  var field_name = window.hashjson.fields[index].toString();
+        //  var afield = field_alias(field_name) + "_field";
+        //  $('#fields ul.unselected li.' + afield).hide();
+        //  fieldstr += sidebar_field_string(field_name,'minus');
+        //}
+        //$('#fields ul.selected').append(fieldstr)
 
         enable_popovers();
 
@@ -171,15 +164,11 @@ function getPage() {
           window.resultjson.hits.hits, fields,
           'table logs table-condensed'
         ));
+
         pageLinks();
 
         // Populate hit and total
         setMeta(window.resultjson.hits.total);
-
-        // Create and populate graph
-        $('#graph').html(
-          '<center><br><p><img src=' +
-          'images/barload.gif></center>');
 
         window.interval = calculate_interval(
           Date.parse(window.resultjson.kibana.time.from),
@@ -188,13 +177,17 @@ function getPage() {
           window.hashjson.time.user_interval
         )
 
-        if(typeof window.sb == 'undefined') {
-          sbctl('show',false)
+        if (typeof window.sb == 'undefined') {
+          sbctl('show',false);
         } else {
-          sbctl(window.sb,false)
+          sbctl(window.sb,false);
         }
 
+        // Create and populate graph
+        $('#graph').html(
+          '<center><br><p><img src=images/barload.gif></center>');
         getGraph(window.interval);
+
       }
     }
   });
@@ -237,22 +230,56 @@ function getGraph(interval) {
           window.segment = graphjson.kibana.next;
           if (!($(".graphloading").length > 0)) {
             $('div.legend table, div.legend table td').css({
-              "background-image": "url("
-                + "images/barload.gif)",
+              "background-image": "url(images/barload.gif)",
               "background-size":  "100% 100%"
             });
           }
           getGraph(interval);
         } else {
           if(typeof window.segment !== 'undefined')
-            //delete window.segment
             window['segment'] = undefined;
-            try{
-              delete window['segment'];
-            }catch(e){}
+            try { delete window['segment'] } catch (e) {}
         }
 
       }
+    }
+  });
+}
+
+// create a pie chart for a terms facet
+function getTermsPieChart(resultjson){
+  var data = [];
+  $.each(resultjson.facets.terms.terms,function(i,term) {
+    data[i] = { label: term['term'], data: term['count'] };
+  });
+
+  $.plot($("#piechart"), data, {
+    series: {
+      pie: {
+        innerRadius: 0.4,
+        show: true,
+        combine: {
+          color: '#999',
+          threshold: 0.02,
+          label: 'Remaining Combined'
+        },
+        label: {
+          show: true,
+          radius: 1,
+          formatter: function(label, series){
+            return '<div style="font-size:10pt;text-align:center;padding:1px;color:white;">'+
+                      label+'<strong> '+Math.round(series.percent)+'%</strong></div>';
+          },
+          background: { opacity: 1 }
+        }
+      }
+    },
+    legend: {
+      show: false
+    },
+    grid: {
+      hoverable: true,
+      clickable: true
     }
   });
 }
@@ -312,6 +339,8 @@ function getAnalysis() {
         var field = window.hashjson.analyze_field;
         resultjson = JSON.parse(json);
 
+        console.log(resultjson)
+
         $('.pagelinks').html('');
         $('#fields').html('');
 
@@ -351,6 +380,13 @@ function getAnalysis() {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
             resultjson.kibana.index : resultjson.kibana.index.split(',').length;
+
+          // add the missing count for the terms table and pie chart
+          resultjson.facets.terms.terms.push({
+              term: '',
+              count: resultjson.facets.terms.missing
+            });
+
           var title = '<h2>Terms Facet of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
@@ -359,14 +395,19 @@ function getAnalysis() {
             '</h2>' +
             'This analysis is based on the events in the <strong>' +
             index_count +'</strong> most recent indices ' +
-            'for your query in your selected timeframe.<br><br>';
+            'for your query in your selected timeframe.<br><br>'+
+            '<div id="piechart" style="width:100%;height:500px"></div>';
+
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
+
           sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
+          getTermsPieChart(resultjson)
           break;
+
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
             var basedon = "<strong>all "
@@ -455,12 +496,12 @@ function analysisTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.hits.hits) {
-    var metric = {},
+    metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
     var idv = object.id.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
+    for (var count = 0; count < fields.length; count++) {
       metric[fields[count]]=idv[count];
     }
     var analyze_field = fields.join(' ')
@@ -490,16 +531,24 @@ function analysisTable(resultjson) {
 }
 
 function termsTable(resultjson) {
+  console.log(resultjson)
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
-    var object = resultjson.facets.terms.terms[obj],
+    object = resultjson.facets.terms.terms[obj],
     metric = {};
-    metric['Rank'] = i+1;
+    metric['Rank'] = i + 1;
     var termv = object.term.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
-      metric[fields[count]]=termv[count];
+    for (var count = 0; count < fields.length; count++) {
+      // TODO: This is so wrong, really shouldn't be matching a string here
+      if (typeof termv[count] === 'undefined' || termv[count] == "null" ) {
+        var value = ''
+      } else {
+        var value = termv[count]
+        console.log(value)
+      }
+      metric[fields[count]] = value;
     }
     var analyze_field = fields.join(' ')
     metric['Count'] = addCommas(object.count);
@@ -527,13 +576,13 @@ function setMeta(hits, mode) {
   }
 }
 
-function sidebar_field_string(field, icon) {
+function sidebar_field_string(field, mode) {
+  var icon = mode == 'selected' ? 'minus' : 'plus';
   return '<li data-field="'+field+'">'+
-          '<i class="small icon-'+icon+' jlink mfield" '+
-          'data-field="'+field+'"></i> '+
-          '<a style="display:inline-block" class="popup-marker jlink field" '+
-          'rel="popover" data-field="'+field+'">' + field +
-          "<i class='field icon-caret-right'></i></a></li>";
+    '<i class="small icon-'+icon+' jlink mfield" data-field="'+field+'"></i> '+
+    '<a style="display:inline-block" class="' + mode +
+    ' popup-marker jlink field" rel="popover" data-field="'+field+'">'+ field +
+    "<i class='field icon-caret-right'></i></a></li>";
 }
 
 function popover_setup() {
@@ -746,7 +795,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     for (var index in fields) {
       var field = fields[index];
       str += '<th scope="col" class="column" data-field="'+field+'">' +
-        field_slim(field) + '</th>';
+      '<i data-mode="left" class="shift_column jlink icon-caret-left"></i>' +
+      '<div style="display:inline-block;text-align:center">'+field_slim(field) + '</div>'+
+      ' <i data-mode="right" class="shift_column jlink icon-caret-right"></i></th>';
     }
     str += '</tr></thead>';
   }
@@ -849,9 +900,15 @@ function mSearch(field, value, mode) {
     var values = value.toString().split('||');
     var query = '';
     var glue = ''
-    for (var count=0;count<fields.length;count++) {
-      value=values[count];
-      field=fields[count];
+    // TODO: This only works if a query already exists I think?
+    for (var count = 0;count < fields.length;count++) {
+      value = values[count];
+      if (value == "null" || typeof value === "undefined") {
+        value = fields[count];
+        field = '_missing_'
+      } else {
+        field = fields[count];
+      }
       query = query + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
       glue = " AND ";
     }
@@ -886,10 +943,15 @@ function mFields(field) {
 
     // Add field to hashjson
     window.hashjson.fields.push(field);
-    $('#fields ul.unselected li[data-field="' + field + '"]').hide();
-    if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
-      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
-    }
+    $('#fields ul.unselected a[data-field="' + field + '"]').addClass('selected');
+    $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-plus');
+    $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-minus');
+    // Add field to selected list and hide unselected
+    //$('#fields ul.unselected li[data-field="' + field + '"]').hide();
+    //if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
+    //  $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
+    //}
+
     // Add column
     $('#logs').find('tr.logrow').each(function(){
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
@@ -899,7 +961,10 @@ function mFields(field) {
     });
     $('#logs thead tr').find('th').last().after(
       '<th scope="col" class="column" data-field="'+field+'">' +
-        field_slim(field) + '</th>');
+      '<i data-mode="left" class="shift_column jlink icon-caret-left"></i>' +
+      '<div style="display:inline-block;text-align:center">'+field_slim(field) + '</div>'+
+      ' <i data-mode="right" class="shift_column jlink icon-caret-right"></i></th>'
+      );
 
   } else {
     $('#logs .column[data-field="'+field+'"]').remove();
@@ -911,8 +976,12 @@ function mFields(field) {
       }
     );
 
-    $('#fields ul.selected li[data-field="' + field + '"]').remove();
-    $('#fields ul.unselected li[data-field="' + field + '"]').show();
+    // Remove from selected, add to unselected
+    $('#fields ul.unselected a[data-field="' + field + '"]').removeClass('selected');
+    $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-minus');
+    $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-plus');
+    // $('#fields ul.selected li[data-field="' + field + '"]').remove();
+    // $('#fields ul.unselected li[data-field="' + field + '"]').show();
 
     if (window.hashjson.fields.length == 0) {
       $.each(window.resultjson.kibana.default_fields, function(index,field){
@@ -1054,7 +1123,6 @@ function datepickers(from,to) {
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
   $('.datepicker').remove()
-
 
   if (!$('#timechange').length || force == true) {
 
@@ -1296,8 +1364,6 @@ function showTooltip(x, y, contents) {
   }).appendTo("body").fadeIn(200);
 }
 
-
-
 function sbctl(mode,user_selected) {
   var sb = $('#sidebar'),
     main = $('#main'),
@@ -1327,6 +1393,37 @@ function sbctl(mode,user_selected) {
   }
 }
 
+function move_column(field,dir) {
+  var x = dir == 'right' ? 1 : -2
+  var len = $('#logs thead th').length
+  if (len == 2)
+    return
+  console.log(len)
+  var thi = $('#logs th.column[data-field="'+field+'"]').index()
+
+  dest = thi+x
+  if (x == -2 && thi == 1)
+    dest = len-1
+  if (x == 1 && thi == (len-1))
+    dest = 0
+
+
+  var th1 = $('#logs thead th:eq('+thi+')')
+  var th2 = $('#logs thead th:eq('+dest+')')
+  th1.detach().insertAfter(th2)
+
+  $('#logs tr.logrow').each(function() {
+    var tr = $(this);
+    var td1 = tr.find('td:eq('+thi+')');
+    var td2 = tr.find('td:eq('+dest+')');
+    td1.detach().insertAfter(td2);
+  });
+
+
+  window.hashjson.fields = $('#logs th.column').map(
+    function(){return $(this).attr("data-field");}
+    ).get()
+}
 
 function showError(title,text) {
   blank_page();
@@ -1369,9 +1466,6 @@ function resetAll() {
     '}'
   );
 
-  // set the default histogram user_interval to auto
-  // window.hashjson.time = {user_interval:'auto'};
-
   setHash(window.hashjson);
 }
 
@@ -1392,6 +1486,11 @@ function unhighlight_all_events() {
 }
 
 function bind_clicks() {
+
+  $('body').delegate("i.shift_column", "click",
+    function () {
+      move_column($(this).parent().attr('data-field'),$(this).attr('data-mode'))
+    });
 
   // Side bar expand/collapse
   $('#sbctl').click(function () {

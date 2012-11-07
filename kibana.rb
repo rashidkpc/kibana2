@@ -57,7 +57,9 @@ get '/stream' do
 end
 
 # Returns
-get '/api/search/:hash' do
+get '/api/search/:hash/?:segment?' do
+  segment = params[:segment].nil? ? 0 : params[:segment].to_i
+
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
@@ -92,7 +94,7 @@ get '/api/id/:id/:index' do
   ## TODO: Make this verify that the index matches the smart index pattern.
   id      = params[:id]
   index   = "#{params[:index]}"
-  query   = IDQuery.new(id)
+  query   = IdQuery.new(id)
   result  = Kelastic.new(query,index)
   JSON.generate(result.response)
 end
@@ -262,7 +264,7 @@ get '/rss/:hash/?:count?' do
 
     result.response['hits']['hits'].each do |hit|
       i = m.items.new_item
-      hash    = IDRequest.new(hit['_id'],hit['_index']).hash
+      hash    = IdRequest.new(hit['_id'],hit['_index']).hash
       i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
       i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
       i.link  = link_to("/##{hash}")

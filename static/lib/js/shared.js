@@ -56,6 +56,18 @@ function has_field(obj,field) {
   }
 }
 
+// Retuns a sorted array with duplicates removed
+function array_unique(arr) {
+  var sorted_arr = arr.sort();
+  var results = [];
+  for (var i = 0; i < arr.length - 1; i++) {
+    if (sorted_arr[i + 1] != sorted_arr[i]) {
+        results.push(sorted_arr[i]);
+    }
+  }
+  return results
+}
+
 function get_objids_with_field(json,field) {
   var objid_array = [];
   for (hit in json.hits.hits) {
@@ -89,10 +101,6 @@ function get_objids_with_field_value(json,field,value) {
   return objid_array;
 }
 
-function objat(obj,i) {
-  return obj[i]
-}
-
 function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {
@@ -110,7 +118,12 @@ function get_related_fields(json,field) {
 
 function get_field_value(object,field,opt) {
   try {
-    var value = field.split('.').reduce(objat, object['_source'])
+    nested = field.match(/(.*?)\.(.*)/)
+    var value;
+    if (nested)
+      value = object['_source'][nested[1]][nested[2]]
+    else
+      value = object['_source'][field]
   } catch(e) {
     var value = null
   }
