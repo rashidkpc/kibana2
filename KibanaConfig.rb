@@ -116,6 +116,24 @@ module KibanaConfig
   # Set headers to allow kibana to be loaded in an iframe from a different origin.
   Allow_iframed = false
 
-  # Use this interval as fallback.
+  # Authentication Module
+  Auth_module = 'elasticsearch'
+
+  Auth_Admin_User  = 'kibana'
+  Auth_Admin_Pass  = 'password'
+  Auth_Admin_Perms  = { 'is_admin' => true, 'enabled' => true, 'tags' => ['*'] }
+
+  # Authentication options for the auth_ldap module
+  Ldap_host = '127.0.0.1'
+  Ldap_port = 389
+
+  # Storage Module
+  Storage_module = 'elasticsearch'  # mongo
+
+  #Mongo_host = '127.0.0.1'
+  #Mongo_port = 27017
+  #Mongo_db = 'kibana'
+
+  # Use this interval as fallback if the client's request in not valid.
   Fallback_interval = 900
 end

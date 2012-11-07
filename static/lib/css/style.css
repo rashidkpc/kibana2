@@ -170,11 +170,11 @@ table.formatting td {
   padding-top: 10px;
 }
 
-#fields hr {
-  margin: 5px;
+#sidebar hr {
+  margin: 5px 0px 5px 0px;
 }
 
-#fields ul {
+#sidebar ul {
   padding: 0px;
   margin: 0px;
 }
@@ -191,6 +191,15 @@ table.formatting td {
 
 #fields a.selected {
   color: #A92C10;
+}
+
+#sidebar a {
+  padding: 1px;
+  font-size: 11px;
+}
+
+#sidebar div.login {
+  padding-bottom: 10px;
 }
 
 span.raw {
@@ -264,7 +273,15 @@ tr.showdetails td {
 }
 
 .small {
-	font-size: 0.7em;
+font-size: 0.7em;
+}
+
+.large {
+font-size: 1.4em;
+}
+
+.welcome img {
+margin: 5px;
 }
 
 table.logdetails th {
@@ -304,20 +321,15 @@ div.sidebar-collapsed #sbctl {
   left:3px;
 }
 
-ul.selected, ul.unselected {
+ul.selected, ul.unselected, ul.login {
   white-space: nowrap;
 }
 
-#fields > ul > li > a {
-  padding: 1px;
-  font-size: 11px;
+ul.login {
+  padding: 0px;
+  margin: 0px;
 }
 
-ul#analyze_list > li > a {
-  padding-top: 1px;
-  padding-bottom: 1px;
-  padding-left: 1px;
-}
 
 h3.popover-title {
   font-weight: bold;
@@ -348,6 +360,33 @@ del {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+
+.hugeotron {
+  background: url("../../images/cards.jpg") repeat scroll center center transparent;
+  background-size: 100%;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4) inset, 0 -3px 7px rgba(0, 0, 0, 0.4) inset;
+    color: #FFFFFF;
+    padding: 60px 0;
+    position: relative;
+    text-align: left;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 0, 0, 0.075);
+}
+
+.hugeotron p {
+  font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.hugeotron a {
+    -moz-transition: all 0.2s ease-in-out 0s;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#alltags {
+  display: none;
+  height: 200px;
+  overflow-y: scroll;
 }
 
 input#timefrom,input#timeto {

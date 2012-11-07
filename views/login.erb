@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Kibana Login</title>
+
+  <script type="text/javascript" src="../../lib/js/lib/jquery.min.js"></script>
+  <script type="text/javascript" src="../../lib/js/lib/jquery.history.js"></script>
+  <script type="text/javascript" src="../../lib/bootstrap/js/bootstrap.js"></script>
+
+
+  <link rel="stylesheet" href="../../lib/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../lib/css/style.css">
+  <link rel="stylesheet" href="../../lib/css/font-awesome.css">
+  <link rel="stylesheet" href="../../lib/css/jquery-ui-1.8.16.custom.css">
+  <link rel="stylesheet" href="../../lib/css/jquery.ui.datepicker.css">
+  <style type="text/css">
+    body {
+    padding-top: 80px;
+    padding-bottom: 40px;
+    background-image:url('../../images/grey.png');:
+    }
+  </style>
+  <link href="../../favicon.ico" rel="shortcut icon" type="image/x-icon" />
+</head>
+
+<body>
+  <script>
+  $('document').ready(function(){
+    $(".alert").alert();
+  });
+  </script>
+
+  <div class="hugeotron masthead">
+    <div class="container">
+      <div class=row>
+        <h1><img src='../../images/kibana_text.png'></h1>
+        <p>Make sense of a mountain of logs</p>
+        <% if locals[:login_message] %>
+        <p><span class="label label-success"><%= locals[:login_message] %></span></p>
+        <% end %>
+        <form action="/auth/login" method="POST">
+          <input type="text" placeholder="Username" id="username" name="username" /><br>
+          <input type="password" placeholder="Password" id="password" name="password" /><br>
+          <button class="btn btn-success" type=submit>Login</button>
+       </form>
+    </div>
+    </div>
+
+  </div>
+
+
+<!--
+  <div id="login" class="well">
+    <img src='../../images/kibana_login.png'>
+    <form class="form-horizontal" action="/auth/login" method="POST">
+      <% if locals[:login_message] %>
+      <%= locals[:login_message] %><br>
+      <% end %>
+      <input type="text" placeholder="Username" id="username" name="username" /><br>
+      <input type="password" placeholder="Password" id="password" name="password" /><br>
+      <button class="btn btn-primary" type=submit>Login</button>
+    </form>
+  </div>
+-->
+</body>
+
+</html>

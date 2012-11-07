@@ -1,0 +1,59 @@
+<%= erb :adminheader, :locals => locals %>
+      <div class="span2" id=sidebar>
+        <%= erb :loginmenu, :locals => locals %>
+      </div>
+
+      <div class="content span10" id=main>
+       <h4>Users <button id="adduser" class="btn btn-primary btn-small">
+        <i class="icon-group"></i> New User</button></h4>
+       <table class="table table-striped table-bordered table-condensed table-hover">
+       <thead>
+        <tr>
+         <th width="200px">Username</th>
+         <th width="100px">Admin</th>
+         <th>Permitted Tags</th>
+        </tr>
+       </thead>
+       <tbody>
+       <% for user in locals[:users] %>
+        <tr>
+         <td><a href="admin/edit/<%= user[:username] %>"><i class="icon-edit"></i> <%= user[:username] %></a></td>
+         <td><label class="checkbox"><input type="checkbox" <% if user[:is_admin] %>checked<% end %> disabled></label></td>
+         <td><% if user[:tags] %><%= user[:tags].join(", ") %><% else %>(no tags assigned)<% end %></td>
+        </tr>
+       <% end %>
+       </tbody>
+       </table>
+       <h4>Groups</h4>
+       <table class="table table-striped table-bordered table-condensed table-hover">
+       <thead>
+        <tr>
+         <th width="200px">Group</th>
+         <th width="100px">Admin</th>
+         <th>Permitted Tags</th>
+        </tr>
+       </thead>
+       <tbody>
+       <% if locals[:groups].length > 0 %>
+        <% for group in locals[:groups] %>
+         <tr>
+          <td><a href="admin/edit/<%= group[:username] %>"><i class="icon-edit"></i>
+           <%= group[:username] %></a></td>
+          <td><label class="checkbox"><input type="checkbox" <% if group[:is_admin] %>checked<% end %> disabled></label></td>
+          <td><% if group[:tags] %><%= group[:tags].join(", ") %><% else %>(no tags assigned)<% end %></td>
+         </tr>
+        </tbody>
+        <% end %>
+       <% else %>
+        <tr><td class="muted" colspan=3 >No Groups</td></tr>
+       <% end %>
+       </table>
+      </div>
+      <script>
+      $('document').ready(function() {
+        $('#adduser').click(function() {
+          window.location = 'admin/new';
+        });
+      });
+      </script>
+<%= erb :footer, :locals => locals %>

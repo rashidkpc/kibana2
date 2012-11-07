@@ -10,12 +10,13 @@ require 'tzinfo'
 $LOAD_PATH << '.'
 $LOAD_PATH << './lib'
 
-if ENV["KIBANA_CONFIG"] 
+if ENV["KIBANA_CONFIG"]
   require ENV["KIBANA_CONFIG"]
 else
   require 'KibanaConfig'
 end
 Dir['./lib/*.rb'].each{ |f| require f }
+
 ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
 
@@ -24,6 +25,24 @@ configure do
   set :port, KibanaConfig::KibanaPort
   set :public_folder, Proc.new { File.join(root, "static") }
   enable :sessions
+
+  @@auth_module = nil
+  begin
+    if KibanaConfig::Auth_module != ""
+      require "./lib/modules/auth_#{KibanaConfig::Auth_module}"
+      @@auth_module = get_auth_module(KibanaConfig)
+    end
+  rescue
+    puts "Failed to load the auth module: #{KibanaConfig::Auth_module}"
+  end
+
+  @@storage_module = nil
+  begin
+    require "./lib/modules/storage_#{KibanaConfig::Storage_module}"
+    @@storage_module = get_storage_module(KibanaConfig)
+  rescue
+    puts "Failed to load the storage module: #{KibanaConfig::Storage_module}"
+  end
 end
 
 helpers do
@@ -47,13 +66,167 @@ helpers do
 
 end
 
+before do
+  if @@auth_module
+    unless session[:username]
+      if request.path.start_with?("/api")
+        # ajax api call, just return an error
+        halt 401, JSON.generate({"error" => "Not logged in"})
+      elsif !request.path.start_with?("/auth")
+        # normal web call, redirect to login
+        halt redirect '/auth/login'
+      end
+    else
+      @user_perms = @@storage_module.get_permissions(session[:username])
+      if !@user_perms
+        # User is authenticated, but not authorized. Put them in
+        # a holding state until an admin grants them authorization
+        if request.path.start_with?("/api")
+          halt 401, JSON.generate({"error" => "Not authorized for any security groups"})
+        elsif !request.path.start_with?("/auth/logout")
+          halt 401, "You are not authorized for any search groups. Please contact the kibana administrator to grant you permission."
+        end
+      else
+        if !defined?(@user_perms[:tags]) || !@user_perms[:tags]
+          @user_perms[:tags] = []
+        end
+        if !defined?(@user_perms[:is_admin]) || !@user_perms[:is_admin]
+          @user_perms[:is_admin] = false
+        end
+
+        # check any groups this user belongs to for additional
+        # permissions defined in the storage module
+        @@auth_module.membership(session[:username]).each do |group|
+          g_perms = @@storage_module.get_permissions("@" + group)
+          if g_perms
+            if defined?(g_perms[:tags])
+              @user_perms[:tags] = (@user_perms[:tags] + g_perms[:tags]).uniq
+            end
+            if defined?(g_perms[:is_admin])
+              @user_perms[:is_admin] ||= g_perms[:is_admin]
+            end
+          end
+        end
+
+        if request.path.start_with?("/auth/admin")
+          # only admins get to go here
+          if !@user_perms[:is_admin]
+            halt 401, "You are not authorized to be here"
+          end
+        end
+      end
+    end
+  end
+end
+
 get '/' do
   headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" if KibanaConfig::Allow_iframed
-  send_file File.join(settings.public_folder, 'index.html')
+
+  locals = {}
+  if @@auth_module
+    locals[:username] = session[:username]
+    locals[:is_admin] = @user_perms[:is_admin]
+  end
+  erb :index, :locals => locals
 end
 
 get '/stream' do
   send_file File.join(settings.public_folder, 'stream.html')
+end
+
+get '/auth/login' do
+  locals = {}
+  if !@@auth_module
+    redirect '/'
+  end
+  if session[:login_message]
+    locals[:login_message] = session[:login_message]
+  end
+  erb :login, :locals => locals
+end
+
+post '/auth/login' do
+  if !@@auth_module
+    redirect '/'
+  end
+  username = params[:username]
+  password = params[:password]
+  if @@auth_module.authenticate(username,password)
+
+    session[:username] = username
+    session[:login_message] = ""
+    redirect '/'
+  else
+    session[:login_message] = "Invalid username or password"
+    halt redirect '/auth/login'
+  end
+end
+
+get '/auth/logout' do
+  if !@@auth_module
+    redirect '/'
+  end
+  session[:username] = nil
+  session[:login_message] = "Successfully logged out"
+  redirect '/auth/login'
+end
+
+# User/permission administration
+get '/auth/admin' do
+  locals = {}
+  if @@auth_module
+    locals[:username] = session[:username]
+    locals[:is_admin] = @user_perms[:is_admin]
+    locals[:show_back] = true
+
+    locals[:users] = []
+    locals[:groups] = []
+    @@storage_module.get_all_permissions().each do |perm|
+      if perm.username.start_with?("@")
+        locals[:groups].push(perm)
+      else
+        locals[:users].push(perm)
+      end
+    end
+  end
+  erb :admin, :locals => locals
+end
+
+get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
+  locals = {}
+  mode = params[:captures].first
+  if @@auth_module
+    locals[:username] = session[:username]
+    locals[:is_admin] = @user_perms[:is_admin]
+    locals[:show_back] = true
+    locals[:mode] = mode
+    if mode == "edit"
+      # the second match contains the '/' at the start,
+      # so we take the substring starting at position 1
+      locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
+      locals[:can_delete] = (locals[:user_data][:username]==KibanaConfig::Auth_Admin_User) ? false : true
+    elsif mode == "new"
+    else
+      halt 404, "Invalid action"
+    end
+  end
+  erb :adminedit, :locals => locals
+end
+
+post '/auth/admin/save' do
+  username = params[:username]
+  usertags = params[:usertags]
+  if params[:delete] != nil
+    puts "Deleting #{username}"
+    @@storage_module.del_permissions(username)
+  else
+    puts "Updating #{username}"
+    is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
+    @@storage_module.set_permissions(username,usertags,is_admin)
+  end
+  # FIXME: Find a better way to make sure the changes will show on page load
+  sleep(1)
+  redirect '/auth/admin'
 end
 
 # Returns
@@ -61,7 +234,7 @@ get '/api/search/:hash/?:segment?' do
   segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
+  query   = SortedQuery.new(req.search,@user_perms,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
 
@@ -80,9 +253,9 @@ get '/api/graph/:mode/:interval/:hash/?:segment?' do
   req     = ClientRequest.new(params[:hash])
   case params[:mode]
   when "count"
-    query   = DateHistogram.new(req.search,req.from,req.to,params[:interval].to_i)
+    query   = DateHistogram.new(req.search,@user_perms,req.from,req.to,params[:interval].to_i)
   when "mean"
-    query   = StatsHistogram.new(req.search,req.from,req.to,req.analyze,params[:interval].to_i)
+    query   = StatsHistogram.new(req.search,@user_perms,req.from,req.to,req.analyze,params[:interval].to_i)
   end
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticSegment.new(query,indices,segment)
@@ -94,7 +267,7 @@ get '/api/id/:id/:index' do
   ## TODO: Make this verify that the index matches the smart index pattern.
   id      = params[:id]
   index   = "#{params[:index]}"
-  query   = IdQuery.new(id)
+  query   = IdQuery.new(id,@user_perms)
   result  = Kelastic.new(query,index)
   JSON.generate(result.response)
 end
@@ -104,14 +277,14 @@ get '/api/analyze/:field/trend/:hash' do
   show  = KibanaConfig::Analyze_show
   req           = ClientRequest.new(params[:hash])
 
-  query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+  query_end     = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit,'@timestamp','desc')
   indices_end   = Kelastic.index_range(req.from,req.to)
   result_end    = KelasticMulti.new(query_end,indices_end)
 
   # Oh snaps. too few results for full limit analysis, rerun with less
   if (result_end.response['hits']['hits'].length < limit)
     limit         = (result_end.response['hits']['hits'].length / 2).to_i
-    query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+    query_end     = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit,'@timestamp','desc')
     indices_end   = Kelastic.index_range(req.from,req.to)
     result_end    = KelasticMulti.new(query_end,indices_end)
   end
@@ -120,7 +293,7 @@ get '/api/analyze/:field/trend/:hash' do
   fields = params[:field].split(',,')
   count_end     = KelasticResponse.count_field(result_end.response,fields)
 
-  query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
+  query_begin   = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit,'@timestamp','asc')
   indices_begin = Kelastic.index_range(req.from,req.to).reverse
   result_begin  = KelasticMulti.new(query_begin,indices_begin)
   count_begin   = KelasticResponse.count_field(result_begin.response,fields)
@@ -155,7 +328,7 @@ get '/api/analyze/:field/terms/:hash' do
   req     = ClientRequest.new(params[:hash])
   fields = Array.new
   fields = params[:field].split(',,')
-  query   = TermsFacet.new(req.search,req.from,req.to,fields)
+  query   = TermsFacet.new(req.search,@user_perms,req.from,req.to,fields)
   indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
@@ -171,7 +344,7 @@ get '/api/analyze/:field/score/:hash' do
   limit = KibanaConfig::Analyze_limit
   show  = KibanaConfig::Analyze_show
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,0,limit)
+  query   = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,limit)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
   fields = Array.new
@@ -199,7 +372,7 @@ end
 
 get '/api/analyze/:field/mean/:hash' do
   req     = ClientRequest.new(params[:hash])
-  query   = StatsFacet.new(req.search,req.from,req.to,params[:field])
+  query   = StatsFacet.new(req.search,@user_perms,req.from,req.to,params[:field])
   indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
   type    = Kelastic.field_type(indices.first,params[:field])
   if ['long','integer','double','float'].include? type
@@ -229,7 +402,7 @@ get '/api/stream/:hash/?:from?' do
 
   # Build and execute
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,from,to,0,30)
+  query   = SortedQuery.new(req.search,@user_perms,from,to,0,30)
   result  = Kelastic.new(query,Kelastic.current_index)
   output  = JSON.generate(result.response)
 
@@ -247,7 +420,7 @@ get '/rss/:hash/?:count?' do
   to    = Time.now
 
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,from,to,0,count)
+  query   = SortedQuery.new(req.search,@user_perms,from,to,0,count)
   indices = Kelastic.index_range(from,to)
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
@@ -282,7 +455,7 @@ get '/export/:hash/?:count?' do
   sep   = KibanaConfig::Export_delimiter
 
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,0,count)
+  query   = SortedQuery.new(req.search,@user_perms,req.from,req.to,0,count)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
