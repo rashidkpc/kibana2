@@ -396,7 +396,7 @@ function getAnalysis() {
             'This analysis is based on the events in the <strong>' +
             index_count +'</strong> most recent indices ' +
             'for your query in your selected timeframe.<br><br>'+
-            '<div id="piechart" style="width:100%;height:500px"></div>';
+            '<!-- <div id="piechart" style="width:100%;height:500px"></div> -->';
 
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
@@ -405,7 +405,7 @@ function getAnalysis() {
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
-          getTermsPieChart(resultjson)
+          //getTermsPieChart(resultjson)
           break;
 
         case 'score':
