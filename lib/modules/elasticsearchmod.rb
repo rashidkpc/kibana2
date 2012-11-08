@@ -24,11 +24,15 @@ class Elasticsearchmod
     result  = Elasticsearchmod.run("#{@query_url}/#{id}", '', 'delete')
   end
 
-  def get_all
+  def get_all(field=nil)
     results = Array.new
     r = Elasticsearchmod.run("#{@query_url}/_search", '{}')
     r['hits']['hits'].each do |hit|
-      results << hit['_source']
+      if field
+        results << hit['_source'][field]
+      else
+        results << hit['_source']
+      end
     end
     return results
   end

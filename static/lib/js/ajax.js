@@ -105,9 +105,9 @@ function getPage() {
         window.resultjson = JSON.parse(json);
 
         //console.log(
-        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.index+
-        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(resultjson);
+        //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
+        //  '/_search?pretty=true\' -d\''+resultjson.kibana.es_query+'\'');
+        //console.log(resultjson.kibana.curl_call);
 
         $('#graphheader,#graph').text("");
         $('#feedlinks').html(feedLinks(window.hashjson));
@@ -251,6 +251,44 @@ function getGraph(interval) {
   });
 }
 
+// create a pie chart for a terms facet
+function getTermsPieChart(resultjson){
+  var data = [];
+  $.each(resultjson.facets.terms.terms,function(i,term) {
+    data[i] = { label: term['term'], data: term['count'] };
+  });
+
+  $.plot($("#piechart"), data, {
+    series: {
+      pie: {
+        innerRadius: 0.4,
+        show: true,
+        combine: {
+          color: '#999',
+          threshold: 0.02,
+          label: 'Remaining Combined'
+        },
+        label: {
+          show: true,
+          radius: 1,
+          formatter: function(label, series){
+            return '<div style="font-size:10pt;text-align:center;padding:1px;color:white;">'+
+                      label+'<strong> '+Math.round(series.percent)+'%</strong></div>';
+          },
+          background: { opacity: 1 }
+        }
+      }
+    },
+    legend: {
+      show: false
+    },
+    grid: {
+      hoverable: true,
+      clickable: true
+    }
+  });
+}
+
 function analyzeField(field, mode) {
   window.hashjson.mode = mode;
   window.hashjson.analyze_field = field;
@@ -306,6 +344,8 @@ function getAnalysis() {
         var field = window.hashjson.analyze_field;
         resultjson = JSON.parse(json);
 
+        console.log(resultjson)
+
         $('.pagelinks').html('');
         $('#fields').html('');
 
@@ -345,6 +385,13 @@ function getAnalysis() {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
             resultjson.kibana.index : resultjson.kibana.index.split(',').length;
+
+          // add the missing count for the terms table and pie chart
+          resultjson.facets.terms.terms.push({
+              term: '',
+              count: resultjson.facets.terms.missing
+            });
+
           var title = '<h2>Terms Facet of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
@@ -353,14 +400,19 @@ function getAnalysis() {
             '</h2>' +
             'This analysis is based on the events in the <strong>' +
             index_count +'</strong> most recent indices ' +
-            'for your query in your selected timeframe.<br><br>';
+            'for your query in your selected timeframe.<br><br>'+
+            '<div id="piechart" style="width:100%;height:500px"></div>';
+
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
+
           sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
+          getTermsPieChart(resultjson)
           break;
+
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
             var basedon = "<strong>all "
@@ -454,7 +506,7 @@ function analysisTable(resultjson) {
     metric['Rank'] = i+1;
     var idv = object.id.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
+    for (var count = 0; count < fields.length; count++) {
       metric[fields[count]]=idv[count];
     }
     var analyze_field = fields.join(' ')
@@ -484,16 +536,24 @@ function analysisTable(resultjson) {
 }
 
 function termsTable(resultjson) {
+  console.log(resultjson)
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
     var object = resultjson.facets.terms.terms[obj],
-    metric = {};
-    metric['Rank'] = i+1;
+    var metric = {};
+    metric['Rank'] = i + 1;
     var termv = object.term.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
-      metric[fields[count]]=termv[count];
+    for (var count = 0; count < fields.length; count++) {
+      // TODO: This is so wrong, really shouldn't be matching a string here
+      if (typeof termv[count] === 'undefined' || termv[count] == "null" ) {
+        var value = ''
+      } else {
+        var value = termv[count]
+        console.log(value)
+      }
+      metric[fields[count]] = value;
     }
     var analyze_field = fields.join(' ')
     metric['Count'] = addCommas(object.count);
@@ -841,13 +901,19 @@ function mSearch(field, value, mode) {
   if (pattern.test(queryinput) == true) {
     var results = queryinput.match(pattern);
     var queryinput = $.trim(results[1]);
-    var fields = $.trim(results[2]).split(' ').slice(1);
+    var fields = $.trim(results[2]).split(/\s+/).slice(1);
     var values = value.toString().split('||');
     var query = '';
     var glue = ''
-    for (var count=0;count<fields.length;count++) {
-      value=values[count];
-      field=fields[count];
+    // TODO: This only works if a query already exists I think?
+    for (var count = 0;count < fields.length;count++) {
+      value = values[count];
+      if (value == "null" || typeof value === "undefined") {
+        value = fields[count];
+        field = '_missing_'
+      } else {
+        field = fields[count];
+      }
       query = query + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
       glue = " AND ";
     }
@@ -983,7 +1049,7 @@ $(function () {
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
       var search = $.trim(results[1]);
-      var fields = $.trim(results[2]).split(' ');
+      var fields = $.trim(results[2]).split(/\s+/);
       var field = fields.slice(1).join(',,');
       var mode = fields[0];
 

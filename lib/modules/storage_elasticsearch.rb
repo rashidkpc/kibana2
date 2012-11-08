@@ -57,7 +57,6 @@ class StorageElasticSearch
   def set_permissions(username,tags,is_admin = false,is_enabled = true)
     values = {"username" => username, "tags" => tags, "is_admin" => is_admin}
     r = @esm.set_by_id(username, values)
-    puts "set_permissions: ", r.inspect
     return true
   end
 

@@ -32,6 +32,11 @@ class AuthElasticSearch
     return p
   end
 
+  def users()
+    u = @uesm.get_all('username')
+    return u.sort
+  end
+
   # Required function, authenticates a username/password
   def authenticate(username,password)
     user = lookup_user(username)
@@ -41,6 +46,11 @@ class AuthElasticSearch
       return true
     end
     return false
+  end
+
+  # Update the user's password
+  def set_password(username,password)
+    add_user(username,password)
   end
 
   def add_user(username,password)
@@ -53,7 +63,7 @@ class AuthElasticSearch
 
   # This update a groups list of users
   def add_user_2group(username,group)
-    defaults = {"group" => group, "members" => [username], "tags" => []}
+    defaults = {"group" => group, "members" => [username]}
     result = @gesm.add_term_to_record_array(group, "members", username, defaults)
   end
 
@@ -61,7 +71,9 @@ class AuthElasticSearch
     result = del_term_from_record_array(group, "members", username)
   end
 
-  def add_group(group)
+  def add_group(group, members=[])
+    values = {"group" => group, "members" => members}
+    p values
     result = @gesm.set_by_id(group, values)
   end
 
@@ -71,9 +83,19 @@ class AuthElasticSearch
     return g.sort
   end
 
+  def group_members(group)
+    g = @gesm.get_by_id(group)
+    if g and g['members']
+      return g['members'].sort
+    else
+      return []
+    end
+  end
+
   # Required function, returns a list of all groups
   def groups()
-    g = @gesm.get_all()
+    g = @gesm.get_all('username')
+    p g
     return g.sort
   end
 end
