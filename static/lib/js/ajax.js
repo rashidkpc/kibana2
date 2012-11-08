@@ -501,7 +501,7 @@ function analysisTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.hits.hits) {
-    metric = {},
+    var metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
     var idv = object.id.split('||');
@@ -540,8 +540,8 @@ function termsTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
-    object = resultjson.facets.terms.terms[obj],
-    metric = {};
+    var object = resultjson.facets.terms.terms[obj],
+    var metric = {};
     metric['Rank'] = i + 1;
     var termv = object.term.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
