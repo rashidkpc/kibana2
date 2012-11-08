@@ -206,7 +206,8 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
       locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
       locals[:can_delete] = (locals[:user_data][:username]==KibanaConfig::Auth_Admin_User) ? false : true
       locals[:can_change_groups] = @@auth_module.respond_to?('add_user_2group')
-      locals[:alltags] = ['*', 'nginx_web', 'beaver', '_grokparsefailure']
+      # TODO: Dynamically populate alltags
+      locals[:alltags] = ['*', '_grokparsefailure']
       # If they are a group, set group values
       if /^@/ =~ locals[:user_data][:username]
         locals[:is_group]=true
