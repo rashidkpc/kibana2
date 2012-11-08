@@ -200,23 +200,24 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
     locals[:is_admin] = @user_perms[:is_admin]
     locals[:show_back] = true
     locals[:mode] = mode
+    # TODO: Dynamically populate alltags
+    locals[:alltags] = ['*', '_grokparsefailure']
+    locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
     if mode == "edit"
       # the second match contains the '/' at the start,
       # so we take the substring starting at position 1
       locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
       locals[:can_delete] = (locals[:user_data][:username]==KibanaConfig::Auth_Admin_User) ? false : true
       locals[:can_change_groups] = @@auth_module.respond_to?('add_user_2group')
-      # TODO: Dynamically populate alltags
-      locals[:alltags] = ['*', '_grokparsefailure']
       # If they are a group, set group values
-      if /^@/ =~ locals[:user_data][:username]
+      if locals[:user_data][:username].start_with?("@")
         locals[:is_group]=true
         group=locals[:user_data][:username][/[^@].*/]
         locals[:group_members] = @@auth_module.group_members(group)
         locals[:allusers] = @@auth_module.users()
+        puts "allusers: " + locals[:allusers].inspect
       else
         locals[:user_groups] = @@auth_module.membership(locals[:user_data][:username])
-        locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
       end
     elsif mode == "new"
     else
@@ -237,7 +238,7 @@ post '/auth/admin/save' do
     is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
     @@storage_module.set_permissions(username,usertags,is_admin)
     # Update the auth group info
-    if /^@/ =~ username and @@auth_module.respond_to?('add_group')
+    if username.start_with?("@") and @@auth_module.respond_to?('add_group')
       group=username[/[^@].*/]
       members = params[:members]
       @@auth_module.add_group(group, members)

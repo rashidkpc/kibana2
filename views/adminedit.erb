@@ -103,7 +103,7 @@
               <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:mode] == "edit" && locals[:user_data][:is_admin] %> checked<% end %>> Admin</input>
             </label>
               <% if locals[:can_change_pass] == true %>
-                <br/><input name="pass1" type="password" class=span4 placeholder="New pass..." />
+                <br/><input name="pass1" id="pass1" type="password" class=span4 placeholder="New pass..." />
               <% end %>
           </div>
         </div>
