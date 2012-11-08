@@ -229,8 +229,8 @@ get '/api/stream/:hash/?:from?' do
 
   # Build and execute
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
-  indices = Kelastic.index_range(req.from,req.to)
+  query   = SortedQuery.new(req.search,from,to,0,30)
+  indices = Kelastic.index_range(from,to)
   result  = KelasticMulti.new(query,indices)
   output  = JSON.generate(result.response)
 
