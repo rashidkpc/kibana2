@@ -149,6 +149,7 @@ class Kelastic
       o = JSON.parse(res.body)
       o['kibana'] = {'per_page' => KibanaConfig::Per_page}
       o['kibana']['error'] = "Invalid query" if res.code.to_i.between?(500, 599)
+      o['kibana']['curl_call'] = "curl -XGET #{url}?pretty -d '#{query}'"
       o
     end
 
@@ -339,13 +340,15 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      field.split(".").inject(hit['_source']) { |hash, key|
-        if defined?hash[key]
-          hash[key]
-        else
-          nil
+      if field =~ /(.*?)\.(.*)/
+        if defined? hit['_source'][$1][$2]
+          hit['_source'][$1][$2]
         end
-      }
+      elsif defined? hit['_source'][field]
+        hit['_source'][field]
+      else
+        nil
+      end
     end
 
     # Very similar to flatten_response, except only returns an array of field
