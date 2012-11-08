@@ -91,7 +91,7 @@ class Kelastic
       end
     end
 
-    # TODO: Verify this index exists?
+    # TODO: Verify this index exists?  This is no longer being called.  Possibly remove?
     def current_index
       if KibanaConfig::Smart_index == true
         index_pattern = "logstash-%Y.%m.%d"
