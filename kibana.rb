@@ -229,8 +229,9 @@ get '/api/stream/:hash/?:from?' do
 
   # Build and execute
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,from,to,0,30)
-  result  = Kelastic.new(query,Kelastic.current_index)
+  query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
+  indices = Kelastic.index_range(req.from,req.to)
+  result  = KelasticMulti.new(query,indices)
   output  = JSON.generate(result.response)
 
   if result.response['hits']['total'] > 0
