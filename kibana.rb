@@ -94,7 +94,7 @@ get '/api/id/:id/:index' do
   ## TODO: Make this verify that the index matches the smart index pattern.
   id      = params[:id]
   index   = "#{params[:index]}"
-  query   = IdQuery.new(id)
+  query   = IDQuery.new(id)
   result  = Kelastic.new(query,index)
   JSON.generate(result.response)
 end
