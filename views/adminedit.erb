@@ -10,15 +10,20 @@
         <p>Please go back and try again.</p>
       </div>
       <% else %>
-      <div id="alltags" class="well well-small">
-       <ul class="nav nav-list">
+       <select id="alltags" size=10 class="nav nav-list">
        <% if locals[:alltags] %>
          <% locals[:alltags].each do |tag| %>
          <option value="<%= tag %>"><%= tag %></option>
          <% end %>
        <% end %>
-       </ul>
-      </div>
+       </select>
+       <select id="allmembers" size=10 class="nav nav-list">
+       <% if locals[:allusers] %>
+         <% locals[:allusers].each do |user| %>
+         <option value="<%= user %>"><%= user %></option>
+         <% end %>
+       <% end %>
+       </select>
       <% if locals[:mode] == "new" %>
       <form id="userdata" class="form-horizontal" method="post" action="save">
       <% else %>
@@ -44,7 +49,7 @@
           <label class="control-label" for="tag">Allowed Tags</label>
           <div class="controls">
             <input id="tag" type="text" class=span4 placeholder="enter a tag..." />
-            <!-- <button id="showtags" class="btn btn-small"><i class="icon-chevron-down"></i></button> -->
+            <button id="showtags" class="btn btn-small"><i class="icon-chevron-down"></i></button>
             <button id="addtag" class="btn"><i class="icon-plus"></i></button>
           </div>
         </div>
@@ -60,10 +65,46 @@
             <br />
             <a id="deltags" href="#"><i class="icon-trash icon-white"></i> Remove Selected</a>
           </div>
+          </br>
+          <% if locals[:is_group] == true %>
+          <label class="control-label" for="group">Group Members</label>
+          <div class="controls">
+            <input id="member" type="text" class=span4 placeholder="Search..." disabled="disabled"/>
+            <button id="showmembers" class="btn btn-small"><i class="icon-chevron-down"></i></button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <select id="members" name="members[]" multiple="multiple" class="span4">
+            <% if locals[:mode] == "edit" && locals[:group_members] %>
+              <% locals[:group_members].each do |username| %>
+              <option value="<%= username %>"><%= username %></option>
+              <% end %>
+            <% end %>
+            </select>
+            <br />
+            <a id="delmember" href="#"><i class="icon-trash icon-white"></i> Remove Selected</a>
+          <% else %>
+          <label class="control-label" for="tag">Groups</label>
+          <div class="controls">
+            <select id="usergroups" name="usergroups[]" multiple="multiple" class="span4">
+            <% if locals[:mode] == "edit" && locals[:user_data][:user_groups] %>
+              <% locals[:user_data][:user_groups].each do |group| %>
+              <option value="<%= group %>"><%= group %></option>
+              <% end %>
+            <% end %>
+            </select>
+            <br />
+            <a id="delgroup" href="#"><i class="icon-trash icon-white"></i> Remove Selected</a>
+          <% end %>
+          </div>
           <div class="controls">
             <label class="checkbox">
               <input id="is_admin" name="is_admin" type="checkbox"<% if locals[:mode] == "edit" && locals[:user_data][:is_admin] %> checked<% end %>> Admin</input>
             </label>
+              <% if locals[:can_change_pass] == true %>
+                <br/><input name="pass1" type="password" class=span4 placeholder="New pass..." />
+              <% end %>
           </div>
         </div>
         <div class="form-actions">
@@ -85,6 +126,7 @@
         });
         $('#userdata').submit(function() {
           $('#usertags option').attr('selected',true);
+          $('#members option').attr('selected',true);
         });
         $('#addtag').click(function() {
           var s = $('#tag').val().trim();
@@ -97,14 +139,41 @@
           $('#tag').val("");
           return false;
         });
+        $('#alltags').click(function() {
+          var s = $('#alltags option:selected').text()
+          var exists = $("#usertags option[value='"+s+"']").length !== 0;
+          if (s != "" && !exists) {
+            $('#usertags').append(new Option(s,s,false,false));
+          }
+        });
         $('#showtags').click(function() {
           var pos = $('#tag').offset();
           pos.top += $('#tag').width();
           $('#alltags').fadeIn(100);
-          $('#alltags').css({position:"absolute",top:0,left:0,width:"100px"}).position({
+          $('#alltags').css({position:"absolute",top:0,left:0}).position({
              my: "right top",
              at: "right bottom",
              of: "#showtags",
+             offset: "1 -1",
+             collision: "none"
+          }).fadeIn(200);
+          return false;
+        });
+        $('#allmembers').click(function() {
+          var s = $('#allmembers option:selected').text()
+          var exists = $("#members option[value='"+s+"']").length !== 0;
+          if (s != "" && !exists) {
+            $('#members').append(new Option(s,s,false,false));
+          }
+        });
+        $('#showmembers').click(function() {
+          var pos = $('#member').offset();
+          pos.top += $('#member').width();
+          $('#allmembers').fadeIn(100);
+          $('#allmembers').css({position:"absolute",top:0,left:0}).position({
+             my: "right top",
+             at: "right bottom",
+             of: "#showmembers",
              offset: "1 -1",
              collision: "none"
           }).fadeIn(200);
@@ -119,9 +188,17 @@
           $('#usertags :selected').remove();
           return false;
         });
+        $('#delmember').click(function() {
+          $('#members :selected').remove();
+          return false;
+        });
         $(document).mouseup(function(e) {
           // hide the tags list if clicked outside
           var container = $("#alltags");
+          if (container.has(e.target).length === 0) {
+            container.hide();
+          }
+          var container = $("#allmembers");
           if (container.has(e.target).length === 0) {
             container.hide();
           }

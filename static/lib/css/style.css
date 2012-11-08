@@ -383,6 +383,12 @@ del {
     color: rgba(255, 255, 255, 0.5);
 }
 
+#allmembers {
+  display: none;
+  height: 200px;
+  overflow-y: scroll;
+}
+
 #alltags {
   display: none;
   height: 200px;
