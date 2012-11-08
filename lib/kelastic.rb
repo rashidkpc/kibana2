@@ -98,7 +98,12 @@ class Kelastic
       	if KibanaConfig::Smart_index_pattern != ""
       	  index_pattern = KibanaConfig::Smart_index_pattern
       	end
-        (Time.now.utc).strftime(index_pattern)
+        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
+        indices = []
+        for index in index_pattern do
+            indices.push((Time.now.utc).strftime(index))
+        end
+        indices
       else
         KibanaConfig::Default_index
       end
