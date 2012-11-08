@@ -946,11 +946,6 @@ function mFields(field) {
     $('#fields ul.unselected a[data-field="' + field + '"]').addClass('selected');
     $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-plus');
     $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-minus');
-    // Add field to selected list and hide unselected
-    //$('#fields ul.unselected li[data-field="' + field + '"]').hide();
-    //if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
-    //  $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
-    //}
 
     // Add column
     $('#logs').find('tr.logrow').each(function(){
@@ -980,8 +975,6 @@ function mFields(field) {
     $('#fields ul.unselected a[data-field="' + field + '"]').removeClass('selected');
     $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-minus');
     $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-plus');
-    // $('#fields ul.selected li[data-field="' + field + '"]').remove();
-    // $('#fields ul.unselected li[data-field="' + field + '"]').show();
 
     if (window.hashjson.fields.length == 0) {
       $.each(window.resultjson.kibana.default_fields, function(index,field){
