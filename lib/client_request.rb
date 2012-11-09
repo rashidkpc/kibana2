@@ -5,7 +5,7 @@ require 'time'
 
 $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
-require 'KibanaConfig'
+require 'KibanaConfig' unless defined?(KibanaConfig)
 require 'compat'
 
 =begin
