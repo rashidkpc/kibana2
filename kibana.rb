@@ -215,9 +215,9 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
         group=locals[:user_data][:username][/[^@].*/]
         locals[:group_members] = @@auth_module.group_members(group)
         locals[:allusers] = @@auth_module.users()
-        puts "allusers: " + locals[:allusers].inspect
       else
         locals[:user_groups] = @@auth_module.membership(locals[:user_data][:username])
+        locals[:allgroups] = @@auth_module.groups()
       end
     elsif mode == "new"
     else
@@ -245,6 +245,26 @@ post '/auth/admin/save' do
     elsif params[:pass1] != nil
       password = params[:pass1]
       @@auth_module.set_password(username, password)
+      user_groups = params[:user_groups]
+      old_groups = @@auth_module.membership(username)
+      if user_groups.nil?
+        del_groups = old_groups
+      elsif old_groups.nil?
+        add_groups=user_groups
+      else
+        add_groups = user_groups-old_groups
+        del_groups = old_groups-user_groups
+      end
+      if not add_groups.nil?
+        add_groups.each do |group|
+          @@auth_module.add_user_2group(username, group)
+        end
+      end
+      if not del_groups.nil?
+        del_groups.each do |group|
+          @@auth_module.rm_user_from_group(username, group)
+        end
+      end
     end
   end
   # FIXME: Find a better way to make sure the changes will show on page load
