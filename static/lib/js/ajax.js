@@ -339,7 +339,6 @@ function getAnalysis() {
         var field = window.hashjson.analyze_field;
         resultjson = JSON.parse(json);
 
-        console.log(resultjson)
 
         $('.pagelinks').html('');
         $('#fields').html('');
@@ -531,7 +530,6 @@ function analysisTable(resultjson) {
 }
 
 function termsTable(resultjson) {
-  console.log(resultjson)
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
@@ -546,7 +544,6 @@ function termsTable(resultjson) {
         var value = ''
       } else {
         var value = termv[count]
-        console.log(value)
       }
       metric[fields[count]] = value;
     }
@@ -1391,7 +1388,6 @@ function move_column(field,dir) {
   var len = $('#logs thead th').length
   if (len == 2)
     return
-  console.log(len)
   var thi = $('#logs th.column[data-field="'+field+'"]').index()
 
   dest = thi+x

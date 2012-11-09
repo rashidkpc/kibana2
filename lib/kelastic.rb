@@ -365,6 +365,8 @@ class KelasticResponse
 
     # Very similar to flatten_response, except only returns an array of field
     # values, without seperating into hit objects things.
+    # Not sure when this broke. Doesn't work for fields store as arrays   
+=begin
     def collect_field_values(response,fields)
       @hit_list = Array.new
       fvs = Array.new
@@ -383,6 +385,22 @@ class KelasticResponse
       end
       @hit_list
     end
+=end
+    def collect_field_values(response,field)
+      @hit_list = Array.new
+      # TODO: Fix this Nasty hack
+      field = field[0]
+      response['hits']['hits'].each do |hit|
+        fv = get_field_value(hit,field)
+        if fv.kind_of?(Array)
+          @hit_list = @hit_list + fv.map(&:to_s)
+        else
+          @hit_list << fv.to_s
+        end
+      end
+      @hit_list
+    end
+
 
     # Returns a hash with a count of values
     def count_field(response,field,limit = 0)
