@@ -40,6 +40,7 @@ class AuthElasticSearch
   # Required function, authenticates a username/password
   def authenticate(username,password)
     user = lookup_user(username)
+    return false if not user
     salt=user['salt']
     hashpass=Digest::SHA256.hexdigest(salt + password)
     if(hashpass == user['password'])

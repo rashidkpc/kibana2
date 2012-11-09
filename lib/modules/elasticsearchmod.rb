@@ -7,20 +7,19 @@ class Elasticsearchmod
   end
 
   def get_by_id(id)
+    return nil if id.empty?
     r = Elasticsearchmod.run("#{@query_url}/#{id}", '', 'get')
-    if ! r['exists']
-      nil
-    else
-      r['_source']
-    end
+    r['exists'] ? r['_source'] : nil
   end
 
   def set_by_id(id, values)
+    return nil if id.empty?
     values = values.to_json
     result  = Elasticsearchmod.run("#{@query_url}/#{id}", values)
   end
 
   def del_by_id(id)
+    return nil if id.empty?
     result  = Elasticsearchmod.run("#{@query_url}/#{id}", '', 'delete')
   end
 
@@ -38,12 +37,14 @@ class Elasticsearchmod
   end
 
   def del_term_from_record_array(id, term, value)
+    return nil if id.empty? or term.empty? or value.empty?
     query = '{ "script" : "ctx._source.'+term+'.remove(value)", "params" : {"value" : "'+value+'"}}'
     r = Elasticsearchmod.run("#{@query_url}/#{id}/_update", query)
     return True
   end
 
   def add_term_to_record_array(id, term, value, defaults)
+    return nil if id.empty? or term.empty? or value.empty? or defaults.empty?
     defaults = defaults.to_json
     query = '{ "script" : "ctx._source.'+term+' += value",
                "params" : {"value" : "'+value+'"},
@@ -54,6 +55,7 @@ class Elasticsearchmod
   end
 
   def get_record_ids_with_term(term, value)
+    return nil if term.empty? or value.empty?
     results = Array.new
     r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } } }')
     r = r['hits']
