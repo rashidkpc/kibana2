@@ -40,7 +40,7 @@ class Elasticsearchmod
     return nil if id.empty? or term.empty? or value.empty?
     query = '{ "script" : "ctx._source.'+term+'.remove(value)", "params" : {"value" : "'+value+'"}}'
     r = Elasticsearchmod.run("#{@query_url}/#{id}/_update", query)
-    return True
+    r['ok']
   end
 
   def add_term_to_record_array(id, term, value, defaults)
@@ -51,7 +51,7 @@ class Elasticsearchmod
                "upsert" : '+defaults+'
              }'
     r = Elasticsearchmod.run("#{@query_url}/#{id}/_update", query)
-    return True
+    r['ok']
   end
 
   def get_record_ids_with_term(term, value)

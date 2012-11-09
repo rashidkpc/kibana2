@@ -24,6 +24,13 @@
          <% end %>
        <% end %>
        </select>
+       <select id="allgroups" size=10 class="nav nav-list">
+       <% if locals[:allgroups] %>
+         <% locals[:allgroups].each do |group| %>
+         <option value="<%= group %>"><%= group %></option>
+         <% end %>
+       <% end %>
+       </select>
       <% if locals[:mode] == "new" %>
       <form id="userdata" class="form-horizontal" method="post" action="save">
       <% else %>
@@ -87,9 +94,15 @@
           <% else %>
           <label class="control-label" for="tag">Groups</label>
           <div class="controls">
-            <select id="usergroups" name="usergroups[]" multiple="multiple" class="span4">
-            <% if locals[:mode] == "edit" && locals[:user_data][:user_groups] %>
-              <% locals[:user_data][:user_groups].each do |group| %>
+            <input id="group" type="text" class=span4 placeholder="Search..." disabled="disabled"/>
+            <button id="showgroups" class="btn btn-small"><i class="icon-chevron-down"></i></button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <select id="user_groups" name="user_groups[]" multiple="multiple" class="span4">
+            <% if locals[:mode] == "edit" && locals[:user_groups] %>
+              <% locals[:user_groups].each do |group| %>
               <option value="<%= group %>"><%= group %></option>
               <% end %>
             <% end %>
@@ -127,6 +140,7 @@
         $('#userdata').submit(function() {
           $('#usertags option').attr('selected',true);
           $('#members option').attr('selected',true);
+          $('#user_groups option').attr('selected',true);
         });
         $('#addtag').click(function() {
           var s = $('#tag').val().trim();
@@ -166,6 +180,13 @@
             $('#members').append(new Option(s,s,false,false));
           }
         });
+        $('#allgroups').click(function() {
+          var s = $('#allgroups option:selected').text()
+          var exists = $("#user_groups option[value='"+s+"']").length !== 0;
+          if (s != "" && !exists) {
+            $('#user_groups').append(new Option(s,s,false,false));
+          }
+        });
         $('#showmembers').click(function() {
           var pos = $('#member').offset();
           pos.top += $('#member').width();
@@ -174,6 +195,19 @@
              my: "right top",
              at: "right bottom",
              of: "#showmembers",
+             offset: "1 -1",
+             collision: "none"
+          }).fadeIn(200);
+          return false;
+        });
+        $('#showgroups').click(function() {
+          var pos = $('#group').offset();
+          pos.top += $('#group').width();
+          $('#allgroups').fadeIn(100);
+          $('#allgroups').css({position:"absolute",top:0,left:0}).position({
+             my: "right top",
+             at: "right bottom",
+             of: "#showgroups",
              offset: "1 -1",
              collision: "none"
           }).fadeIn(200);
@@ -192,6 +226,10 @@
           $('#members :selected').remove();
           return false;
         });
+        $('#delgroup').click(function() {
+          $('#user_groups :selected').remove();
+          return false;
+        });
         $(document).mouseup(function(e) {
           // hide the tags list if clicked outside
           var container = $("#alltags");
@@ -199,6 +237,10 @@
             container.hide();
           }
           var container = $("#allmembers");
+          if (container.has(e.target).length === 0) {
+            container.hide();
+          }
+          var container = $("#allgroups");
           if (container.has(e.target).length === 0) {
             container.hide();
           }

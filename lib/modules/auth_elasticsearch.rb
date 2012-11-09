@@ -64,17 +64,17 @@ class AuthElasticSearch
 
   # This update a groups list of users
   def add_user_2group(username,group)
-    defaults = {"group" => group, "members" => [username]}
+    defaults = {"group" => group, "members" => "["+username+"]"}
     result = @gesm.add_term_to_record_array(group, "members", username, defaults)
   end
 
   def rm_user_from_group(username,group)
-    result = del_term_from_record_array(group, "members", username)
+    result = @gesm.del_term_from_record_array(group, "members", username)
   end
 
-  def add_group(group, members=[])
+  def add_group(group, members)
+    members = members || []
     values = {"group" => group, "members" => members}
-    p values
     result = @gesm.set_by_id(group, values)
   end
 
@@ -95,8 +95,7 @@ class AuthElasticSearch
 
   # Required function, returns a list of all groups
   def groups()
-    g = @gesm.get_all('username')
-    p g
+    g = @gesm.get_all('group')
     return g.sort
   end
 end
