@@ -7,7 +7,7 @@ $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'query'
 require 'compat'
-require 'KibanaConfig'
+require 'KibanaConfig' unless defined?(KibanaConfig)
 
 =begin
 = Class: Kelastic
