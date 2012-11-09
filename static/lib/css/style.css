@@ -11,6 +11,14 @@ body {
 
 .popover {
   margin-top: 100px;
+  min-height: 300px;
+  width: 400px;
+  z-index: 9999;
+}
+
+
+.popover-inner {
+  width: auto;
 }
 
 .popover.right .arrow {
@@ -209,14 +217,6 @@ table.micro td {
   line-height: 12px;
 }
 
-.popover {
-  width: 400px;
-  z-index: 9999;
-}
-
-.popover-inner {
-  width: auto;
-}
 
 #graph_container {
   height: 100px;
