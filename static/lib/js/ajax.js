@@ -253,35 +253,47 @@ function getTermsPieChart(resultjson){
     data[i] = { label: term['term'], data: term['count'] };
   });
 
-  $.plot($("#piechart"), data, {
+  var plot = $.plot($("#piechart"), data, {
     series: {
       pie: {
-        innerRadius: 0.4,
         show: true,
         combine: {
           color: '#999',
           threshold: 0.02,
-          label: 'Remaining Combined'
+          label: 'The Rest'
         },
         label: {
-          show: true,
-          radius: 1,
-          formatter: function(label, series){
-            return '<div style="font-size:10pt;text-align:center;padding:1px;color:white;">'+
-                      label+'<strong> '+Math.round(series.percent)+'%</strong></div>';
-          },
-          background: { opacity: 1 }
+          show: false,
         }
       }
-    },
-    legend: {
-      show: false
     },
     grid: {
       hoverable: true,
       clickable: true
+    },
+    legend: {
+      show: false
     }
   });
+
+  var previousLabel = null;
+  $("#piechart").bind("plothover", function (event, pos, item) {
+    if (item) {
+      if (previousLabel != item.series.label) {
+        previousLabel = item.series.label;
+        $("#tooltip").remove();
+        var label = (!item.series.label) ? "missing" : item.series.label;
+        showTooltip(
+          pos.pageX+30, pos.pageY, 
+          "<b>"+label+"</b>" + " " + Math.round(item.series.percent) + "%"
+        );
+      }
+    } else {
+      $("#tooltip").remove();
+      previousLabel = null;
+    }
+  });
+
 }
 
 function analyzeField(field, mode) {
@@ -386,16 +398,17 @@ function getAnalysis() {
               count: resultjson.facets.terms.missing
             });
 
-          var title = '<h2>Terms Facet of ' +
+          var title = ''+
+            '<h2>Terms Facet of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
-            '</h2>' +
+            '<div class=pull-left id="piechart"></div></h2>' +
             'This analysis is based on the events in the <strong>' +
             index_count +'</strong> most recent indices ' +
             'for your query in your selected timeframe.<br><br>'+
-            '<!-- <div id="piechart" style="width:100%;height:500px"></div> -->';
+            '';
 
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
@@ -404,7 +417,7 @@ function getAnalysis() {
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
-          //getTermsPieChart(resultjson)
+          getTermsPieChart(resultjson)
           break;
 
         case 'score':
@@ -832,11 +845,11 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
 function details_table(objid,theme) {
   if (theme === undefined) theme = 'logdetails table table-bordered';
 
-  obj = window.resultjson.hits.hits[objid];
+  var obj = window.resultjson.hits.hits[objid];
 
   //obj_fields = get_object_fields(obj);
-  obj_fields = flatten_json(obj['_source'])
-  str = "<table class='"+theme+"'>" +
+  var obj_fields = flatten_json(obj['_source'])
+  var str = "<table class='"+theme+"'>" +
     "<tr><th>Field</th><th>Action</th><th>Value</th></tr>";
 
 
@@ -854,18 +867,7 @@ function details_table(objid,theme) {
       "<i class='jlink icon-large icon-ban-circle msearch' " +
       "data-action='NOT ' data-field='"+field+"'></i> ";
 
-    /*
-    if (isNaN(value)) {
-      try {
-        var json = JSON.parse(value);
-        value = JSON.stringify(json,null,4);
-        buttons = "";
-      } catch(e) {
-      }
-    }
-    */
-
-    trclass = (i % 2 == 0) ?
+    var trclass = (i % 2 == 0) ?
       'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
 
     str += "<tr " + trclass + ">" +
@@ -995,12 +997,6 @@ function mFields(field) {
     return(n);
   });
 
-  /*
-  $('#logs').html(CreateLogTable(
-    window.resultjson.hits.hits, window.hashjson.fields,
-    'table logs table-condensed'));
-  */
-
   $('#feedlinks').html(feedLinks(window.hashjson));
 
   enable_popovers();
@@ -1033,10 +1029,10 @@ $(function () {
    var pattern=/^(.*)\|([^"']*)$/;
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
-      var search = $.trim(results[1]);
-      var fields = $.trim(results[2]).split(/\s+/);
-      var field = fields.slice(1).join(',,');
-      var mode = fields[0];
+      var search  = $.trim(results[1]);
+      var fields  = $.trim(results[2]).split(/\s+/);
+      var field   = fields.slice(1).join(',,');
+      var mode    = fields[0];
 
       window.hashjson.mode = mode;
       if (mode == 'columns')
@@ -1057,8 +1053,7 @@ $(function () {
 function datepickers(from,to) {
 
   var graph_interval = window.hashjson.time.user_interval;
-  var interval_opts = [
-    'auto','minute','hour','day'];
+
   var interval_opts = {
     auto:0,
     second:1000,
@@ -1066,24 +1061,20 @@ function datepickers(from,to) {
     hour:60*60*1000,
     day:60*60*24*1000
   };
+  var options = ''
+  $.each(interval_opts,function(i,interval) {
+    options += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
+      '>'+i+'</option>';
+  });
 
-  var html = "<div class='form-inline'>"+
+  $('#graphheader').html("<div class='form-inline'>"+
     "<input size=19 id=timefrom class='datetimeRange'" +
     " type=text name=timefrom> to " +
     "<input size=19 id=timeto class='datetimeRange'" +
     " type=text name=timeto> grouped by " +
-    "<select id=user_interval name=user_interval> ";
-
-  $.each(interval_opts,function(i,interval) {
-    html += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
-      '>'+i+'</option>';
-  });
-
-  html += "</select>" +
-    "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
-    "> filter</button></div>";
-
-  $('#graphheader').html(html);
+    "<select id=user_interval name=user_interval> " + options + "</select>" +
+    "<button id='timechange' class='btn btn-small jlink' " + 
+    "style='visibility: hidden'> filter</button></div>");
 
   $('#timefrom').datetimeEntry({
     maxDatetime : new Date(to - tOffset),
@@ -1276,7 +1267,7 @@ function logGraph(data, interval, metric) {
             y = Math.round(item.datapoint[1]*100)/100;
 
           showTooltip(
-            item.pageX + 50, item.pageY, y + " at " + prettyDateString(x)
+            item.pageX-120, item.pageY-20, y + " at " + prettyDateString(x)
           );
         }
       } else {
@@ -1342,8 +1333,8 @@ function showTooltip(x, y, contents) {
   $('<div id="tooltip">' + contents + '</div>').css({
     position: 'absolute',
     display: 'none',
-    top: y - 20,
-    left: x - 200,
+    top: y,
+    left: x,
     color: '#eee',
     border: '1px solid #fff',
     padding: '3px',

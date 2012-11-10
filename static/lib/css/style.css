@@ -105,6 +105,12 @@ i.shift_column {
 
 }
 
+#piechart {
+  height:80px;
+  width: 80px;
+  margin: 0px 20px 10px 0px; 
+}
+
 #meta {
   text-align: right;
   width: 95px;
