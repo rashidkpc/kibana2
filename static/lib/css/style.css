@@ -13,7 +13,7 @@ body {
   margin-top: 100px;
   min-height: 300px;
   width: 400px;
-  z-index: 9999;
+  z-index: 100;
 }
 
 
@@ -22,7 +22,7 @@ body {
 }
 
 .popover.right .arrow {
-    margin-top: -110px !important;
+    margin-top: -115px !important;
 }
 
 .content {
@@ -106,9 +106,14 @@ i.shift_column {
 }
 
 #piechart {
-  height:80px;
-  width: 80px;
+  height:100px;
+  width: 100px;
   margin: 0px 20px 10px 0px; 
+}
+
+span#micrograph {
+  width: 370px;
+  height: 20px;
 }
 
 #meta {
@@ -216,6 +221,7 @@ table.micro {
   table-layout:fixed;
   font-size: 0.8em;
   overflow: hidden;
+  margin-bottom: 5px;
 }
 
 table.micro td {

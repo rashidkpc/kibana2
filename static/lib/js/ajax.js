@@ -247,37 +247,28 @@ function getGraph(interval) {
 }
 
 // create a pie chart for a terms facet
-function getTermsPieChart(resultjson){
-  var data = [];
-  $.each(resultjson.facets.terms.terms,function(i,term) {
-    data[i] = { label: term['term'], data: term['count'] };
-  });
+function pieChart(data,selector){
 
-  var plot = $.plot($("#piechart"), data, {
+  var plot = $.plot($(selector), data, {
     series: {
       pie: {
+        radius: 1,
         show: true,
         combine: {
           color: '#999',
           threshold: 0.02,
           label: 'The Rest'
         },
-        label: {
-          show: false,
-        }
+        label: { show: false }
       }
     },
-    grid: {
-      hoverable: true,
-      clickable: true
-    },
-    legend: {
-      show: false
-    }
+    grid: { hoverable: true, clickable: true },
+    legend: { show: false }
   });
 
+  // This should be generalized. Too much copy + paste
   var previousLabel = null;
-  $("#piechart").bind("plothover", function (event, pos, item) {
+  $(selector).bind("plothover", function (event, pos, item) {
     if (item) {
       if (previousLabel != item.series.label) {
         previousLabel = item.series.label;
@@ -351,7 +342,6 @@ function getAnalysis() {
         var field = window.hashjson.analyze_field;
         resultjson = JSON.parse(json);
 
-
         $('.pagelinks').html('');
         $('#fields').html('');
 
@@ -387,6 +377,7 @@ function getAnalysis() {
 
         setMeta(resultjson.hits.total);
         var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
+
         switch (window.hashjson.mode) {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
@@ -417,7 +408,13 @@ function getAnalysis() {
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
-          getTermsPieChart(resultjson)
+
+          var data = [];
+          $.each(resultjson.facets.terms.terms,function(i,term) {
+            data[i] = { label: term['term'], data: term['count'] };
+          });
+          pieChart(data,'#piechart')
+
           break;
 
         case 'score':
@@ -623,11 +620,12 @@ function enable_popovers() {
         "data-field='_exists_'></i> " +
         "<i class='jlink icon-ban-circle msearch' data-action='' "+
         "data-field='_missing_'></i> ";
-      return buttons + " " + field +
-        "<small> micro analysis <span class='small event_count'>"+
+      var str = buttons + " " + field +
+        " <small><span class='small event_count'>"+
         "(<a class='jlink highlight_events' data-field='"+field+"'" +
           " data-mode='field' data-objid='"+objids+"'>" +
-          objids.length+" events</a> on this page)</span></small>  ";
+          objids.length+" events</a> on this page)</span></small>";  
+      return str;
     },
     content: function() {
       var related_limit = 10;
@@ -650,7 +648,10 @@ function enable_popovers() {
           (i - related_limit) + ' more</a>' : '';
         str += "</small></span>";
       }
-      return microAnalysisTable(window.resultjson,field,5) + str +
+
+      str =  microAnalysisTable(window.resultjson,field,5) + 
+        "<span id=micrograph></span>"+
+        str +
         "<div class='btn-group'>" +
           "<button class='btn btn-small analyze_btn' rel='score' " +
           "data-field="+field+"><i class='icon-list-ol'></i> Score</button>" +
@@ -661,12 +662,20 @@ function enable_popovers() {
           "<button class='btn btn-small analyze_btn' rel='mean' " +
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
+      return str;
     },
   }).click(function(e) {
     if(popover_visible) {
       $('.popover').remove();
     }
     $(this).popover('show');
+    var data = top_field_values(window.resultjson,$(this).attr('data-field'),5)
+    var i = 0, chart = [];
+    for (var point in data) {
+      chart.push([[data[point][1],0]])
+      i = i + 1;
+    }
+    aGraph(chart,'#micrograph')
     popover_clickedaway = false
     popover_visible = true
     e.preventDefault()
@@ -677,10 +686,13 @@ function enable_popovers() {
 function microAnalysisTable (json,field,count) {
   var counts = top_field_values(json,field,count)
   var table = []
+  var colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"]
+  var i = 0;
   $.each(counts, function(index,value){
     var show_val = value[0] == '' ? '<i>blank</i>' : xmlEnt(value[0]);
     var objids = get_objids_with_field_value(window.resultjson,field,value[0])
-    var field_val = "<a class='jlink highlight_events' data-mode='value'"+
+    var field_val = "<i class=icon-sign-blank style='color:"+colors[i]+"'></i> "+
+    "<a class='jlink highlight_events' data-mode='value'"+
     " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
     var buttons = "<span class='raw'>" + value[0] + "</span>" +
               "<i class='jlink icon-large icon-search msearch'"+
@@ -690,6 +702,7 @@ function microAnalysisTable (json,field,count) {
     var percent = "<strong>" +
       to_percent(value[1],window.resultjson.kibana.per_page) +"</strong>";
     table.push([field_val,percent,buttons]);
+    i = i+1;
   });
   return CreateTableView(table,
     'table table-condensed table-bordered micro',false,['99%','30px','30px'])
@@ -1186,6 +1199,19 @@ function field_time(selector) {
     ) + tz_offset;
 }
 
+
+function aGraph(data,selector) {
+  $.plot( $(selector),data, {
+    series: {
+      stack: true,
+      lines: { show:false },
+      bars: { show: true, horizontal:true, fill: 1 }
+    },
+    xaxis: {show:false, max: window.resultjson.kibana.per_page},
+    yaxis: {show:false},
+    grid: {show:false},  
+  });
+}
 
 
 // Big horrible function for creating graphs
