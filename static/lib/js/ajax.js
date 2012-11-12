@@ -4,6 +4,9 @@ $(document).ready(function () {
   bind_clicks()
   popover_setup()
 
+  // Common color profile.
+  window.graph_colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"]
+
   // Hide sidebar by default
   sbctl('hide',false);
 
@@ -256,7 +259,6 @@ function pieChart(data,selector){
         show: true,
         combine: {
           color: '#999',
-          threshold: 0.02,
           label: 'The Rest'
         },
         label: { show: false }
@@ -384,10 +386,11 @@ function getAnalysis() {
             resultjson.kibana.index : resultjson.kibana.index.split(',').length;
 
           // add the missing count for the terms table and pie chart
+          // This should really insert at the right point.
           resultjson.facets.terms.terms.push({
-              term: '',
-              count: resultjson.facets.terms.missing
-            });
+            term: '',
+            count: resultjson.facets.terms.missing
+          });
 
           var title = ''+
             '<h2>Terms Facet of ' +
@@ -409,10 +412,17 @@ function getAnalysis() {
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
 
+          // Calculate data for pie chart
           var data = [];
           $.each(resultjson.facets.terms.terms,function(i,term) {
-            data[i] = { label: term['term'], data: term['count'] };
+            data[i] = { label: term['term'], data: term['count'], color: window.graph_colors[i] };
           });
+          var remain = data.slice(window.graph_colors.length,data.length)
+          var r = 0
+          for (var x in remain) { r += remain[x].data; }
+          data = data.slice(0,window.graph_colors.length)
+          data.push({ label: "The Rest", data: r, color: '#AAA' })
+          console.log(r)
           pieChart(data,'#piechart')
 
           break;
@@ -543,9 +553,13 @@ function termsTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
-    object = resultjson.facets.terms.terms[obj],
-    metric = {};
-    metric['Rank'] = i + 1;
+    var object = resultjson.facets.terms.terms[obj];
+    var metric = {};
+    console.log(window.graph_colors.length)
+    var color = i < window.graph_colors.length ? 
+      " <i class=icon-sign-blank style='color:"+window.graph_colors[i]+"'><i>" : '';
+
+    metric['Rank'] = (i + 1) + color;
     var termv = object.term.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
     for (var count = 0; count < fields.length; count++) {
@@ -675,7 +689,7 @@ function enable_popovers() {
       chart.push([[data[point][1],0]])
       i = i + 1;
     }
-    aGraph(chart,'#micrograph')
+    tiny_bar(chart,'#micrograph')
     popover_clickedaway = false
     popover_visible = true
     e.preventDefault()
@@ -686,7 +700,7 @@ function enable_popovers() {
 function microAnalysisTable (json,field,count) {
   var counts = top_field_values(json,field,count)
   var table = []
-  var colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"]
+  var colors = window.graph_colors;
   var i = 0;
   $.each(counts, function(index,value){
     var show_val = value[0] == '' ? '<i>blank</i>' : xmlEnt(value[0]);
@@ -1200,7 +1214,7 @@ function field_time(selector) {
 }
 
 
-function aGraph(data,selector) {
+function tiny_bar(data,selector) {
   $.plot( $(selector),data, {
     series: {
       stack: true,
