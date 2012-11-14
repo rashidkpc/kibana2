@@ -286,12 +286,12 @@ function ISODateString(d) {
   function pad(n) {
     return n < 10 ? '0' + n : n
   }
-  return d.getUTCFullYear() + '-' +
-    pad(d.getUTCMonth() + 1) + '-' +
-    pad(d.getUTCDate()) + 'T' +
-    pad(d.getUTCHours()) + ':' +
-    pad(d.getUTCMinutes()) + ':' +
-    pad(d.getUTCSeconds());
+  return d.getFullYear() + '-' +
+    pad(d.getMonth() + 1) + '-' +
+    pad(d.getDate()) + 'T' +
+    pad(d.getHours()) + ':' +
+    pad(d.getMinutes()) + ':' +
+    pad(d.getSeconds());
 }
 
 function pickDateString(d) {
@@ -299,8 +299,15 @@ function pickDateString(d) {
 }
 
 function prettyDateString(d) {
-  d = new Date(parseInt(d - window.tOffset));
+  d = new Date(parseInt(d));
+  d = utc_date_obj(d);
   return dateFormat(d,window.time_format);
+}
+
+function utc_date_obj(d) {
+  return new Date(
+    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),  
+    d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds());
 }
 
 function is_int(value) {

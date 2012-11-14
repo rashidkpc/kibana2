@@ -422,7 +422,6 @@ function getAnalysis() {
           for (var x in remain) { r += remain[x].data; }
           data = data.slice(0,window.graph_colors.length)
           data.push({ label: "The Rest", data: r, color: '#AAA' })
-          console.log(r)
           pieChart(data,'#piechart')
 
           break;
@@ -555,7 +554,6 @@ function termsTable(resultjson) {
   for (var obj in resultjson.facets.terms.terms) {
     var object = resultjson.facets.terms.terms[obj];
     var metric = {};
-    console.log(window.graph_colors.length)
     var color = i < window.graph_colors.length ? 
       " <i class=icon-sign-blank style='color:"+window.graph_colors[i]+"'><i>" : '';
 
@@ -1103,22 +1101,25 @@ function datepickers(from,to) {
     "<button id='timechange' class='btn btn-small jlink' " + 
     "style='visibility: hidden'> filter</button></div>");
 
+  var from_date = utc_date_obj(new Date(from - tOffset))
+  var to_date   = utc_date_obj(new Date(to - tOffset));
   $('#timefrom').datetimeEntry({
-    maxDatetime : new Date(to - tOffset),
+    maxDatetime : to_date,
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   });
-  $('#timefrom').datetimeEntry('setDatetime',new Date(from-tOffset))
+  $('#timefrom').datetimeEntry('setDatetime',from_date)
 
   $('#timeto').datetimeEntry({
     minDatetime: $('#timefrom').datetimeEntry('getDatetime'),
-    maxDatetime: new Date(),
+    maxDatetime: utc_date_obj(new Date()),
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   },to);
-  $('#timeto').datetimeEntry('setDatetime',new Date(to-tOffset))
+  $('#timeto').datetimeEntry('setDatetime',to_date)
 
 
+  // LOL Wat? o_from and o_to are globals?!
   $('#timefrom,#timeto').datepicker({
     format: 'yyyy-mm-dd'
   }).on('show', function(ev) {
@@ -1131,6 +1132,9 @@ function datepickers(from,to) {
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
   $('.datepicker').remove()
+
+  from = from + tOffset
+  to = to + tOffset
 
   if (!$('#timechange').length || force == true) {
 
@@ -1208,9 +1212,10 @@ function renderDateTimePicker(from, to, force) {
 
 function field_time(selector) {
   var tz_offset = int_to_tz(window.tOffset);
-  return ISODateString(
-    new Date($(selector).datetimeEntry('getDatetime').getTime() + tOffset)
+  var str = ISODateString(
+    new Date($(selector).datetimeEntry('getDatetime').getTime())
     ) + tz_offset;
+  return str;
 }
 
 
@@ -1278,11 +1283,11 @@ function logGraph(data, interval, metric) {
     $('#graph').bind("plotselected", function (event, ranges) {
       if (!intset) {
         intset = true;
+        var from = utc_date_obj(new Date(parseInt(ranges.xaxis.from.toFixed(0))))
+        var to = utc_date_obj(new Date(parseInt(ranges.xaxis.to.toFixed(0))))
         var time = {
-          "from": ISODateString(
-            parseInt(ranges.xaxis.from.toFixed(0)))+int_to_tz(window.tOffset),
-          "to": ISODateString(
-            parseInt(ranges.xaxis.to.toFixed(0)))+int_to_tz(window.tOffset)
+          "from": ISODateString(from)+int_to_tz(window.tOffset),
+          "to": ISODateString(to)+int_to_tz(window.tOffset)
         };
         window.hashjson.offset = 0;
         window.hashjson.time = time;
