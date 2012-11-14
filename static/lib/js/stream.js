@@ -2,9 +2,11 @@ jQuery(document).ready(function() {
   window.i = 0;
   $.history.init(pageload);
 
+  window.freq = 10;
+
   $("#pause_stream").click(function () {
     if (window.pause == true) {
-      window.intervalID = setInterval("getStream()", 10000);
+      window.intervalID = setInterval("getStream()", (window.freq*1000));
       window.pause = false;
       $('#pause_stream').text(' Pause');
       $('#pause_stream').removeClass('btn-info icon-play');
@@ -23,6 +25,7 @@ jQuery(document).ready(function() {
 });
 
 function pageload(hash) {
+  window.freq = 10;
   if (hash) {
     window.last_time = "";
     window.hasHead = false;
@@ -36,7 +39,7 @@ function pageload(hash) {
 
     getStream();
 
-    window.intervalID = setInterval("getStream()", 10000);
+    window.intervalID = setInterval("getStream()", (window.freq*1000));
    }
    else {
     $('#tweets').html('<tr><td>No query</td></tr>');
@@ -44,8 +47,8 @@ function pageload(hash) {
 }
 
 function getStream() {
-  var timeframe = 10;
-  var maxEvents = 15;
+  var timeframe = window.freq;
+  var maxEvents = 100;
   var b64json = Base64.encode(JSON.stringify(window.hashjson));
   var from = ""
 
@@ -61,6 +64,7 @@ function getStream() {
       var id = "";
       var hit = "";
       var i = 0;
+      data.hits.hits = data.hits.hits.reverse();
       for (var obj in data.hits.hits) {
         hit = data.hits.hits[obj]
 
@@ -95,6 +99,7 @@ function getStream() {
         }
       }
       $('#counter h3').fadeOut(100);
+      console.log(data.hits.total)
       $('#counter h3').html(data.hits.total/timeframe+'/second');
       $('#counter h3').fadeIn(500);
 

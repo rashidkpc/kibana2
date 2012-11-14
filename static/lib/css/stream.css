@@ -1,6 +1,7 @@
 html, body {
 margin: 0;
 padding: 0;
+overflow-y:hidden;
 }
 
 #tweets {
@@ -10,6 +11,10 @@ padding: 0;
 
 table#tweets {
 	padding: 0;
+}
+
+div#stream {
+  overflow-y:hidden;
 }
 
 #tweets tr {
