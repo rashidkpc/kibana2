@@ -32,7 +32,7 @@ function pageload(hash) {
     window.hashjson.fields = window.hashjson.fields.length > 0 ?
       window.hashjson.fields : new Array('@message');
 
-    $('#query h4').html(window.hashjson.search);
+    $('#query h4').text(window.hashjson.search);
 
     getStream();
 
@@ -58,8 +58,6 @@ function getStream() {
       window.i++;
       var fields = window.hashjson.fields
       var has_time = false;
-      var header = "";
-      var str = "";
       var id = "";
       var hit = "";
       var i = 0;
@@ -73,7 +71,7 @@ function getStream() {
           has_time = true;
         }
         if ($('#logrow_' + id).length == 0) {
-          str += "<tr id=logrow_" + id + ">";
+          var tableRow = $("<tr/>").attr('id', "logrow_" + id);
           i++;
           hash = Base64.encode(JSON.stringify(
             {
@@ -85,30 +83,29 @@ function getStream() {
               "offset":0
             }
             ));
-          str += "<td style='white-space:nowrap;'><a class=jlink href='../#"+hash+"'><i class='icon-link'></i></a> " +
-            prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset) + "</td>";
+
+          var jlink = $('<a/>').addClass('jlink').attr('href', "../#" + hash).html($('<i/>').addClass('icon-link'));
+          var linkTableData = $("<td/>").css('white-space', 'nowrap');
+          linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset)).prepend(jlink);
+          tableRow.append(linkTableData);
           for (var field in fields) {
-            str += "<td>" +
-              get_field_value(hit,fields[field]) + "</td>";
+            tableRow.append($("<td/>").text(get_field_value(hit,fields[field])));
           }
-          str += "</tr>";
+          $("#tweets tbody").prepend(tableRow);
         }
       }
-
-      $(str).prependTo('#tweets tbody');
-      $('#counter h3').fadeOut(100)
+      $('#counter h3').fadeOut(100);
       $('#counter h3').html(data.hits.total/timeframe+'/second');
-      $('#counter h3').fadeIn(500)
+      $('#counter h3').fadeIn(500);
 
       $( 'tr:gt(' + ( maxEvents ) + ')' ).fadeOut(
         "normal", function() { $(this).remove(); } );
       if(!window.hasHead) {
-        header += "<th>Time</th>";
-        for (var field in fields) {
-            header += "<th>" + fields[field] + "</th>";
-        }
         window.hasHead = true;
-        $('#tweets thead').html(header)
+        $('#tweets thead').append($("<th/>").text("Time"));
+        for (var field in fields) {
+          $('#tweets thead').append($("<th/>").text(fields[field]));
+        }
       }
     }
   });
