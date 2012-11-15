@@ -202,13 +202,13 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
     locals[:mode] = mode
     # TODO: Dynamically populate alltags
     locals[:alltags] = ['*', '_grokparsefailure']
-    locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
     if mode == "edit"
       # the second match contains the '/' at the start,
       # so we take the substring starting at position 1
       locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
       locals[:can_delete] = (locals[:user_data][:username]==KibanaConfig::Auth_Admin_User) ? false : true
       locals[:can_change_groups] = @@auth_module.respond_to?('add_user_2group')
+      locals[:allgroups] = @@auth_module.groups()
       # If they are a group, set group values
       if locals[:user_data][:username].start_with?("@")
         locals[:is_group]=true
@@ -216,10 +216,19 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
         locals[:group_members] = @@auth_module.group_members(group)
         locals[:allusers] = @@auth_module.users()
       else
+        locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
         locals[:user_groups] = @@auth_module.membership(locals[:user_data][:username])
-        locals[:allgroups] = @@auth_module.groups()
       end
-    elsif mode == "new"
+    elsif mode == "newuser"
+      locals[:mode] = "new"
+      locals[:type] = "User"
+      locals[:allgroups] = @@auth_module.groups()
+      locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
+    elsif mode == "newgroup"
+      locals[:mode] = "new"
+      locals[:type] = "Group"
+      locals[:is_group] = true
+      locals[:allusers] = @@auth_module.users()
     else
       halt 404, "Invalid action"
     end
@@ -228,7 +237,10 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
 end
 
 post '/auth/admin/save' do
-  username = params[:username]
+  if params[:Groupname] != nil
+    params[:Username]= '@' + params[:Groupname]
+  end
+  username = params[:Username]
   usertags = params[:usertags]
   if params[:delete] != nil
     puts "Deleting #{username}"
