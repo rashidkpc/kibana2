@@ -264,12 +264,18 @@ class KelasticMulti
 
       segment_response = Kelastic.run(@url,query)
 
-      # Concatonate the hits array
-      @response['hits']['hits'] += segment_response['hits']['hits']
+      if !segment_response['status'] && segment_response['hits']
+        # Concatonate the hits array
+        @response['hits']['hits'] += segment_response['hits']['hits']
 
-      # Add the total hits together
-      @response['hits']['total'] += segment_response['hits']['total']
-      i += 1
+        # Add the total hits together
+        @response['hits']['total'] += segment_response['hits']['total']
+        i += 1
+      elsif segment_response['status'] && 404 == segment_response['status']
+        i += 1
+      else
+        raise "Bad response for query to: #{@url}, query: #{query} response data: #{segment_response.to_yaml}"
+      end
     end
 
     @response['kibana']['index'] = indices
