@@ -24,7 +24,8 @@
        <% end %>
        </tbody>
        </table>
-       <h4>Groups</h4>
+       <h4>Groups <button id="addgroup" class="btn btn-primary btn-small">
+        <i class="icon-group"></i> New Group</button></h4>
        <table class="table table-striped table-bordered table-condensed table-hover">
        <thead>
         <tr>
@@ -52,7 +53,10 @@
       <script>
       $('document').ready(function() {
         $('#adduser').click(function() {
-          window.location = 'admin/new';
+          window.location = 'admin/newuser';
+        });
+        $('#addgroup').click(function() {
+          window.location = 'admin/newgroup';
         });
       });
       </script>

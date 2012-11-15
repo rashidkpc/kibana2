@@ -39,16 +39,16 @@
         <% if locals[:mode] == "edit" %>
         <legend>Editing <%= locals[:user_data][:username] %></legend>
         <% else %>
-        <legend>Adding New User/Group</legend>
+        <legend>Adding New <%= locals[:type] %></legend>
         <% end %>
         <div class="control-group">
           <% if locals[:mode] == "new" %>
-          <label class="control-label" for="username">User/Group Name</label>
+          <label class="control-label" for="<%= locals[:type] %>name"><%= locals[:type] %> Name</label>
           <div class="controls">
-            <input name="username" type="text" class="span4" placeholder="user/group name" />
+            <input name="<%= locals[:type] %>name" type="text" class="span4" placeholder="name" />
           </div>
           <% else %>
-          <input name="username" type="hidden" value="<%= locals[:user_data][:username] %>" />
+          <input name="<%= locals[:type] %>name" type="hidden" value="<%= locals[:user_data][:username] %>" />
           <% end %>
         </div>
         <div class="control-group">
