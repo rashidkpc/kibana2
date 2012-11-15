@@ -98,9 +98,9 @@ function getStream() {
           $("#tweets tbody").prepend(tableRow);
         }
       }
+      var rate = data.hits.total/timeframe;
       $('#counter h3').fadeOut(100);
-      console.log(data.hits.total)
-      $('#counter h3').html(data.hits.total/timeframe+'/second');
+      $('#counter h3').html(rate+'/second');
       $('#counter h3').fadeIn(500);
 
       $( 'tr:gt(' + ( maxEvents ) + ')' ).fadeOut(
@@ -109,9 +109,50 @@ function getStream() {
         window.hasHead = true;
         $('#tweets thead').append($("<th/>").text("Time"));
         for (var field in fields) {
-          $('#tweets thead').append($("<th/>").text(fields[field]));
+          $('#tweets thead').append($("<th/>").html(field_slim(fields[field])));
         }
       }
     }
+
+    var now = new Date()
+
+    if (typeof window.stream_arr === 'undefined') {
+      var now = new Date
+      var range = 900
+      window.stream_arr = []
+      while(range > 0) {
+        window.stream_arr.push([new Date(now.getTime() - range*1000).getTime(),0])
+        range = range-10;
+      }
+    }
+    window.stream_arr.shift()
+    window.stream_arr.push([now.getTime(),rate])
+
+    $.plot(
+      $("#streamgraph"), [
+      {
+        data: window.stream_arr
+      }
+      ], {
+        series: {
+          lines:  { show: true, fill: true },
+          bars:   { show: false,  fill: 1, barWidth: 10000/1.7 },
+          points: { show: false },
+          color: "#555",
+          shadowSize: 1
+        },
+        xaxis: {show:false, mode: "time"},
+        yaxis: {show:false},
+        grid: {show:false},  
+      }
+    );
+  
+
+
+
   });
+}
+
+function field_slim(field) {
+  return field.replace(/(.*)\.(.*)/,"<span class=small>$1.</span><br>$2");
 }
