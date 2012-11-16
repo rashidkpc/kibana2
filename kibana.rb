@@ -322,7 +322,7 @@ get '/api/id/:id/:index' do
   ## TODO: Make this verify that the index matches the smart index pattern.
   id      = params[:id]
   index   = "#{params[:index]}"
-  query   = IdQuery.new(id,@user_perms)
+  query   = IDQuery.new(id,@user_perms)
   result  = Kelastic.new(query,index)
   JSON.generate(result.response)
 end
@@ -458,7 +458,8 @@ get '/api/stream/:hash/?:from?' do
   # Build and execute
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,@user_perms,from,to,0,30)
-  result  = Kelastic.new(query,Kelastic.current_index)
+  indices = Kelastic.index_range(from,to)
+  result  = KelasticMulti.new(query,indices)
   output  = JSON.generate(result.response)
 
   if result.response['hits']['total'] > 0
@@ -480,7 +481,9 @@ get '/rss/:hash/?:count?' do
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
 
-  headers "Content-Type" => "application/rss+xml", "charset" => "utf-8"
+  headers "Content-Type"        => "application/rss+xml",
+          "charset"             => "utf-8",
+          "Content-Disposition" => "inline; filename=kibana_rss_#{Time.now.to_i}.xml"
 
   content = RSS::Maker.make('2.0') do |m|
     m.channel.title = "Kibana #{req.search}"

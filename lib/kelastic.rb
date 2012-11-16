@@ -7,7 +7,7 @@ $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'query'
 require 'compat'
-require 'KibanaConfig'
+require 'KibanaConfig' unless defined?(KibanaConfig)
 
 =begin
 = Class: Kelastic
@@ -91,14 +91,19 @@ class Kelastic
       end
     end
 
-    # TODO: Verify this index exists?
+    # TODO: Verify this index exists?  This is no longer being called.  Possibly remove?
     def current_index
       if KibanaConfig::Smart_index == true
         index_pattern = "logstash-%Y.%m.%d"
       	if KibanaConfig::Smart_index_pattern != ""
       	  index_pattern = KibanaConfig::Smart_index_pattern
       	end
-        (Time.now.utc).strftime(index_pattern)
+        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
+        indices = []
+        for index in index_pattern do
+            indices.push((Time.now.utc).strftime(index))
+        end
+        indices
       else
         KibanaConfig::Default_index
       end
@@ -259,12 +264,18 @@ class KelasticMulti
 
       segment_response = Kelastic.run(@url,query)
 
-      # Concatonate the hits array
-      @response['hits']['hits'] += segment_response['hits']['hits']
+      if !segment_response['status'] && segment_response['hits']
+        # Concatonate the hits array
+        @response['hits']['hits'] += segment_response['hits']['hits']
 
-      # Add the total hits together
-      @response['hits']['total'] += segment_response['hits']['total']
-      i += 1
+        # Add the total hits together
+        @response['hits']['total'] += segment_response['hits']['total']
+        i += 1
+      elsif segment_response['status'] && 404 == segment_response['status']
+        i += 1
+      else
+        raise "Bad response for query to: #{@url}, query: #{query} response data: #{segment_response.to_yaml}"
+      end
     end
 
     @response['kibana']['index'] = indices
@@ -340,12 +351,19 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      if field =~ /(.*?)\.(.*)/
-        if defined? hit['_source'][$1][$2]
-          hit['_source'][$1][$2]
+      recurse_field_dots(hit['_source'],field)
+    end
+
+    # Recursively check for multi-dot fields and nested arrays
+    def recurse_field_dots(obj,field)
+      if !obj[field].nil?
+        obj[field]
+      elsif field =~ /(.*?)\.(.*)/
+        if !obj[$1].nil? and !obj[$1][$2].nil?
+          obj[$1][$2]
+        elsif !obj[$1].nil?
+          recurse_field_dots(obj[$1],$2)
         end
-      elsif defined? hit['_source'][field]
-        hit['_source'][field]
       else
         nil
       end
@@ -353,6 +371,8 @@ class KelasticResponse
 
     # Very similar to flatten_response, except only returns an array of field
     # values, without seperating into hit objects things.
+    # Not sure when this broke. Doesn't work for fields store as arrays   
+=begin
     def collect_field_values(response,fields)
       @hit_list = Array.new
       fvs = Array.new
@@ -371,6 +391,22 @@ class KelasticResponse
       end
       @hit_list
     end
+=end
+    def collect_field_values(response,field)
+      @hit_list = Array.new
+      # TODO: Fix this Nasty hack
+      field = field[0]
+      response['hits']['hits'].each do |hit|
+        fv = get_field_value(hit,field)
+        if fv.kind_of?(Array)
+          @hit_list = @hit_list + fv.map(&:to_s)
+        else
+          @hit_list << fv.to_s
+        end
+      end
+      @hit_list
+    end
+
 
     # Returns a hash with a count of values
     def count_field(response,field,limit = 0)

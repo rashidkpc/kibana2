@@ -11,10 +11,18 @@ body {
 
 .popover {
   margin-top: 100px;
+  min-height: 300px;
+  width: 400px;
+  z-index: 100;
+}
+
+
+.popover-inner {
+  width: auto;
 }
 
 .popover.right .arrow {
-    margin-top: -110px !important;
+    margin-top: -115px !important;
 }
 
 .content {
@@ -95,6 +103,17 @@ i.shift_column {
   padding-top: 4px;
   margin-left: -5px;
 
+}
+
+#piechart {
+  height:100px;
+  width: 100px;
+  margin: 0px 20px 10px 0px; 
+}
+
+span#micrograph {
+  width: 370px;
+  height: 10px;
 }
 
 #meta {
@@ -211,6 +230,7 @@ table.micro {
   table-layout:fixed;
   font-size: 0.8em;
   overflow: hidden;
+  margin-bottom: 5px;
 }
 
 table.micro td {
@@ -218,14 +238,6 @@ table.micro td {
   line-height: 12px;
 }
 
-.popover {
-  width: 400px;
-  z-index: 9999;
-}
-
-.popover-inner {
-  width: auto;
-}
 
 #graph_container {
   height: 100px;
