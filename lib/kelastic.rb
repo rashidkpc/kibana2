@@ -92,16 +92,12 @@ class Kelastic
     # TODO: Verify this index exists?  This is no longer being called.  Possibly remove?
     def current_index
       if KibanaConfig::Smart_index == true
-        index_pattern = "logstash-%Y.%m.%d"
-      	if KibanaConfig::Smart_index_pattern != ""
-      	  index_pattern = KibanaConfig::Smart_index_pattern
-      	end
-        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
-        indices = []
-        for index in index_pattern do
-            indices.push((Time.now.utc).strftime(index))
+        index_pattern = (KibanaConfig::Smart_index_pattern.empty? ? "logstash-%Y.%m.%d" : KibanaConfig::Smart_index_pattern)
+        index_patterns = (index_pattern.kind_of?(Array) ? index_pattern : [index_pattern])
+
+        index_patterns.map do |index|
+          (Time.now.utc).strftime(index)
         end
-        indices
       else
         KibanaConfig::Default_index
       end
