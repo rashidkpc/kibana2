@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/invadersmustdie/Kibana.png?branch=kibana-ruby)](https://travis-ci.org/invadersmustdie/Kibana)
+
 # Kibana
 Copyright 2012 Rashid Khan <rashidkpc #logstash irc.freenode.net>
 
