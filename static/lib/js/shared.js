@@ -1,29 +1,3 @@
-// reduce() polyfill. This needs to move to a polyfill.js
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function reduce(accumulator){
-    if (this===null || this===undefined) throw new TypeError("Object is null or undefined");
-    var i = 0, l = this.length >> 0, curr;
-
-    if(typeof accumulator !== "function") // ES5 : "If IsCallable(callbackfn) is false, throw a TypeError exception."
-      throw new TypeError("First argument is not callable");
-
-    if(arguments.length < 2) {
-      if (l === 0) throw new TypeError("Array length is 0 and no second argument");
-      curr = this[0];
-      i = 1; // start accumulating at the second element
-    }
-    else
-      curr = arguments[1];
-
-    while (i < l) {
-      if(i in this) curr = accumulator.call(undefined, curr, this[i], i, this);
-      ++i;
-    }
-
-    return curr;
-  };
-}
-
 function get_object_fields(obj) {
   var field_array = [];
   obj = flatten_json(obj._source)
