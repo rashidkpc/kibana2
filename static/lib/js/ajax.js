@@ -1077,6 +1077,8 @@ $(function () {
 
 function datepickers(from,to) {
 
+  console.log(new Date(from) +" "+ new Date(to))
+
   var graph_interval = window.hashjson.time.user_interval;
 
   var interval_opts = {
@@ -1119,12 +1121,16 @@ function datepickers(from,to) {
   $('#timeto').datetimeEntry('setDatetime',to_date)
 
 
-  // LOL Wat? o_from and o_to are globals?!
+  // LOL Wat? o_from and o_to are globals?! I should be beaten with a hose for 
+  // the horrid way time is handled in this application. Stupid FLOT.
   $('#timefrom,#timeto').datepicker({
     format: 'yyyy-mm-dd'
   }).on('show', function(ev) {
-    o_from = $('#timefrom').datetimeEntry('getDatetime');
-    o_to = $('#timeto').datetimeEntry('getDatetime');
+    o_from = local_date_obj(
+      new Date($('#timefrom').datetimeEntry('getDatetime').getTime() - tOffset));
+    o_to = local_date_obj(
+      new Date($('#timeto').datetimeEntry('getDatetime').getTime() - tOffset));
+    console.log(o_from + "")
   });
 }
 
@@ -1144,10 +1150,11 @@ function renderDateTimePicker(from, to, force) {
       o_from.setUTCFullYear(ev.date.getFullYear())
       o_from.setUTCMonth(ev.date.getMonth())
       o_from.setUTCDate(ev.date.getDate())
+      console.log(o_from)
       $('.datepicker').remove()
       renderDateTimePicker(
-        new Date(o_from.getTime() + tOffset),
-        new Date(o_to.getTime() + tOffset),
+        o_from.getTime() + tOffset,
+        o_to.getTime() + tOffset,
         true
       );
       window.hashjson.timeframe = 'custom'
@@ -1160,8 +1167,8 @@ function renderDateTimePicker(from, to, force) {
       o_to.setUTCDate(ev.date.getDate())
       $('.datepicker').remove()
       renderDateTimePicker(
-        new Date(o_from.getTime() + tOffset),
-        new Date(o_to.getTime() + tOffset),
+        o_from.getTime() + tOffset,
+        o_to.getTime() + tOffset,
         true
       );
       window.hashjson.timeframe = 'custom'

@@ -284,6 +284,12 @@ function utc_date_obj(d) {
     d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds());
 }
 
+function local_date_obj(d) {
+  return new Date(Date.UTC(
+    d.getFullYear(), d.getMonth(), d.getDate(),  
+    d.getHours(), d.getMinutes(), d.getSeconds()));
+}
+
 function is_int(value) {
   if ((parseFloat(value) == parseInt(value)) && !isNaN(value)) {
     return true;
