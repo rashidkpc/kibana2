@@ -9,6 +9,9 @@ module KibanaConfig
   # Elasticsearch = ["elasticsearch1:9200","elasticsearch2:9200"]
   Elasticsearch = "localhost:9200"
 
+  #Set the Net::HTTP read/open timeouts for the connection to the ES backend
+  ElasticsearchTimeout = 500
+
   # The port Kibana should listen on
   KibanaPort = 5601
 
