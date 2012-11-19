@@ -39,7 +39,11 @@ class Kelastic
     def all_indices
       url = URI.parse("http://#{Kelastic.server}/_aliases")
       http = Net::HTTP.new(url.host,url.port)
-      http.read_timeout = KibanaConfig::ElasticsearchTimeout
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
 
       @status = JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
       indices = @status.keys
@@ -115,8 +119,11 @@ class Kelastic
     def mapping(index)
       url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
       http = Net::HTTP.new(url.host,url.port)
-      http.read_timeout = KibanaConfig::ElasticsearchTimeout
-
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
       JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
     end
 
@@ -153,8 +160,11 @@ class Kelastic
     def run(url,query)
       url = URI.parse(url)
       http = Net::HTTP.new(url.host, url.port)
-      http.read_timeout = KibanaConfig::ElasticsearchTimeout
-      
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
       res = http.post(url.path, query.to_s,
                       'Accept' => 'application/json',
                       'Content-Type' => 'application/json')
