@@ -1077,8 +1077,6 @@ $(function () {
 
 function datepickers(from,to) {
 
-  console.log(new Date(from) +" "+ new Date(to))
-
   var graph_interval = window.hashjson.time.user_interval;
 
   var interval_opts = {
@@ -1130,7 +1128,6 @@ function datepickers(from,to) {
       new Date($('#timefrom').datetimeEntry('getDatetime').getTime() - tOffset));
     o_to = local_date_obj(
       new Date($('#timeto').datetimeEntry('getDatetime').getTime() - tOffset));
-    console.log(o_from + "")
   });
 }
 
@@ -1150,7 +1147,6 @@ function renderDateTimePicker(from, to, force) {
       o_from.setUTCFullYear(ev.date.getFullYear())
       o_from.setUTCMonth(ev.date.getMonth())
       o_from.setUTCDate(ev.date.getDate())
-      console.log(o_from)
       $('.datepicker').remove()
       renderDateTimePicker(
         o_from.getTime() + tOffset,
