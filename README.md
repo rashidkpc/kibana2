@@ -68,6 +68,3 @@ for certain fields if this is not the desired behavior.  Helpful References:
 
 Q: Where can I get some help with this?                                         
 A: Find me on Freenode - rashidkpc in #logstash   
-=======
-Kibana
-======
