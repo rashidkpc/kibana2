@@ -8,7 +8,8 @@ module KibanaConfig
   # load balancing
   # Elasticsearch = ["elasticsearch1:9200","elasticsearch2:9200"]
   Elasticsearch = "localhost:9200"
-
+  ElasticsearchTimeout = 500
+  
   # The port Kibana should listen on
   KibanaPort = 5601
 

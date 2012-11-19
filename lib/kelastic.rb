@@ -38,7 +38,10 @@ class Kelastic
   class << self
     def all_indices
       url = URI.parse("http://#{Kelastic.server}/_aliases")
-      @status = JSON.parse(Net::HTTP.get(url))
+      http = Net::HTTP.new(url.host,url.port)
+      http.read_timeout = KibanaConfig::ElasticsearchTimeout
+
+      @status = JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
       indices = @status.keys
       @status.keys.each do |index|
         if @status[index]['aliases'].count > 0
@@ -111,7 +114,10 @@ class Kelastic
 
     def mapping(index)
       url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
-      JSON.parse(Net::HTTP.get(url))
+      http = Net::HTTP.new(url.host,url.port)
+      http.read_timeout = KibanaConfig::ElasticsearchTimeout
+
+      JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -147,6 +153,8 @@ class Kelastic
     def run(url,query)
       url = URI.parse(url)
       http = Net::HTTP.new(url.host, url.port)
+      http.read_timeout = KibanaConfig::ElasticsearchTimeout
+      
       res = http.post(url.path, query.to_s,
                       'Accept' => 'application/json',
                       'Content-Type' => 'application/json')
