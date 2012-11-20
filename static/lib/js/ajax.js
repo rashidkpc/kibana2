@@ -1546,8 +1546,8 @@ function bind_clicks() {
     window.hashjson.timeframe = $(this).val();
     if (window.hashjson.timeframe == "custom") {
       //Initialize the date picker with a 15 minute window into the past
-      var d = new Date()
-      var startDate = new Date(d - (15 * 60 * 1000));
+      var d = new Date().getTime();
+      var startDate = new Date(d - (15 * 60 * 1000)).getTime();
       renderDateTimePicker(
         startDate, d);
     }
