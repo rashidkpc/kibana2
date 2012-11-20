@@ -38,7 +38,14 @@ class Kelastic
   class << self
     def all_indices
       url = URI.parse("http://#{Kelastic.server}/_aliases")
-      @status = JSON.parse(Net::HTTP.get(url))
+      http = Net::HTTP.new(url.host,url.port)
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
+
+      @status = JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
       indices = @status.keys
       @status.keys.each do |index|
         if @status[index]['aliases'].count > 0
@@ -52,7 +59,8 @@ class Kelastic
       (Date.parse(from.getutc.to_s)..Date.parse(to.getutc.to_s)).to_a
     end
 
-    def index_range(from,to,limit = 0)
+    # Returns list of index-date names which intersect with range defined by from and to
+    def index_range(from,to,limit = -1)
       if KibanaConfig::Smart_index == true
       	index_pattern = "logstash-%Y.%m.%d"
       	if KibanaConfig::Smart_index_pattern != ""
@@ -63,13 +71,10 @@ class Kelastic
         for index in index_pattern do
             requested.concat(date_range(from,to).map{ |date| date.strftime(index) })
         end
+
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
-          if limit != 0
-            intersection.sort.reverse[0..limit]
-          else
-            intersection.sort.reverse
-          end
+          intersection.sort.reverse[0..limit]
         else
           KibanaConfig::Default_index
         end
@@ -94,16 +99,12 @@ class Kelastic
     # TODO: Verify this index exists?  This is no longer being called.  Possibly remove?
     def current_index
       if KibanaConfig::Smart_index == true
-        index_pattern = "logstash-%Y.%m.%d"
-      	if KibanaConfig::Smart_index_pattern != ""
-      	  index_pattern = KibanaConfig::Smart_index_pattern
-      	end
-        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
-        indices = []
-        for index in index_pattern do
-            indices.push((Time.now.utc).strftime(index))
+        index_pattern = (KibanaConfig::Smart_index_pattern.empty? ? "logstash-%Y.%m.%d" : KibanaConfig::Smart_index_pattern)
+        index_patterns = (index_pattern.kind_of?(Array) ? index_pattern : [index_pattern])
+
+        index_patterns.map do |index|
+          (Time.now.utc).strftime(index)
         end
-        indices
       else
         KibanaConfig::Default_index
       end
@@ -111,7 +112,13 @@ class Kelastic
 
     def mapping(index)
       url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
-      JSON.parse(Net::HTTP.get(url))
+      http = Net::HTTP.new(url.host,url.port)
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
+      JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -147,6 +154,11 @@ class Kelastic
     def run(url,query)
       url = URI.parse(url)
       http = Net::HTTP.new(url.host, url.port)
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
       res = http.post(url.path, query.to_s,
                       'Accept' => 'application/json',
                       'Content-Type' => 'application/json')

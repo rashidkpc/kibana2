@@ -9,10 +9,14 @@ module KibanaConfig
   # Elasticsearch = ["elasticsearch1:9200","elasticsearch2:9200"]
   Elasticsearch = "localhost:9200"
 
+  #Set the Net::HTTP read/open timeouts for the connection to the ES backend
+  ElasticsearchTimeout = 500
+
   # The port Kibana should listen on
   KibanaPort = 5601
 
-  # The adress ip Kibana should listen on
+  # The adress ip Kibana should listen on. Comment out or set to
+  # 0.0.0.0 to listen on all interfaces.
   KibanaHost = '127.0.0.1'
 
   # The record type as defined in your logstash configuration.

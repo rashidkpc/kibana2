@@ -1,6 +1,6 @@
 require "spec_helper"
 
-require "kibanaconfig"
+require "KibanaConfig"
 require "id_request"
 
 describe IdRequest do
