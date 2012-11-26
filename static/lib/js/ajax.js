@@ -854,8 +854,21 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var field = fields[index];
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
+      var maxlines = 5;
+      if (field == '@message') {
+         var fullvalue = xmlEnt(wbr(value, 10)).split('<br/>').slice(0);
+         var splitvalue = fullvalue.slice(0, maxlines);
+         if (fullvalue.length > maxlines) {
+            var omitted = fullvalue.length - maxlines;
+            var shortvalue = splitvalue.join('<br/>') + '<br/><small>[...' + omitted + ' lines omitted...]</small>';
+         } else {
+            var shortvalue = fullvalue.join('<br/>');
+         }
+      } else {
+         var shortvalue = xmlEnt(wbr(value, 10));
+      }
       str += '<td class="column" data-field="'+field+'">' +
-        xmlEnt(wbr(value, 10)) + '</td>';
+        shortvalue + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
     i++;
