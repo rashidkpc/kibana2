@@ -70,6 +70,7 @@ get '/api/search/:hash/?:segment?' do
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}
   result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
+  result.response['kibana']['maxlines'] = KibanaConfig::Max_lines
 
   JSON.generate(result.response)
 end
