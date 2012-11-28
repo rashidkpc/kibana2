@@ -855,18 +855,13 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
       // cut long events like stack traces after Max_lines
-      // TODO: make fields configurable
       var maxlines = window.resultjson.kibana.maxlines;
-      if (field == '@message') {
-         var fullvalue = xmlEnt(wbr(value, 10)).split('<br/>').slice(0);
-         if (fullvalue.length > maxlines) {
-            var omitted = fullvalue.length - maxlines;
-            var shortvalue = fullvalue.slice(0, maxlines).join('<br/>') + '<br/><small>[...' + omitted + ' lines omitted...]</small>';
-         } else {
-            var shortvalue = fullvalue.join('<br/>');
-         }
+      var fullvalue = xmlEnt(wbr(value, 10)).split('<br/>').slice(0);
+      if (fullvalue.length > maxlines) {
+        var omitted = fullvalue.length - maxlines;
+        var shortvalue = fullvalue.slice(0, maxlines).join('<br/>') + '<br/><small>[...' + omitted + ' lines omitted...]</small>';
       } else {
-         var shortvalue = xmlEnt(wbr(value, 10));
+        var shortvalue = fullvalue.join('<br/>');
       }
       str += '<td class="column" data-field="'+field+'">' +
         shortvalue + '</td>';
