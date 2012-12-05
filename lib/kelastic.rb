@@ -55,10 +55,6 @@ class Kelastic
       indices.uniq.sort
     end
 
-    def date_range(from,to)
-      (Date.parse(from.getutc.to_s)..Date.parse(to.getutc.to_s)).to_a
-    end
-
     # Returns list of index-date names which intersect with range defined by from and to
     def index_range(from,to,limit = -1)
       if KibanaConfig::Smart_index == true
@@ -69,7 +65,9 @@ class Kelastic
         requested = [] # Initialize empty array
         index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
         for index in index_pattern do
-            requested.concat(date_range(from,to).map{ |date| date.strftime(index) })
+          begin
+            requested << from.strftime(index)
+          end while (from += KibanaConfig::Smart_index_step) <= to
         end
 
         intersection = requested & all_indices
