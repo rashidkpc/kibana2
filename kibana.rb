@@ -215,9 +215,11 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
         group=locals[:user_data][:username][/[^@].*/]
         locals[:group_members] = @@auth_module.group_members(group)
         locals[:allusers] = @@auth_module.users()
+	locals[:type] = "Group"
       else
         locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
         locals[:user_groups] = @@auth_module.membership(locals[:user_data][:username])
+	locals[:type] = "User"
       end
     elsif mode == "newuser"
       locals[:mode] = "new"
