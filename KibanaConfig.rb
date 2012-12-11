@@ -83,8 +83,10 @@ module KibanaConfig
   # date formatting like '%Y.%m.%d'.  Will accept an array of smart 
   # indexes.  
   # Smart_index_pattern = ['logstash-web-%Y.%m.%d', 'logstash-mail-%Y.%m.%d'] 
-  Smart_index_pattern = 'logstash-%Y.%m.%d.%H'
-  Smart_index_step = 3600
+  Smart_index_pattern = 'logstash-%Y.%m.%d'
+  
+  # Number of seconds between each index. 86400 = 1 day.
+  Smart_index_step = 86400 
 
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many
