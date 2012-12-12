@@ -257,8 +257,10 @@ post '/auth/admin/save' do
       members = params[:members]
       @@auth_module.add_group(group, members)
     elsif params[:pass1] != nil
-      password = params[:pass1]
-      @@auth_module.set_password(username, password)
+      if params[:pass1] != ""
+        password = params[:pass1]
+        @@auth_module.set_password(username, password)
+      end
       user_groups = params[:user_groups]
       old_groups = @@auth_module.membership(username)
       if user_groups.nil?
