@@ -1026,6 +1026,8 @@ function mFields(field) {
 
   enable_popovers();
   pageLinks();
+
+  setHash(window.hashjson);
 }
 
 function feedLinks(obj) {
