@@ -307,6 +307,22 @@ get '/export/:hash/?:count?' do
 
 end
 
+# Transient URL Routes
+#
+# Access route
+# Extract the _64hash from the KtransientURL hash table and redirects
+get '/turl/:id' do
+  b64hash = KtransientURL[params[:id]]
+
+  redirect to("/index.html##{b64hash}") unless b64hash.nil?
+  "sorry! #{params[:id]} does not match any entry in Kibana's transient url table"
+end
+
+# Adds _64hash to hash table and returns and ID
+get '/turl/save/:hash' do
+  "#{KtransientURL << params[:hash]}"
+end
+
 get '/js/timezone.js' do
   erb :timezone
 end
