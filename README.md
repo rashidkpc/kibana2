@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/invadersmustdie/Kibana.png?branch=kibana-ruby)](https://travis-ci.org/invadersmustdie/Kibana)
+
 # Kibana
 Copyright 2012 Rashid Khan <rashidkpc #logstash irc.freenode.net>
 
@@ -37,10 +39,10 @@ A: ElasticSearch isn't so hot at going to the last result of a many million
 result query. 
 
 Q: Why is this Ruby instead of PHP now?  
-A: Closer integreation with logstash, Ruby is shiny. Its mostly javascript 
+A: Closer integration with logstash, Ruby is shiny. Its mostly javascript 
 anyway. If you want it in something else, it shouldn't be too hard to port.  
 
-Q: Why do I have to set a limit on events to analyze  
+Q: Why do I have to set a limit on events to analyze?
 A: Big result sets take a long time to retrieve from elasticsearch and parse out  
 
 Q: Well then why don't you use the Elastic Search terms facet?  
@@ -52,7 +54,7 @@ suggestions though. I suggest you be careful with the Statistics mode, its more
 stable than terms, and I try to detect when it might be dangerous but can still
 bite you.  
 
-Q: Why do come results not show up when I search for a string I know is in
+Q: Why do some results not show up when I search for a string I know is in
 the elasticsearch indexes?  
 A: If you are searching analyzed fields, which is the default in ES for string
 fields, remember that they are broken down into terms.  For instance, a search

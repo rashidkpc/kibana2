@@ -2,9 +2,11 @@ jQuery(document).ready(function() {
   window.i = 0;
   $.history.init(pageload);
 
+  window.freq = 10;
+
   $("#pause_stream").click(function () {
     if (window.pause == true) {
-      window.intervalID = setInterval("getStream()", 10000);
+      window.intervalID = setInterval("getStream()", (window.freq*1000));
       window.pause = false;
       $('#pause_stream').text(' Pause');
       $('#pause_stream').removeClass('btn-info icon-play');
@@ -23,6 +25,7 @@ jQuery(document).ready(function() {
 });
 
 function pageload(hash) {
+  window.freq = 10;
   if (hash) {
     window.last_time = "";
     window.hasHead = false;
@@ -32,11 +35,11 @@ function pageload(hash) {
     window.hashjson.fields = window.hashjson.fields.length > 0 ?
       window.hashjson.fields : new Array('@message');
 
-    $('#query h4').html(window.hashjson.search);
+    $('#query h4').text(window.hashjson.search);
 
     getStream();
 
-    window.intervalID = setInterval("getStream()", 10000);
+    window.intervalID = setInterval("getStream()", (window.freq*1000));
    }
    else {
     $('#tweets').html('<tr><td>No query</td></tr>');
@@ -44,8 +47,8 @@ function pageload(hash) {
 }
 
 function getStream() {
-  var timeframe = 10;
-  var maxEvents = 15;
+  var timeframe = window.freq;
+  var maxEvents = 100;
   var b64json = Base64.encode(JSON.stringify(window.hashjson));
   var from = ""
 
@@ -58,11 +61,10 @@ function getStream() {
       window.i++;
       var fields = window.hashjson.fields
       var has_time = false;
-      var header = "";
-      var str = "";
       var id = "";
       var hit = "";
       var i = 0;
+      data.hits.hits = data.hits.hits.reverse();
       for (var obj in data.hits.hits) {
         hit = data.hits.hits[obj]
 
@@ -73,7 +75,7 @@ function getStream() {
           has_time = true;
         }
         if ($('#logrow_' + id).length == 0) {
-          str += "<tr id=logrow_" + id + ">";
+          var tableRow = $("<tr/>").attr('id', "logrow_" + id);
           i++;
           hash = Base64.encode(JSON.stringify(
             {
@@ -85,31 +87,72 @@ function getStream() {
               "offset":0
             }
             ));
-          str += "<td style='white-space:nowrap;'><a class=jlink href='../#"+hash+"'><i class='icon-link'></i></a> " +
-            prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset) + "</td>";
+
+          var jlink = $('<a/>').addClass('jlink').attr('href', "../#" + hash).html($('<i/>').addClass('icon-link'));
+          var linkTableData = $("<td/>").css('white-space', 'nowrap');
+          linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset)).prepend(jlink);
+          tableRow.append(linkTableData);
           for (var field in fields) {
-            str += "<td>" +
-              get_field_value(hit,fields[field]) + "</td>";
+            tableRow.append($("<td/>").text(get_field_value(hit,fields[field])));
           }
-          str += "</tr>";
+          $("#tweets tbody").prepend(tableRow);
         }
       }
-
-      $(str).prependTo('#tweets tbody');
-      $('#counter h3').fadeOut(100)
-      $('#counter h3').html(data.hits.total/timeframe+'/second');
-      $('#counter h3').fadeIn(500)
+      var rate = data.hits.total/timeframe;
+      $('#counter h3').fadeOut(100);
+      $('#counter h3').html(rate+'/second');
+      $('#counter h3').fadeIn(500);
 
       $( 'tr:gt(' + ( maxEvents ) + ')' ).fadeOut(
         "normal", function() { $(this).remove(); } );
       if(!window.hasHead) {
-        header += "<th>Time</th>";
-        for (var field in fields) {
-            header += "<th>" + fields[field] + "</th>";
-        }
         window.hasHead = true;
-        $('#tweets thead').html(header)
+        $('#tweets thead').append($("<th/>").text("Time"));
+        for (var field in fields) {
+          $('#tweets thead').append($("<th/>").html(field_slim(fields[field])));
+        }
       }
     }
+
+    var now = new Date()
+
+    if (typeof window.stream_arr === 'undefined') {
+      var now = new Date
+      var range = 900
+      window.stream_arr = []
+      while(range > 0) {
+        window.stream_arr.push([new Date(now.getTime() - range*1000).getTime(),0])
+        range = range-10;
+      }
+    }
+    window.stream_arr.shift()
+    window.stream_arr.push([now.getTime(),rate])
+
+    $.plot(
+      $("#streamgraph"), [
+      {
+        data: window.stream_arr
+      }
+      ], {
+        series: {
+          lines:  { show: true, fill: true },
+          bars:   { show: false,  fill: 1, barWidth: 10000/1.7 },
+          points: { show: false },
+          color: "#555",
+          shadowSize: 1
+        },
+        xaxis: {show:false, mode: "time"},
+        yaxis: {show:false},
+        grid: {show:false},  
+      }
+    );
+  
+
+
+
   });
+}
+
+function field_slim(field) {
+  return field.replace(/(.*)\.(.*)/,"<span class=small>$1.</span><br>$2");
 }

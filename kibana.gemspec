@@ -17,4 +17,8 @@ gem.add_runtime_dependency 'fastercsv'
 gem.add_runtime_dependency 'tzinfo'
 gem.add_runtime_dependency 'thin'
 
+gem.add_development_dependency 'rake'
+gem.add_development_dependency 'rspec'
+gem.add_development_dependency 'rspec-mocks'
+
 end

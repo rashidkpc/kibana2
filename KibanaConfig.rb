@@ -9,10 +9,14 @@ module KibanaConfig
   # Elasticsearch = ["elasticsearch1:9200","elasticsearch2:9200"]
   Elasticsearch = "localhost:9200"
 
+  #Set the Net::HTTP read/open timeouts for the connection to the ES backend
+  ElasticsearchTimeout = 500
+
   # The port Kibana should listen on
   KibanaPort = 5601
 
-  # The adress ip Kibana should listen on
+  # The adress ip Kibana should listen on. Comment out or set to
+  # 0.0.0.0 to listen on all interfaces.
   KibanaHost = '127.0.0.1'
 
   # The record type as defined in your logstash configuration.
@@ -35,7 +39,7 @@ module KibanaConfig
   Time_format = 'mm/dd HH:MM:ss'
 
   # Change which fields are shown by default. Must be set as an array
-  # Default_fields = ['vhost','response','request']
+  # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
   Default_fields = ['@message']
 
   # The default operator used if no explicit operator is specified.
@@ -76,8 +80,13 @@ module KibanaConfig
   
   # You can define your custom pattern here for index names if you 
   # use something other than daily indexing. Pattern needs to have 
-  # date formatting like '%Y.%m.%d'
+  # date formatting like '%Y.%m.%d'.  Will accept an array of smart 
+  # indexes.  
+  # Smart_index_pattern = ['logstash-web-%Y.%m.%d', 'logstash-mail-%Y.%m.%d'] 
   Smart_index_pattern = 'logstash-%Y.%m.%d'
+  
+  # Number of seconds between each index. 86400 = 1 day.
+  Smart_index_step = 86400 
 
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many
@@ -113,4 +122,7 @@ module KibanaConfig
 
   # Set headers to allow kibana to be loaded in an iframe from a different origin.
   Allow_iframed = false
+
+  # Use this interval as fallback.
+  Fallback_interval = 900
 end

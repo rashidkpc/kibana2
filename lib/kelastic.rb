@@ -7,7 +7,7 @@ $LOAD_PATH << './lib'
 $LOAD_PATH << '..'
 require 'query'
 require 'compat'
-require 'KibanaConfig'
+require 'KibanaConfig' unless defined?(KibanaConfig)
 
 =begin
 = Class: Kelastic
@@ -38,7 +38,14 @@ class Kelastic
   class << self
     def all_indices
       url = URI.parse("http://#{Kelastic.server}/_aliases")
-      @status = JSON.parse(Net::HTTP.get(url))
+      http = Net::HTTP.new(url.host,url.port)
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
+
+      @status = JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
       indices = @status.keys
       @status.keys.each do |index|
         if @status[index]['aliases'].count > 0
@@ -48,24 +55,24 @@ class Kelastic
       indices.uniq.sort
     end
 
-    def date_range(from,to)
-      (Date.parse(from.getutc.to_s)..Date.parse(to.getutc.to_s)).to_a
-    end
-
-    def index_range(from,to,limit = 0)
+    # Returns list of index-date names which intersect with range defined by from and to
+    def index_range(from,to,limit = -1)
       if KibanaConfig::Smart_index == true
       	index_pattern = "logstash-%Y.%m.%d"
       	if KibanaConfig::Smart_index_pattern != ""
       	  index_pattern = KibanaConfig::Smart_index_pattern
       	end
-        requested = date_range(from,to).map{ |date| date.strftime(index_pattern) }
+        requested = [] # Initialize empty array
+        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
+        for index in index_pattern do
+          begin
+            requested << from.strftime(index)
+          end while (from += KibanaConfig::Smart_index_step) <= to
+        end
+
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
-          if limit != 0
-            intersection.sort.reverse[0..limit]
-          else
-            intersection.sort.reverse
-          end
+          intersection.sort.reverse[0..limit]
         else
           KibanaConfig::Default_index
         end
@@ -87,14 +94,15 @@ class Kelastic
       end
     end
 
-    # TODO: Verify this index exists?
+    # TODO: Verify this index exists?  This is no longer being called.  Possibly remove?
     def current_index
       if KibanaConfig::Smart_index == true
-        index_pattern = "logstash-%Y.%m.%d"
-      	if KibanaConfig::Smart_index_pattern != ""
-      	  index_pattern = KibanaConfig::Smart_index_pattern
-      	end
-        (Time.now.utc).strftime(index_pattern)
+        index_pattern = (KibanaConfig::Smart_index_pattern.empty? ? "logstash-%Y.%m.%d" : KibanaConfig::Smart_index_pattern)
+        index_patterns = (index_pattern.kind_of?(Array) ? index_pattern : [index_pattern])
+
+        index_patterns.map do |index|
+          (Time.now.utc).strftime(index)
+        end
       else
         KibanaConfig::Default_index
       end
@@ -102,7 +110,13 @@ class Kelastic
 
     def mapping(index)
       url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
-      JSON.parse(Net::HTTP.get(url))
+      http = Net::HTTP.new(url.host,url.port)
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
+      JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -124,6 +138,7 @@ class Kelastic
         }
       end
       r.reject! { |c| c == nil }
+      r
     end
 
     def error_msg(error)
@@ -137,6 +152,11 @@ class Kelastic
     def run(url,query)
       url = URI.parse(url)
       http = Net::HTTP.new(url.host, url.port)
+      if KibanaConfig.constants.include?("ElasticsearchTimeout")
+        if KibanaConfig::ElasticsearchTimeout != ''
+          http.read_timeout = KibanaConfig::ElasticsearchTimeout
+        end
+      end
       res = http.post(url.path, query.to_s,
                       'Accept' => 'application/json',
                       'Content-Type' => 'application/json')
@@ -144,6 +164,7 @@ class Kelastic
       o = JSON.parse(res.body)
       o['kibana'] = {'per_page' => KibanaConfig::Per_page}
       o['kibana']['error'] = "Invalid query" if res.code.to_i.between?(500, 599)
+      o['kibana']['curl_call'] = "curl -XGET #{url}?pretty -d '#{query}'"
       o
     end
 
@@ -253,12 +274,18 @@ class KelasticMulti
 
       segment_response = Kelastic.run(@url,query)
 
-      # Concatonate the hits array
-      @response['hits']['hits'] += segment_response['hits']['hits']
+      if !segment_response['status'] && segment_response['hits']
+        # Concatonate the hits array
+        @response['hits']['hits'] += segment_response['hits']['hits']
 
-      # Add the total hits together
-      @response['hits']['total'] += segment_response['hits']['total']
-      i += 1
+        # Add the total hits together
+        @response['hits']['total'] += segment_response['hits']['total']
+        i += 1
+      elsif segment_response['status'] && 404 == segment_response['status']
+        i += 1
+      else
+        raise "Bad response for query to: #{@url}, query: #{query} response data: #{segment_response.to_yaml}"
+      end
     end
 
     @response['kibana']['index'] = indices
@@ -334,17 +361,28 @@ class KelasticResponse
 
     # Retrieve a field value from a hit
     def get_field_value(hit,field)
-      field.split(".").inject(hit['_source']) { |hash, key|
-        if defined?hash[key]
-          hash[key]
-        else
-          nil
+      recurse_field_dots(hit['_source'],field)
+    end
+
+    # Recursively check for multi-dot fields and nested arrays
+    def recurse_field_dots(obj,field)
+      if !obj[field].nil?
+        obj[field]
+      elsif field =~ /(.*?)\.(.*)/
+        if !obj[$1].nil? and !obj[$1][$2].nil?
+          obj[$1][$2]
+        elsif !obj[$1].nil?
+          recurse_field_dots(obj[$1],$2)
         end
-      }
+      else
+        nil
+      end
     end
 
     # Very similar to flatten_response, except only returns an array of field
     # values, without seperating into hit objects things.
+    # Not sure when this broke. Doesn't work for fields store as arrays   
+=begin
     def collect_field_values(response,fields)
       @hit_list = Array.new
       fvs = Array.new
@@ -363,6 +401,22 @@ class KelasticResponse
       end
       @hit_list
     end
+=end
+    def collect_field_values(response,field)
+      @hit_list = Array.new
+      # TODO: Fix this Nasty hack
+      field = field[0]
+      response['hits']['hits'].each do |hit|
+        fv = get_field_value(hit,field)
+        if fv.kind_of?(Array)
+          @hit_list = @hit_list + fv.map(&:to_s)
+        else
+          @hit_list << fv.to_s
+        end
+      end
+      @hit_list
+    end
+
 
     # Returns a hash with a count of values
     def count_field(response,field,limit = 0)

@@ -230,7 +230,8 @@ get '/api/stream/:hash/?:from?' do
   # Build and execute
   req     = ClientRequest.new(params[:hash])
   query   = SortedQuery.new(req.search,from,to,0,30)
-  result  = Kelastic.new(query,Kelastic.current_index)
+  indices = Kelastic.index_range(from,to)
+  result  = KelasticMulti.new(query,indices)
   output  = JSON.generate(result.response)
 
   if result.response['hits']['total'] > 0
@@ -252,7 +253,9 @@ get '/rss/:hash/?:count?' do
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
 
-  headers "Content-Type" => "application/rss+xml", "charset" => "utf-8"
+  headers "Content-Type"        => "application/rss+xml",
+          "charset"             => "utf-8",
+          "Content-Disposition" => "inline; filename=kibana_rss_#{Time.now.to_i}.xml"
 
   content = RSS::Maker.make('2.0') do |m|
     m.channel.title = "Kibana #{req.search}"
@@ -264,7 +267,7 @@ get '/rss/:hash/?:count?' do
 
     result.response['hits']['hits'].each do |hit|
       i = m.items.new_item
-      hash    = IDRequest.new(hit['_id'],hit['_index']).hash
+      hash    = IdRequest.new(hit['_id'],hit['_index']).hash
       i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
       i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
       i.link  = link_to("/##{hash}")

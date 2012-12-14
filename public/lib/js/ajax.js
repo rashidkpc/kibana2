@@ -4,6 +4,9 @@ $(document).ready(function () {
   bind_clicks()
   popover_setup()
 
+  // Common color profile.
+  window.graph_colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"]
+
   // Hide sidebar by default
   sbctl('hide',false);
 
@@ -105,9 +108,9 @@ function getPage() {
         window.resultjson = JSON.parse(json);
 
         //console.log(
-        //  'curl -XGET \'http://elasticsearch:9200/'+resultjson.index+
-        //  '/_search?pretty=true\' -d\''+resultjson.elasticsearch_json+'\'');
-        //console.log(resultjson);
+        //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
+        //  '/_search?pretty=true\' -d\''+resultjson.kibana.es_query+'\'');
+        //console.log(resultjson.kibana.curl_call);
 
         $('#graphheader,#graph').text("");
         $('#feedlinks').html(feedLinks(window.hashjson));
@@ -133,30 +136,29 @@ function getPage() {
 
         // Create 'Columns' section
         $('#fields').html("<h5><i class='icon-columns'></i> Columns</h5>" +
-          "<h5><small>selected</small></h5>" +
-          "<ul class='selected nav nav-pills nav-stacked'></ul>" +
-          "<hr>"+
-          "<h5><small>available</small></h5>" +
           "<ul class='unselected nav nav-pills nav-stacked'></ul>");
 
-        var all_fields = get_all_fields(resultjson);
+        var all_fields = array_unique(get_all_fields(resultjson).concat(fields))
 
+        // Create sidebar field list
         var fieldstr = '';
         for (var index in all_fields) {
           var field_name = all_fields[index].toString();
           var afield = field_alias(field_name) + "_field";
-          fieldstr += sidebar_field_string(field_name,'plus');
+          var mode = $.inArray(field_name,window.hashjson.fields) >= 0 ?
+            'selected' : 'unselected'
+          fieldstr += sidebar_field_string(field_name,mode);
         }
         $('#fields ul.unselected').append(fieldstr)
 
-        var fieldstr = '';
-        for (var index in window.hashjson.fields) {
-          var field_name = window.hashjson.fields[index].toString();
-          var afield = field_alias(field_name) + "_field";
-          $('#fields ul.unselected li.' + afield).hide();
-          fieldstr += sidebar_field_string(field_name,'minus');
-        }
-        $('#fields ul.selected').append(fieldstr)
+        //var fieldstr = '';
+        //for (var index in window.hashjson.fields) {
+        //  var field_name = window.hashjson.fields[index].toString();
+        //  var afield = field_alias(field_name) + "_field";
+        //  $('#fields ul.unselected li.' + afield).hide();
+        //  fieldstr += sidebar_field_string(field_name,'minus');
+        //}
+        //$('#fields ul.selected').append(fieldstr)
 
         enable_popovers();
 
@@ -245,6 +247,46 @@ function getGraph(interval) {
       }
     }
   });
+}
+
+// create a pie chart for a terms facet
+function pieChart(data,selector){
+
+  var plot = $.plot($(selector), data, {
+    series: {
+      pie: {
+        radius: 1,
+        show: true,
+        combine: {
+          color: '#999',
+          label: 'The Rest'
+        },
+        label: { show: false }
+      }
+    },
+    grid: { hoverable: true, clickable: true },
+    legend: { show: false }
+  });
+
+  // This should be generalized. Too much copy + paste
+  var previousLabel = null;
+  $(selector).bind("plothover", function (event, pos, item) {
+    if (item) {
+      if (previousLabel != item.series.label) {
+        previousLabel = item.series.label;
+        $("#tooltip").remove();
+        var label = (!item.series.label) ? "missing" : item.series.label;
+        showTooltip(
+          pos.pageX+30, pos.pageY, 
+          "<b>"+label+"</b>" + " " + Math.round(item.series.percent) + "%"
+        );
+      }
+    } else {
+      $("#tooltip").remove();
+      previousLabel = null;
+    }
+  });
+
 }
 
 function analyzeField(field, mode) {
@@ -337,26 +379,53 @@ function getAnalysis() {
 
         setMeta(resultjson.hits.total);
         var analyze_field = window.hashjson.analyze_field.split(',,').join(' ');
+
         switch (window.hashjson.mode) {
         case 'terms':
           var index_count  = $.isArray(resultjson.kibana.index) ?
             resultjson.kibana.index : resultjson.kibana.index.split(',').length;
-          var title = '<h2>Terms Facet of ' +
+
+          // add the missing count for the terms table and pie chart
+          // This should really insert at the right point.
+          resultjson.facets.terms.terms.push({
+            term: '',
+            count: resultjson.facets.terms.missing
+          });
+
+          var title = ''+
+            '<h2>Terms Facet of ' +
             '<strong>' + analyze_field + '</strong> field(s) ' +
             '<button class="btn tiny btn-info" ' +
             'style="display: inline-block" id="back_to_logs">back to logs' +
             '</button>' +
-            '</h2>' +
+            '<div class=pull-left id="piechart"></div></h2>' +
             'This analysis is based on the events in the <strong>' +
             index_count +'</strong> most recent indices ' +
-            'for your query in your selected timeframe.<br><br>';
+            'for your query in your selected timeframe.<br><br>'+
+            '';
+
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
+
           sbctl('hide',false)
           graphLoading();
           window.hashjson.graphmode = 'count'
           getGraph(window.interval);
+
+          // Calculate data for pie chart
+          var data = [];
+          $.each(resultjson.facets.terms.terms,function(i,term) {
+            data[i] = { label: term['term'], data: term['count'], color: window.graph_colors[i] };
+          });
+          var remain = data.slice(window.graph_colors.length,data.length)
+          var r = 0
+          for (var x in remain) { r += remain[x].data; }
+          data = data.slice(0,window.graph_colors.length)
+          data.push({ label: "The Rest", data: r, color: '#AAA' })
+          pieChart(data,'#piechart')
+
           break;
+
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
             var basedon = "<strong>all "
@@ -445,12 +514,12 @@ function analysisTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.hits.hits) {
-    var metric = {},
+    metric = {},
     object = resultjson.hits.hits[obj];
     metric['Rank'] = i+1;
     var idv = object.id.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
+    for (var count = 0; count < fields.length; count++) {
       metric[fields[count]]=idv[count];
     }
     var analyze_field = fields.join(' ')
@@ -483,13 +552,22 @@ function termsTable(resultjson) {
   var i = 0;
   var tblArray = new Array();
   for (var obj in resultjson.facets.terms.terms) {
-    var object = resultjson.facets.terms.terms[obj],
-    metric = {};
-    metric['Rank'] = i+1;
+    var object = resultjson.facets.terms.terms[obj];
+    var metric = {};
+    var color = i < window.graph_colors.length ? 
+      " <i class=icon-sign-blank style='color:"+window.graph_colors[i]+"'><i>" : '';
+
+    metric['Rank'] = (i + 1) + color;
     var termv = object.term.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
-    for (var count=0;count<fields.length;count++) {
-      metric[fields[count]]=termv[count];
+    for (var count = 0; count < fields.length; count++) {
+      // TODO: This is so wrong, really shouldn't be matching a string here
+      if (typeof termv[count] === 'undefined' || termv[count] == "null" ) {
+        var value = ''
+      } else {
+        var value = termv[count]
+      }
+      metric[fields[count]] = value;
     }
     var analyze_field = fields.join(' ')
     metric['Count'] = addCommas(object.count);
@@ -517,13 +595,13 @@ function setMeta(hits, mode) {
   }
 }
 
-function sidebar_field_string(field, icon) {
+function sidebar_field_string(field, mode) {
+  var icon = mode == 'selected' ? 'minus' : 'plus';
   return '<li data-field="'+field+'">'+
-          '<i class="small icon-'+icon+' jlink mfield" '+
-          'data-field="'+field+'"></i> '+
-          '<a style="display:inline-block" class="popup-marker jlink field" '+
-          'rel="popover" data-field="'+field+'">' + field +
-          "<i class='field icon-caret-right'></i></a></li>";
+    '<i class="small icon-'+icon+' jlink mfield" data-field="'+field+'"></i> '+
+    '<a style="display:inline-block" class="' + mode +
+    ' popup-marker jlink field" rel="popover" data-field="'+field+'">'+ field +
+    "<i class='field icon-caret-right'></i></a></li>";
 }
 
 function popover_setup() {
@@ -554,11 +632,12 @@ function enable_popovers() {
         "data-field='_exists_'></i> " +
         "<i class='jlink icon-ban-circle msearch' data-action='' "+
         "data-field='_missing_'></i> ";
-      return buttons + " " + field +
-        "<small> micro analysis <span class='small event_count'>"+
+      var str = buttons + " " + field +
+        " <small><span class='small event_count'>"+
         "(<a class='jlink highlight_events' data-field='"+field+"'" +
           " data-mode='field' data-objid='"+objids+"'>" +
-          objids.length+" events</a> on this page)</span></small>  ";
+          objids.length+" events</a> on this page)</span></small>";  
+      return str;
     },
     content: function() {
       var related_limit = 10;
@@ -581,7 +660,10 @@ function enable_popovers() {
           (i - related_limit) + ' more</a>' : '';
         str += "</small></span>";
       }
-      return microAnalysisTable(window.resultjson,field,5) + str +
+
+      str =  microAnalysisTable(window.resultjson,field,5) + 
+        "<span id=micrograph></span>"+
+        str +
         "<div class='btn-group'>" +
           "<button class='btn btn-small analyze_btn' rel='score' " +
           "data-field="+field+"><i class='icon-list-ol'></i> Score</button>" +
@@ -592,12 +674,20 @@ function enable_popovers() {
           "<button class='btn btn-small analyze_btn' rel='mean' " +
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
+      return str;
     },
   }).click(function(e) {
     if(popover_visible) {
       $('.popover').remove();
     }
     $(this).popover('show');
+    var data = top_field_values(window.resultjson,$(this).attr('data-field'),5)
+    var i = 0, chart = [];
+    for (var point in data) {
+      chart.push([[data[point][1],0]])
+      i = i + 1;
+    }
+    tiny_bar(chart,'#micrograph')
     popover_clickedaway = false
     popover_visible = true
     e.preventDefault()
@@ -608,10 +698,13 @@ function enable_popovers() {
 function microAnalysisTable (json,field,count) {
   var counts = top_field_values(json,field,count)
   var table = []
+  var colors = window.graph_colors;
+  var i = 0;
   $.each(counts, function(index,value){
     var show_val = value[0] == '' ? '<i>blank</i>' : xmlEnt(value[0]);
     var objids = get_objids_with_field_value(window.resultjson,field,value[0])
-    var field_val = "<a class='jlink highlight_events' data-mode='value'"+
+    var field_val = "<i class=icon-sign-blank style='color:"+colors[i]+"'></i> "+
+    "<a class='jlink highlight_events' data-mode='value'"+
     " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
     var buttons = "<span class='raw'>" + value[0] + "</span>" +
               "<i class='jlink icon-large icon-search msearch'"+
@@ -621,6 +714,7 @@ function microAnalysisTable (json,field,count) {
     var percent = "<strong>" +
       to_percent(value[1],window.resultjson.kibana.per_page) +"</strong>";
     table.push([field_val,percent,buttons]);
+    i = i+1;
   });
   return CreateTableView(table,
     'table table-condensed table-bordered micro',false,['99%','30px','30px'])
@@ -736,7 +830,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     for (var index in fields) {
       var field = fields[index];
       str += '<th scope="col" class="column" data-field="'+field+'">' +
-        field_slim(field) + '</th>';
+      '<i data-mode="left" class="shift_column jlink icon-caret-left"></i>' +
+      '<div style="display:inline-block;text-align:center">'+field_slim(field) + '</div>'+
+      ' <i data-mode="right" class="shift_column jlink icon-caret-right"></i></th>';
     }
     str += '</tr></thead>';
   }
@@ -774,11 +870,11 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
 function details_table(objid,theme) {
   if (theme === undefined) theme = 'logdetails table table-bordered';
 
-  obj = window.resultjson.hits.hits[objid];
+  var obj = window.resultjson.hits.hits[objid];
 
   //obj_fields = get_object_fields(obj);
-  obj_fields = flatten_json(obj['_source'])
-  str = "<table class='"+theme+"'>" +
+  var obj_fields = flatten_json(obj['_source'])
+  var str = "<table class='"+theme+"'>" +
     "<tr><th>Field</th><th>Action</th><th>Value</th></tr>";
 
 
@@ -796,18 +892,7 @@ function details_table(objid,theme) {
       "<i class='jlink icon-large icon-ban-circle msearch' " +
       "data-action='NOT ' data-field='"+field+"'></i> ";
 
-    /*
-    if (isNaN(value)) {
-      try {
-        var json = JSON.parse(value);
-        value = JSON.stringify(json,null,4);
-        buttons = "";
-      } catch(e) {
-      }
-    }
-    */
-
-    trclass = (i % 2 == 0) ?
+    var trclass = (i % 2 == 0) ?
       'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
 
     str += "<tr " + trclass + ">" +
@@ -835,13 +920,19 @@ function mSearch(field, value, mode) {
   if (pattern.test(queryinput) == true) {
     var results = queryinput.match(pattern);
     var queryinput = $.trim(results[1]);
-    var fields = $.trim(results[2]).split(' ').slice(1);
+    var fields = $.trim(results[2]).split(/\s+/).slice(1);
     var values = value.toString().split('||');
     var query = '';
     var glue = ''
-    for (var count=0;count<fields.length;count++) {
-      value=values[count];
-      field=fields[count];
+    // TODO: This only works if a query already exists I think?
+    for (var count = 0;count < fields.length;count++) {
+      value = values[count];
+      if (value == "null" || typeof value === "undefined") {
+        value = fields[count];
+        field = '_missing_'
+      } else {
+        field = fields[count];
+      }
       query = query + glue + field + ":" + "\"" + addslashes(value.toString()) + "\"";
       glue = " AND ";
     }
@@ -876,10 +967,10 @@ function mFields(field) {
 
     // Add field to hashjson
     window.hashjson.fields.push(field);
-    $('#fields ul.unselected li[data-field="' + field + '"]').hide();
-    if ($('#fields ul.selected li[data-field="' + field + '"]').length == 0) {
-      $('#fields ul.selected').append(sidebar_field_string(field,'minus'));
-    }
+    $('#fields ul.unselected a[data-field="' + field + '"]').addClass('selected');
+    $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-plus');
+    $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-minus');
+
     // Add column
     $('#logs').find('tr.logrow').each(function(){
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
@@ -889,7 +980,10 @@ function mFields(field) {
     });
     $('#logs thead tr').find('th').last().after(
       '<th scope="col" class="column" data-field="'+field+'">' +
-        field_slim(field) + '</th>');
+      '<i data-mode="left" class="shift_column jlink icon-caret-left"></i>' +
+      '<div style="display:inline-block;text-align:center">'+field_slim(field) + '</div>'+
+      ' <i data-mode="right" class="shift_column jlink icon-caret-right"></i></th>'
+      );
 
   } else {
     $('#logs .column[data-field="'+field+'"]').remove();
@@ -901,8 +995,10 @@ function mFields(field) {
       }
     );
 
-    $('#fields ul.selected li[data-field="' + field + '"]').remove();
-    $('#fields ul.unselected li[data-field="' + field + '"]').show();
+    // Remove from selected, add to unselected
+    $('#fields ul.unselected a[data-field="' + field + '"]').removeClass('selected');
+    $('#fields ul.unselected i[data-field="' + field + '"]').removeClass('icon-minus');
+    $('#fields ul.unselected i[data-field="' + field + '"]').addClass('icon-plus');
 
     if (window.hashjson.fields.length == 0) {
       $.each(window.resultjson.kibana.default_fields, function(index,field){
@@ -925,12 +1021,6 @@ function mFields(field) {
   window.hashjson.fields = $.grep(window.hashjson.fields,function(n){
     return(n);
   });
-
-  /*
-  $('#logs').html(CreateLogTable(
-    window.resultjson.hits.hits, window.hashjson.fields,
-    'table logs table-condensed'));
-  */
 
   $('#feedlinks').html(feedLinks(window.hashjson));
 
@@ -964,10 +1054,10 @@ $(function () {
    var pattern=/^(.*)\|([^"']*)$/;
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
-      var search = $.trim(results[1]);
-      var fields = $.trim(results[2]).split(' ');
-      var field = fields.slice(1).join(',,');
-      var mode = fields[0];
+      var search  = $.trim(results[1]);
+      var fields  = $.trim(results[2]).split(/\s+/);
+      var field   = fields.slice(1).join(',,');
+      var mode    = fields[0];
 
       window.hashjson.mode = mode;
       if (mode == 'columns')
@@ -988,8 +1078,7 @@ $(function () {
 function datepickers(from,to) {
 
   var graph_interval = window.hashjson.time.user_interval;
-  var interval_opts = [
-    'auto','minute','hour','day'];
+
   var interval_opts = {
     auto:0,
     second:1000,
@@ -997,46 +1086,48 @@ function datepickers(from,to) {
     hour:60*60*1000,
     day:60*60*24*1000
   };
+  var options = ''
+  $.each(interval_opts,function(i,interval) {
+    options += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
+      '>'+i+'</option>';
+  });
 
-  var html = "<div class='form-inline'>"+
+  $('#graphheader').html("<div class='form-inline'>"+
     "<input size=19 id=timefrom class='datetimeRange'" +
     " type=text name=timefrom> to " +
     "<input size=19 id=timeto class='datetimeRange'" +
     " type=text name=timeto> grouped by " +
-    "<select id=user_interval name=user_interval> ";
+    "<select id=user_interval name=user_interval> " + options + "</select>" +
+    "<button id='timechange' class='btn btn-small jlink' " + 
+    "style='visibility: hidden'> filter</button></div>");
 
-  $.each(interval_opts,function(i,interval) {
-    html += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
-      '>'+i+'</option>';
-  });
-
-  html += "</select>" +
-    "<button id='timechange' class='btn btn-small jlink' style='visibility: hidden' " +
-    "> filter</button></div>";
-
-  $('#graphheader').html(html);
-
+  var from_date = utc_date_obj(new Date(from - tOffset))
+  var to_date   = utc_date_obj(new Date(to - tOffset));
   $('#timefrom').datetimeEntry({
-    maxDatetime : new Date(to - tOffset),
+    maxDatetime : to_date,
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   });
-  $('#timefrom').datetimeEntry('setDatetime',new Date(from-tOffset))
+  $('#timefrom').datetimeEntry('setDatetime',from_date)
 
   $('#timeto').datetimeEntry({
     minDatetime: $('#timefrom').datetimeEntry('getDatetime'),
-    maxDatetime: new Date(),
+    maxDatetime: utc_date_obj(new Date()),
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   },to);
-  $('#timeto').datetimeEntry('setDatetime',new Date(to-tOffset))
+  $('#timeto').datetimeEntry('setDatetime',to_date)
 
 
+  // LOL Wat? o_from and o_to are globals?! I should be beaten with a hose for 
+  // the horrid way time is handled in this application. Stupid FLOT.
   $('#timefrom,#timeto').datepicker({
     format: 'yyyy-mm-dd'
   }).on('show', function(ev) {
-    o_from = $('#timefrom').datetimeEntry('getDatetime');
-    o_to = $('#timeto').datetimeEntry('getDatetime');
+    o_from = local_date_obj(
+      new Date($('#timefrom').datetimeEntry('getDatetime').getTime() - tOffset));
+    o_to = local_date_obj(
+      new Date($('#timeto').datetimeEntry('getDatetime').getTime() - tOffset));
   });
 }
 
@@ -1044,6 +1135,9 @@ function datepickers(from,to) {
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
   $('.datepicker').remove()
+
+  from = from + tOffset
+  to = to + tOffset
 
   if (!$('#timechange').length || force == true) {
 
@@ -1055,8 +1149,8 @@ function renderDateTimePicker(from, to, force) {
       o_from.setUTCDate(ev.date.getDate())
       $('.datepicker').remove()
       renderDateTimePicker(
-        new Date(o_from.getTime() + tOffset),
-        new Date(o_to.getTime() + tOffset),
+        o_from.getTime() + tOffset,
+        o_to.getTime() + tOffset,
         true
       );
       window.hashjson.timeframe = 'custom'
@@ -1069,8 +1163,8 @@ function renderDateTimePicker(from, to, force) {
       o_to.setUTCDate(ev.date.getDate())
       $('.datepicker').remove()
       renderDateTimePicker(
-        new Date(o_from.getTime() + tOffset),
-        new Date(o_to.getTime() + tOffset),
+        o_from.getTime() + tOffset,
+        o_to.getTime() + tOffset,
         true
       );
       window.hashjson.timeframe = 'custom'
@@ -1121,11 +1215,25 @@ function renderDateTimePicker(from, to, force) {
 
 function field_time(selector) {
   var tz_offset = int_to_tz(window.tOffset);
-  return ISODateString(
-    new Date($(selector).datetimeEntry('getDatetime').getTime() + tOffset)
+  var str = ISODateString(
+    new Date($(selector).datetimeEntry('getDatetime').getTime())
     ) + tz_offset;
+  return str;
 }
 
+
+function tiny_bar(data,selector) {
+  $.plot( $(selector),data, {
+    series: {
+      stack: true,
+      lines: { show:false },
+      bars: { show: true, horizontal:true, fill: 1 }
+    },
+    xaxis: {show:false, max: window.resultjson.kibana.per_page},
+    yaxis: {show:false},
+    grid: {show:false},  
+  });
+}
 
 
 // Big horrible function for creating graphs
@@ -1178,11 +1286,11 @@ function logGraph(data, interval, metric) {
     $('#graph').bind("plotselected", function (event, ranges) {
       if (!intset) {
         intset = true;
+        var from = utc_date_obj(new Date(parseInt(ranges.xaxis.from.toFixed(0))))
+        var to = utc_date_obj(new Date(parseInt(ranges.xaxis.to.toFixed(0))))
         var time = {
-          "from": ISODateString(
-            parseInt(ranges.xaxis.from.toFixed(0)))+int_to_tz(window.tOffset),
-          "to": ISODateString(
-            parseInt(ranges.xaxis.to.toFixed(0)))+int_to_tz(window.tOffset)
+          "from": ISODateString(from)+int_to_tz(window.tOffset),
+          "to": ISODateString(to)+int_to_tz(window.tOffset)
         };
         window.hashjson.offset = 0;
         window.hashjson.time = time;
@@ -1207,7 +1315,7 @@ function logGraph(data, interval, metric) {
             y = Math.round(item.datapoint[1]*100)/100;
 
           showTooltip(
-            item.pageX + 50, item.pageY, y + " at " + prettyDateString(x)
+            item.pageX-120, item.pageY-20, y + " at " + prettyDateString(x)
           );
         }
       } else {
@@ -1273,8 +1381,8 @@ function showTooltip(x, y, contents) {
   $('<div id="tooltip">' + contents + '</div>').css({
     position: 'absolute',
     display: 'none',
-    top: y - 20,
-    left: x - 200,
+    top: y,
+    left: x,
     color: '#eee',
     border: '1px solid #fff',
     padding: '3px',
@@ -1314,6 +1422,36 @@ function sbctl(mode,user_selected) {
   }
 }
 
+function move_column(field,dir) {
+  var x = dir == 'right' ? 1 : -2
+  var len = $('#logs thead th').length
+  if (len == 2)
+    return
+  var thi = $('#logs th.column[data-field="'+field+'"]').index()
+
+  dest = thi+x
+  if (x == -2 && thi == 1)
+    dest = len-1
+  if (x == 1 && thi == (len-1))
+    dest = 0
+
+
+  var th1 = $('#logs thead th:eq('+thi+')')
+  var th2 = $('#logs thead th:eq('+dest+')')
+  th1.detach().insertAfter(th2)
+
+  $('#logs tr.logrow').each(function() {
+    var tr = $(this);
+    var td1 = tr.find('td:eq('+thi+')');
+    var td2 = tr.find('td:eq('+dest+')');
+    td1.detach().insertAfter(td2);
+  });
+
+
+  window.hashjson.fields = $('#logs th.column').map(
+    function(){return $(this).attr("data-field");}
+    ).get()
+}
 
 function showError(title,text) {
   blank_page();
@@ -1376,6 +1514,11 @@ function unhighlight_all_events() {
 }
 
 function bind_clicks() {
+
+  $('body').delegate("i.shift_column", "click",
+    function () {
+      move_column($(this).parent().attr('data-field'),$(this).attr('data-mode'))
+    });
 
   // Side bar expand/collapse
   $('#sbctl').click(function () {

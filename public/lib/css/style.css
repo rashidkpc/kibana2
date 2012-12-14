@@ -9,6 +9,22 @@ body {
 	font-family: proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+.popover {
+  margin-top: 100px;
+  min-height: 300px;
+  width: 400px;
+  z-index: 100;
+}
+
+
+.popover-inner {
+  width: auto;
+}
+
+.popover.right .arrow {
+    margin-top: -115px !important;
+}
+
 .content {
   padding-left: 0px;
   padding-right: 0px;
@@ -73,12 +89,31 @@ background-color: #FFF;
 }
 
 #logs th {
-  text-align: left;
   line-height: 70%;
+  white-space: nowrap;
+  text-align: left;
 }
 
 #logs th span.small {
   color: #BBB;
+}
+
+i.shift_column {
+  text-align: center;
+  padding-top: 4px;
+  margin-left: -5px;
+
+}
+
+#piechart {
+  height:100px;
+  width: 100px;
+  margin: 0px 20px 10px 0px; 
+}
+
+span#micrograph {
+  width: 370px;
+  height: 10px;
 }
 
 #meta {
@@ -173,10 +208,8 @@ table.formatting td {
   color: #000;
 }
 
-#fields ul.selected .field {
+#fields a.selected {
   color: #A92C10;
-  border-bottom-color: #A92C10;
-  border-top-color: #A92C10;
 }
 
 span.raw {
@@ -188,6 +221,7 @@ table.micro {
   table-layout:fixed;
   font-size: 0.8em;
   overflow: hidden;
+  margin-bottom: 5px;
 }
 
 table.micro td {
@@ -195,14 +229,6 @@ table.micro td {
   line-height: 12px;
 }
 
-.popover {
-  width: 400px;
-  z-index: 9999;
-}
-
-.popover-inner {
-  width: auto;
-}
 
 #graph_container {
   height: 100px;
