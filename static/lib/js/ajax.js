@@ -1029,11 +1029,11 @@ function mFields(field) {
 }
 
 function feedLinks(obj) {
-  return "<a href=rss/" + Base64.encode(JSON.stringify(obj)) +">rss " +
+  return "<a href=rss/" + Base64.encode(JSON.stringify(obj, null, '')) +">rss " +
     "<i class='icon-rss'></i></a> "+
-    "<a href=export/" + Base64.encode(JSON.stringify(obj)) + ">export " +
+    "<a href=export/" + Base64.encode(JSON.stringify(obj, null, '')) + ">export " +
     "<i class='icon-hdd'></i></a> "+
-    "<a href=stream#" + Base64.encode(JSON.stringify(obj)) + ">stream " +
+    "<a href=stream#" + Base64.encode(JSON.stringify(obj, null, '')) + ">stream " +
     "<i class='icon-dashboard'></i></a>"
 }
 
@@ -1066,7 +1066,7 @@ $(function () {
         window.hashjson.analyze_field = field;
     }
 
-    if (window.location.hash == "#" + JSON.stringify(window.hashjson))
+    if (window.location.hash == "#" + JSON.stringify(window.hashjson, null, ''))
       pageload(window.location.hash);
     else
       setHash(window.hashjson);
