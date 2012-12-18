@@ -281,7 +281,7 @@ function prettyDateString(d) {
 function utc_date_obj(d) {
   return new Date(
     d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),  
-    d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds());
+    d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
 }
 
 function local_date_obj(d) {
