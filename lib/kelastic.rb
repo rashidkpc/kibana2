@@ -68,16 +68,17 @@ class Kelastic
           begin
             requested << from.getutc.strftime(index)
           end while (from += KibanaConfig::Smart_index_step) <= to
+          requested << to.getutc.strftime(index) unless requested.include? to.getutc.strftime(index)
         end
 
         intersection = requested & all_indices
         if intersection.length <= KibanaConfig::Smart_index_limit
           intersection.sort.reverse[0..limit]
         else
-          KibanaConfig::Default_index
+          [KibanaConfig::Default_index]
         end
       else
-        KibanaConfig::Default_index
+        [KibanaConfig::Default_index]
       end
     end
 
