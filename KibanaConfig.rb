@@ -13,7 +13,7 @@ module KibanaConfig
   ElasticsearchTimeout = 500
 
   # The port Kibana should listen on
-  KibanaPort = 5601
+  KibanaPort = 5602
 
   # The adress ip Kibana should listen on. Comment out or set to
   # 0.0.0.0 to listen on all interfaces.
@@ -40,7 +40,8 @@ module KibanaConfig
 
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
-  Default_fields = ['@timestamp','@fields.host','@fields.syslog_facility','@fields.syslog_severity','@message']
+#  Default_fields = ['@timestamp','@fields.host','@fields.syslog_facility','@fields.syslog_severity','@message']
+  Default_fields = ['@source_host','@message']
 
   # The default operator used if no explicit operator is specified.
   # For example, with a default operator of OR, the query capital of
