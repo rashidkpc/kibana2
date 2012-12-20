@@ -75,10 +75,10 @@ class Kelastic
         if intersection.length <= KibanaConfig::Smart_index_limit
           intersection.sort.reverse[0..limit]
         else
-          KibanaConfig::Default_index
+          [KibanaConfig::Default_index]
         end
       else
-        KibanaConfig::Default_index
+        [KibanaConfig::Default_index]
       end
     end
 
