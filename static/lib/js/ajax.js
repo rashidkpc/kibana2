@@ -860,9 +860,14 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
       var value = xmlEnt(value);
-      var reg = new RegExp("@KIBANA_HIGHLIGHT_START@(.*)@KIBANA_HIGHLIGHT_END@", "g");
-//      var value = value.replace(reg,"<SPAN style='background-color=yellow'>$1</SPAN></FONT>");
-      var value = value.replace(reg,"<b>$1</b>");
+//      var reg = new RegExp("@KIBANA_HIGHLIGHT_START@(.*)@KIBANA_HIGHLIGHT_END@", "g");
+//      var value = value.replace(reg, "<SPAN style='background-color: #fff2a8;'>$1</SPAN>");
+	var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@([^(@KIBANA_HIGHLIGHT)]+)@KIBANA_HIGHLIGHT_END@", "g"),
+	    function (all, text, char) {
+	      return "<span style='background-color: #fff2a8;'>" + text + "</span>";
+	    }
+	);
+//      var value = value.replace(reg,"<b>$1</b>");
 //      alert(value);
 
       str += '<td class="column" data-field="'+field+'">' +
