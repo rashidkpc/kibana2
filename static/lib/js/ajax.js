@@ -44,6 +44,7 @@ function pageload(hash) {
     window.segment = undefined;
     try { delete window.segment; } catch (e) {}
   }
+
   //if hash value exists, run the ajax
   if (hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));
@@ -67,6 +68,10 @@ function pageload(hash) {
     case 'terms':
     case 'score':
     case 'trend':
+    case 'highlight':
+      $('#feedlinks').html(feedLinks(window.hashjson));
+      getPage();
+      break;
     case 'mean':
       getAnalysis();
       break;
@@ -95,6 +100,7 @@ function getPage() {
   setMeta('loading');
 
   var sendhash = window.location.hash.replace(/^#/, '');;
+  console.log("hash" + sendhash);
 
   //Get the data and display it
   window.request = $.ajax({
@@ -859,7 +865,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var field = fields[index];
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
-      var value = xmlEnt(value);
+      var value = xmlEnt(wbr(value),10);
 //      var reg = new RegExp("@KIBANA_HIGHLIGHT_START@(.*)@KIBANA_HIGHLIGHT_END@", "g");
 //      var value = value.replace(reg, "<SPAN style='background-color: #fff2a8;'>$1</SPAN>");
 	var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@([^(@KIBANA_HIGHLIGHT)]+)@KIBANA_HIGHLIGHT_END@", "g"),
