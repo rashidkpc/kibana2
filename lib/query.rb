@@ -112,6 +112,37 @@ class SortedQuery < Query
 end
 
 =begin
+= Class: HighlightedSortedQuery < Query
+  Sort results ascending or decending by a given field and highlight results
+
+== Parameters:
+  query::   The query text. Blank or * queries are converted to match_all
+  from::    Beginning of time range
+  to::      End of time range (Default: NOW)
+  offset::  Offset from beginning of results
+  field::   Field to sort on, be careful of fields with many unique values
+  order::   desc/asc
+=end
+class HighlightedSortedQuery < Query
+  attr_accessor :query,:from,:to
+  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
+    super(question, from, to)
+    @query['from'] = offset
+    @query['size'] = size
+    @query['sort'] = {
+      field => {
+        "order" => order
+      }
+    }
+    @query['highlight'] = {
+      "pre_tags" => [ "@KIBANA_HIGHLIGHT_START@" ],
+      "post_tags" => [ "@KIBANA_HIGHLIGHT_END@" ],
+      "fields" => { "@message" => { } }
+    }
+  end
+end
+
+=begin
 = Class: SortedQuery < Query
   Sort results ascending or decending by a given field
 

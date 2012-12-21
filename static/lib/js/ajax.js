@@ -100,7 +100,6 @@ function getPage() {
   setMeta('loading');
 
   var sendhash = window.location.hash.replace(/^#/, '');;
-  console.log("hash" + sendhash);
 
   //Get the data and display it
   window.request = $.ajax({
@@ -111,12 +110,14 @@ function getPage() {
       // Make sure we're still on the same page
       if (sendhash == window.location.hash.replace(/^#/, '')) {
         //Parse out the result
+
+// ici json est OK et le parse aussi
+
         window.resultjson = JSON.parse(json);
 
         //console.log(
         //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
         //  '/_search?pretty=true\' -d\''+resultjson.kibana.es_query+'\'');
-        //console.log(resultjson.kibana.curl_call);
 
         $('#graphheader,#graph').text("");
         $('#feedlinks').html(feedLinks(window.hashjson));
@@ -866,9 +867,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var value = get_field_value(object,field)
       var value = value === undefined ? "-" : value.toString();
       var value = xmlEnt(wbr(value),10);
-//      var reg = new RegExp("@KIBANA_HIGHLIGHT_START@(.*)@KIBANA_HIGHLIGHT_END@", "g");
+//      var reg = new RegExp("KIBANA_HIGHLIGHT_START(.*)KIBANA_HIGHLIGHT_END", "g");
 //      var value = value.replace(reg, "<SPAN style='background-color: #fff2a8;'>$1</SPAN>");
-	var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@([^(@KIBANA_HIGHLIGHT)]+)@KIBANA_HIGHLIGHT_END@", "g"),
+	var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@([^(@KIBANA_HIGHLIGHT@)]+)@KIBANA_HIGHLIGHT_END@", "g"),
 	    function (all, text, char) {
 	      return "<span style='background-color: #fff2a8;'>" + text + "</span>";
 	    }
@@ -974,6 +975,7 @@ function mSearch(field, value, mode) {
   } else {
     var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
   }
+
   var glue = queryinput != "" ? " AND " : " ";
   window.hashjson.search = queryinput + glue + query;
   setHash(window.hashjson);

@@ -61,11 +61,11 @@ get '/api/search/:hash/?:segment?' do
   segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
   req     = ClientRequest.new(params[:hash])
-  query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
+  query   = HighlightedSortedQuery.new(req.search,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
 
-  # Not sure this is required. This should be able to be handled without
+    # Not sure this is required. This should be able to be handled without
   # server communication
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}
