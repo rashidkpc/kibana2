@@ -68,10 +68,6 @@ function pageload(hash) {
     case 'terms':
     case 'score':
     case 'trend':
-    case 'highlight':
-      $('#feedlinks').html(feedLinks(window.hashjson));
-      getPage();
-      break;
     case 'mean':
       getAnalysis();
       break;
@@ -101,14 +97,10 @@ function getPage() {
 
   var sendhash = window.location.hash.replace(/^#/, '');;
 
-  switch (window.hashjson.mode) {
-  case 'highlight':
+  if (window.hashjson.mode == 'highlight') 
     var urlcall = "api/search/highlight/"+sendhash;
-    break;
-  default:
+  else
     var urlcall = "api/search/"+sendhash;
-    break;
-  }
 
     //Get the data and display it
   window.request = $.ajax({
@@ -860,10 +852,11 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   var i = 1;
   for (var objid in array) {
     var object = array[objid];
-    if (window.hashjson.mode.toString() == "highlight" )
+    if (window.hashjson.mode == 'highlight' )
     {
       for(var key in object.highlight) {
         var hlfield = key;
+        var hlvalue = object.highlight[hlfield];
       }
     }
 
@@ -882,7 +875,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       else
       {
         if ( field.toString() == hlfield.toString() ) 
-          var value = object.highlight[hlfield].toString();
+          var value = hlvalue;
         else
           var value = get_field_value(object,field);
       }
