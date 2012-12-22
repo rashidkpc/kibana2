@@ -57,7 +57,7 @@ get '/stream' do
 end
 
 # Returns
-get '/api/search/:hash/?:segment?' do
+get '/api/search/highlight/:hash/?:segment?' do
   segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
   req     = ClientRequest.new(params[:hash])
@@ -73,6 +73,25 @@ get '/api/search/:hash/?:segment?' do
 
   JSON.generate(result.response)
 end
+
+# Returns
+get '/api/search/:hash/?:segment?' do
+  segment = params[:segment].nil? ? 0 : params[:segment].to_i
+
+  req     = ClientRequest.new(params[:hash])
+  query   = SortedQuery.new(req.search,req.from,req.to,req.offset)
+  indices = Kelastic.index_range(req.from,req.to)
+  result  = KelasticMulti.new(query,indices)
+
+    # Not sure this is required. This should be able to be handled without
+  # server communication
+  result.response['kibana']['time'] = {
+    "from" => req.from.iso8601, "to" => req.to.iso8601}
+  result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
+
+  JSON.generate(result.response)
+end
+
 
 get '/api/graph/:mode/:interval/:hash/?:segment?' do
   segment = params[:segment].nil? ? 0 : params[:segment].to_i

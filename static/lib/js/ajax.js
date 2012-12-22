@@ -101,18 +101,24 @@ function getPage() {
 
   var sendhash = window.location.hash.replace(/^#/, '');;
 
-  //Get the data and display it
+  switch (window.hashjson.mode) {
+  case 'highlight':
+    var urlcall = "api/search/highlight/"+sendhash;
+    break;
+  default:
+    var urlcall = "api/search/"+sendhash;
+    break;
+  }
+
+    //Get the data and display it
   window.request = $.ajax({
-    url: "api/search/"+sendhash,
+    url: urlcall,
     type: "GET",
     cache: false,
     success: function (json) {
       // Make sure we're still on the same page
       if (sendhash == window.location.hash.replace(/^#/, '')) {
         //Parse out the result
-
-// ici json est OK et le parse aussi
-
         window.resultjson = JSON.parse(json);
 
         //console.log(
@@ -854,6 +860,13 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   var i = 1;
   for (var objid in array) {
     var object = array[objid];
+    if (window.hashjson.mode.toString() == "highlight" )
+    {
+      for(var key in object.highlight) {
+        var hlfield = key;
+      }
+    }
+
     var id = object._id;
     var alt = i % 2 == 0 ? '' : 'alt'
     var time = prettyDateString(
@@ -864,19 +877,23 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<td class=firsttd>' + time + '</td>';
     for (var index in fields) {
       var field = fields[index];
-      var value = get_field_value(object,field)
+      if (typeof hlfield === "undefined") 
+        var value = get_field_value(object,field);
+      else
+      {
+        if ( field.toString() == hlfield.toString() ) 
+          var value = object.highlight[hlfield].toString();
+        else
+          var value = get_field_value(object,field);
+      }
+
       var value = value === undefined ? "-" : value.toString();
       var value = xmlEnt(wbr(value),10);
-//      var reg = new RegExp("KIBANA_HIGHLIGHT_START(.*)KIBANA_HIGHLIGHT_END", "g");
-//      var value = value.replace(reg, "<SPAN style='background-color: #fff2a8;'>$1</SPAN>");
-	var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@([^(@KIBANA_HIGHLIGHT@)]+)@KIBANA_HIGHLIGHT_END@", "g"),
+      var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@(.*?)@KIBANA_HIGHLIGHT_END@", "g"),
 	    function (all, text, char) {
 	      return "<span style='background-color: #fff2a8;'>" + text + "</span>";
 	    }
 	);
-//      var value = value.replace(reg,"<b>$1</b>");
-//      alert(value);
-
       str += '<td class="column" data-field="'+field+'">' +
         value + '</td>';
     }
