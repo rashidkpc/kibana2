@@ -112,7 +112,7 @@ class SortedQuery < Query
 end
 
 =begin
-= Class: HighlightedSortedQuery < Query
+= Class: HighlightedQuery < Query
   Sort results ascending or decending by a given field and highlight results
 
 == Parameters:
@@ -123,7 +123,7 @@ end
   field::   Field to sort on, be careful of fields with many unique values
   order::   desc/asc
 =end
-class HighlightedSortedQuery < Query
+class HighlightedQuery < Query
   attr_accessor :query,:from,:to
   def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
     super(question, from, to)

@@ -49,7 +49,7 @@ function pageload(hash) {
   if (hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));
 
-    //console.log(window.hashjson)
+    console.log(window.hashjson)
 
     // Take the hash data and populate the search fields
     $('#queryinput').val(window.hashjson.search);
@@ -884,7 +884,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       var value = xmlEnt(wbr(value),10);
       var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@(.*?)@KIBANA_HIGHLIGHT_END@", "g"),
 	    function (all, text, char) {
-	      return "<span style='background-color: #fff2a8;'>" + text + "</span>";
+	      return "<span class='highlightedtext'>" + text + "</span>";
 	    }
 	);
       str += '<td class="column" data-field="'+field+'">' +

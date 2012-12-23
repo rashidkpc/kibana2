@@ -61,7 +61,7 @@ get '/api/search/highlight/:hash/?:segment?' do
   segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
   req     = ClientRequest.new(params[:hash])
-  query   = HighlightedSortedQuery.new(req.search,req.from,req.to,req.offset)
+  query   = HighlightedQuery.new(req.search,req.from,req.to,req.offset)
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
 
