@@ -80,12 +80,12 @@ background-color: #FFF;
 .highlightedtext {
 	background-color: #fff2a8;
 	text-align: center;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	-webkit-box-shadow: rgba(0,0,0,0.8) 1px 0 3px;
-	-moz-box-shadow: rgba(0,0,0,0.8) 1 0 3px;
-	box-shadow: rgba(0,0,0,0.8) 1 0 3px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-shadow: rgba(0,0,0,0.3) 0px 0 3px;
+	-moz-box-shadow: rgba(0,0,0,0.3) 0 0 3px;
+	box-shadow: rgba(0,0,0,0.3) 0 0 3px;
 }
 
 #logs td {

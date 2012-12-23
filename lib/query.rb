@@ -137,7 +137,7 @@ class HighlightedQuery < Query
     @query['highlight'] = {
       "pre_tags" => [ "@KIBANA_HIGHLIGHT_START@" ],
       "post_tags" => [ "@KIBANA_HIGHLIGHT_END@" ],
-      "fields" => { "@message" => { } }
+      "fields" => { KibanaConfig::Highlight_field => { } }
     }
   end
 end

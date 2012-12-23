@@ -43,6 +43,8 @@ module KibanaConfig
 #  Default_fields = ['@timestamp','@fields.host','@fields.syslog_facility','@fields.syslog_severity','@message']
   Default_fields = ['@source_host','@message']
 
+  Highlight_Field = "@message"
+
   # The default operator used if no explicit operator is specified.
   # For example, with a default operator of OR, the query capital of
   # Hungary is translated to capital OR of OR Hungary, and with default

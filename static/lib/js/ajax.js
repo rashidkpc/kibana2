@@ -48,9 +48,6 @@ function pageload(hash) {
   //if hash value exists, run the ajax
   if (hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));
-
-    console.log(window.hashjson)
-
     // Take the hash data and populate the search fields
     $('#queryinput').val(window.hashjson.search);
     $('#timeinput').val(window.hashjson.timeframe);
@@ -83,6 +80,7 @@ function pageload(hash) {
   } else {
     resetAll();
   }
+  
 }
 
 function getPage() {
@@ -98,9 +96,9 @@ function getPage() {
   var sendhash = window.location.hash.replace(/^#/, '');;
 
   if (window.hashjson.mode == 'highlight') 
-    var urlcall = "api/search/highlight/"+sendhash;
+    var urlcall = "api/search/highlight/" + sendhash;
   else
-    var urlcall = "api/search/"+sendhash;
+    var urlcall = "api/search/" + sendhash;
 
     //Get the data and display it
   window.request = $.ajax({
@@ -1098,6 +1096,7 @@ $(function () {
     else
       window.hashjson.timeframe = $('#timeinput').val();
 
+   window.hashjson.mode = "";
    var pattern=/^(.*)\|([^"']*)$/;
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
