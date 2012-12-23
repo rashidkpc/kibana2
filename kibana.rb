@@ -65,7 +65,7 @@ get '/api/search/highlight/:hash/?:segment?' do
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
 
-    # Not sure this is required. This should be able to be handled without
+  # Not sure this is required. This should be able to be handled without
   # server communication
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}
@@ -83,7 +83,7 @@ get '/api/search/:hash/?:segment?' do
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticMulti.new(query,indices)
 
-    # Not sure this is required. This should be able to be handled without
+  # Not sure this is required. This should be able to be handled without
   # server communication
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}

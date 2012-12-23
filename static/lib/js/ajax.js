@@ -44,10 +44,12 @@ function pageload(hash) {
     window.segment = undefined;
     try { delete window.segment; } catch (e) {}
   }
-
   //if hash value exists, run the ajax
   if (hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));
+
+    //console.log(window.hashjson)
+
     // Take the hash data and populate the search fields
     $('#queryinput').val(window.hashjson.search);
     $('#timeinput').val(window.hashjson.timeframe);
@@ -114,6 +116,7 @@ function getPage() {
         //console.log(
         //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
         //  '/_search?pretty=true\' -d\''+resultjson.kibana.es_query+'\'');
+        //console.log(resultjson.kibana.curl_call);
 
         $('#graphheader,#graph').text("");
         $('#feedlinks').html(feedLinks(window.hashjson));
