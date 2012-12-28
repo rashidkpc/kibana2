@@ -240,7 +240,7 @@ end
 
 post '/auth/admin/save' do
   if params[:Groupname] != nil
-    params[:Username]= '@' + params[:Groupname]
+    params[:Username]= params[:Groupname]
   end
   username = params[:Username]
   usertags = params[:usertags]
