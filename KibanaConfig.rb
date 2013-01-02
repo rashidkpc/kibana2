@@ -43,7 +43,14 @@ module KibanaConfig
 #  Default_fields = ['@timestamp','@fields.host','@fields.syslog_facility','@fields.syslog_severity','@message']
   Default_fields = ['@source_host','@message']
 
-  Highlight_Field = "@message"
+  # If set to true, Kibana will use the Highlight feature of Elasticsearch to 
+  # display highlighted search results
+  Highlight_results = true
+
+  # A field needs to be specified for the highlight feature. By default, 
+  # Elasticsearch doesn't allow highlighting on _all because the field has to 
+  # be either stored or part of the _source field.
+  Highlighted_field = "@message"
 
   # The default operator used if no explicit operator is specified.
   # For example, with a default operator of OR, the query capital of
