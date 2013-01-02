@@ -137,7 +137,7 @@ class HighlightedQuery < Query
     @query['highlight'] = {
       "pre_tags" => [ "@KIBANA_HIGHLIGHT_START@" ],
       "post_tags" => [ "@KIBANA_HIGHLIGHT_END@" ],
-      "fields" => { KibanaConfig::Highlight_field => { } }
+      "fields" => { KibanaConfig::Highlighted_field => { "fragment_size" => 9999 } }
     }
   end
 end

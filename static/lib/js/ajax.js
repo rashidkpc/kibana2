@@ -82,7 +82,6 @@ function pageload(hash) {
   } else {
     resetAll();
   }
-  
 }
 
 function getPage() {
@@ -97,14 +96,9 @@ function getPage() {
 
   var sendhash = window.location.hash.replace(/^#/, '');;
 
-  if (window.hashjson.mode == 'highlight') 
-    var urlcall = "api/search/highlight/" + sendhash;
-  else
-    var urlcall = "api/search/" + sendhash;
-
-    //Get the data and display it
+  //Get the data and display it
   window.request = $.ajax({
-    url: urlcall,
+    url: "api/search/"+sendhash,
     type: "GET",
     cache: false,
     success: function (json) {
@@ -853,12 +847,9 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   var i = 1;
   for (var objid in array) {
     var object = array[objid];
-    if (window.hashjson.mode == 'highlight' )
-    {
-      for(var key in object.highlight) {
-        var hlfield = key;
-        var hlvalue = object.highlight[hlfield];
-      }
+    for(var key in object.highlight) {
+      var hlfield = key;
+      var hlvalue = object.highlight[hlfield];
     }
 
     var id = object._id;
@@ -986,7 +977,6 @@ function mSearch(field, value, mode) {
   } else {
     var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
   }
-
   var glue = queryinput != "" ? " AND " : " ";
   window.hashjson.search = queryinput + glue + query;
   setHash(window.hashjson);
@@ -1099,7 +1089,6 @@ $(function () {
     else
       window.hashjson.timeframe = $('#timeinput').val();
 
-   window.hashjson.mode = "";
    var pattern=/^(.*)\|([^"']*)$/;
    if (pattern.test(window.hashjson.search) == true) {
       var results = window.hashjson.search.match(pattern);
