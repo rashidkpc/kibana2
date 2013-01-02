@@ -400,7 +400,7 @@ function addCommas(nStr) {
 // num = number of letters between <wbr> tags
 function wbr(str, num) {
   str = htmlEntities(str);
-  return str.replace(RegExp("(\\w{" + num + "}|[:;,])([\\w\"'])", "g"),
+  return str.replace(RegExp("((?=[^(@KIBANA_HIGHLIGHT_(START|END)@)])\\w{" + num + "}|[:;,])([\\w\"'])", "g"),
     function (all, text, char) {
       return text + "<del>&#8203;</del>" + char;
     }
