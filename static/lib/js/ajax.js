@@ -847,6 +847,11 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   var i = 1;
   for (var objid in array) {
     var object = array[objid];
+    for(var key in object.highlight) {
+      var hlfield = key;
+      var hlvalue = object.highlight[hlfield];
+    }
+
     var id = object._id;
     var alt = i % 2 == 0 ? '' : 'alt'
     var time = prettyDateString(
@@ -857,10 +862,25 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<td class=firsttd>' + time + '</td>';
     for (var index in fields) {
       var field = fields[index];
-      var value = get_field_value(object,field)
+      if (typeof hlfield === "undefined") 
+        var value = get_field_value(object,field);
+      else
+      {
+        if ( field.toString() == hlfield.toString() ) 
+          var value = hlvalue;
+        else
+          var value = get_field_value(object,field);
+      }
+
       var value = value === undefined ? "-" : value.toString();
+      var value = xmlEnt(wbr(value),10);
+      var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@(.*?)@KIBANA_HIGHLIGHT_END@", "g"),
+	    function (all, text, char) {
+	      return "<span class='highlightedtext'>" + text + "</span>";
+	    }
+	);
       str += '<td class="column" data-field="'+field+'">' +
-        xmlEnt(wbr(value, 10)) + '</td>';
+        value + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
     i++;
