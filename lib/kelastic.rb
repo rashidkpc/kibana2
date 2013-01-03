@@ -67,7 +67,7 @@ class Kelastic
         index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
         for index in index_pattern do
           begin
-            requested << from.getutc.strftime(index)
+            requested << step_time.getutc.strftime(index)
           end while (step_time += KibanaConfig::Smart_index_step) <= to
           requested << to.getutc.strftime(index) unless requested.include? to.getutc.strftime(index)
         end
