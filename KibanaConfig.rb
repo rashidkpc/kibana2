@@ -13,7 +13,7 @@ module KibanaConfig
   ElasticsearchTimeout = 500
 
   # The port Kibana should listen on
-  KibanaPort = 5601
+  KibanaPort = 5602
 
   # The adress ip Kibana should listen on. Comment out or set to
   # 0.0.0.0 to listen on all interfaces.
@@ -25,7 +25,7 @@ module KibanaConfig
   Type = ''
 
   # Results to show per page
-  Per_page = 50
+  Per_page = 100
 
   # Timezone. Leave this set to 'user' to have the user's browser autocorrect.
   # Otherwise, set a timezone string
@@ -36,31 +36,50 @@ module KibanaConfig
   # Format for timestamps. Defaults to mm/dd HH:MM:ss.
   # For syntax see: http://blog.stevenlevithan.com/archives/date-time-format
   # Time_format = 'isoDateTime' 
-  Time_format = 'mm/dd HH:MM:ss'
+  Time_format = 'mm/dd HH:MM:ss.l'
 
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
-  Default_fields = ['@message']
+#  Default_fields = ['@timestamp','@fields.host','@fields.syslog_facility','@fields.syslog_severity','@message']
+  Default_fields = ['@source_host','@message']
+
+  # If set to true, Kibana will use the Highlight feature of Elasticsearch to 
+  # display highlighted search results
+  Highlight_results = true
+
+  # A field needs to be specified for the highlight feature. By default, 
+  # Elasticsearch doesn't allow highlighting on _all because the field has to 
+  # be either stored or part of the _source field.
+  Highlighted_field = "@message"
+
+  # If set to true, Kibana will use the Highlight feature of Elasticsearch to 
+  # display highlighted search results
+  Highlight_results = true
+
+  # A field needs to be specified for the highlight feature. By default, 
+  # Elasticsearch doesn't allow highlighting on _all because the field has to 
+  # be either stored or part of the _source field.
+  Highlighted_field = "@message"
 
   # The default operator used if no explicit operator is specified.
   # For example, with a default operator of OR, the query capital of
   # Hungary is translated to capital OR of OR Hungary, and with default
   # operator of AND, the same query is translated to capital AND of AND
   # Hungary. The default value is OR.
-  Default_operator = 'OR'
+  Default_operator = 'AND'
 
   # When using analyze, use this many of the most recent
   # results for user's query
-  Analyze_limit = 2000
+  Analyze_limit = 20000
 
   # Show this many results in analyze/trend/terms/stats modes
-  Analyze_show = 25
+  Analyze_show = 50
 
   # Show this many results in an rss feed
-  Rss_show = 25
+  Rss_show = 50
 
   # Show this many results in an exported file
-  Export_show = 2000
+  Export_show = 20000
 
   # Delimit exported file fields with what?
   # You may want to change this to something like "\t" (tab) if you have
