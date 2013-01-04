@@ -78,14 +78,13 @@ background-color: #FFF;
 }
 
 .highlightedtext {
-	background-color: #fff2a8;
-	text-align: center;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	-webkit-box-shadow: rgba(0,0,0,0.3) 0px 0 3px;
-	-moz-box-shadow: rgba(0,0,0,0.3) 0 0 3px;
-	box-shadow: rgba(0,0,0,0.3) 0 0 3px;
+   background: #FD7;
+   border-color: #960;
+   border-width: 1px;
+   border-style: solid;
+   padding: 0 2px;
+   margin: 0 2px;
+   box-shadow: 1px 1px 1px #CCC;
 }
 
 #logs td {
