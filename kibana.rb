@@ -74,6 +74,8 @@ get '/api/search/:hash/?:segment?' do
   result.response['kibana']['time'] = {
     "from" => req.from.iso8601, "to" => req.to.iso8601}
   result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
+  # Enable clickable URL links
+  result.response['kibana']['clickable_urls'] = KibanaConfig::Clickable_URLs
 
   JSON.generate(result.response)
 end
