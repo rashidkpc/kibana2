@@ -133,7 +133,7 @@ function getPage() {
         // Determine fields to be displayed
         var fields = window.hashjson.fields.length == 0 ?
           resultjson.kibana.default_fields : window.hashjson.fields
-
+  
         // Create 'Columns' section
         $('#fields').html("<div class='input-prepend'>" +
           "<span class='add-on'><i class='icon-columns'></i></span>" +
@@ -920,11 +920,36 @@ function details_table(objid,theme) {
     var trclass = (i % 2 == 0) ?
       'class="alt '+field_id+'_row"' : 'class="'+field_id+'_row"';
 
-    str += "<tr " + trclass + ">" +
-      "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
-      "<td style='width: 60px'>" + buttons + "</td>" +
-      '<td>' + xmlEnt(wbr(value, 10)) +
-      "</td></tr>";
+    // Are URLs clickable ?
+    if (resultjson.kibana.clickable_urls) {
+      var value = value === undefined ? "-" : value.toString();
+      // Detect URLs and inserts delimiters
+      var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
+        function (all, text, char) {
+          return "@KIBANA_LINK_START@" + text + "@KIBANA_LINK_END@";
+        }
+      );
+      var value = xmlEnt(wbr(value),10);
+      // Replace delimiters by HTML code
+      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*)@KIBANA_LINK_END@", "g"), 
+        function (all, text) {
+          // Clean link
+          var stripped = text.replace( new RegExp("<del>&#8203;</del>","g"),"");
+          return "<a href='" + stripped + "'>" + text + "</a>";
+        }
+      );
+      str += "<tr " + trclass + ">" +
+	"<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
+	"<td style='width: 60px'>" + buttons + "</td>" +
+	'<td>' + value +
+	"</td></tr>";
+    } else {
+      str += "<tr " + trclass + ">" +
+        "<td class='firsttd " + field_id + "_field'>" + field + "</td>" +
+        "<td style='width: 60px'>" + buttons + "</td>" +
+        '<td>' + xmlEnt(wbr(value, 10)) +
+        "</td></tr>";
+    }
 
     i++;
 
