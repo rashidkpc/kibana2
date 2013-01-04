@@ -931,7 +931,7 @@ function details_table(objid,theme) {
       );
       var value = xmlEnt(wbr(value),10);
       // Replace delimiters by HTML code
-      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*)@KIBANA_LINK_END@", "g"), 
+      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"), 
         function (all, text) {
           // Clean link
           var stripped = text.replace( new RegExp("<del>&#8203;</del>","g"),"");
