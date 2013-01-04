@@ -935,7 +935,7 @@ function details_table(objid,theme) {
         function (all, text) {
           // Clean link
           var stripped = text.replace( new RegExp("<del>&#8203;</del>","g"),"");
-          return "<a href='" + stripped + "'>" + text + "</a>";
+          return "<a href='" + stripped + "' target='_blank'>" + text + "</a>";
         }
       );
       str += "<tr " + trclass + ">" +
