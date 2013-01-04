@@ -51,6 +51,9 @@ module KibanaConfig
   # be either stored or part of the _source field.
   Highlighted_field = "@message"
 
+  # Make URLs clickable in detailed view
+  Clickable_URLs = true
+
   # The default operator used if no explicit operator is specified.
   # For example, with a default operator of OR, the query capital of
   # Hungary is translated to capital OR of OR Hungary, and with default
