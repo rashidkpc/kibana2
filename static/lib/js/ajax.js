@@ -133,7 +133,7 @@ function getPage() {
         // Determine fields to be displayed
         var fields = window.hashjson.fields.length == 0 ?
           resultjson.kibana.default_fields : window.hashjson.fields
-  
+
         // Create 'Columns' section
         $('#fields').html("<div class='input-prepend'>" +
           "<span class='add-on'><i class='icon-columns'></i></span>" +
