@@ -525,7 +525,7 @@ function analysisTable(resultjson) {
     var idv = object.id.split('||');
     var fields = window.hashjson.analyze_field.split(',,');
     for (var count = 0; count < fields.length; count++) {
-      metric[fields[count]]=idv[count];
+      metric[fields[count]]=xmlEnt(idv[count]);
     }
     var analyze_field = fields.join(' ')
     metric['Count'] = object.count;
@@ -541,7 +541,7 @@ function analysisTable(resultjson) {
           object.trend + '</span>';
       }
     }
-    metric['Action'] =  "<span class='raw'>" + object.id + "</span>"+
+    metric['Action'] =  "<span class='raw'>" + xmlEnt(object.id) + "</span>"+
       "<i data-mode='' data-field='" + analyze_field + "' "+
         "class='msearch icon-search icon-large jlink'></i> " +
       "<i data-mode='analysis' data-field='"+analyze_field+"' "+
@@ -570,7 +570,7 @@ function termsTable(resultjson) {
       if (typeof termv[count] === 'undefined' || termv[count] == "null" ) {
         var value = ''
       } else {
-        var value = termv[count]
+        var value = xmlEnt(termv[count])
       }
       metric[fields[count]] = value;
     }
@@ -579,7 +579,7 @@ function termsTable(resultjson) {
     metric['Percent'] =  Math.round(
       object.count / resultjson.hits.total * 10000
       ) / 100 + '%';
-    metric['Action'] =  "<span class='raw'>" + object.term + "</span>"+
+    metric['Action'] =  "<span class='raw'>" + xmlEnt(object.term) + "</span>"+
       "<i data-mode='' data-field='" + analyze_field + "' "+
         "class='msearch icon-search icon-large jlink'></i> " +
       "<i data-mode='analysis' data-field='"+analyze_field+"' "+
@@ -711,7 +711,7 @@ function microAnalysisTable (json,field,count) {
     var field_val = "<i class=icon-sign-blank style='color:"+colors[i]+"'></i> "+
     "<a class='jlink highlight_events' data-mode='value'"+
     " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
-    var buttons = "<span class='raw'>" + value[0] + "</span>" +
+    var buttons = "<span class='raw'>" + xmlEnt(value[0]) + "</span>" +
               "<i class='jlink icon-large icon-search msearch'"+
               " data-action='' data-field='"+field+"'></i> " +
               "<i class='jlink icon-large icon-ban-circle msearch'"+
@@ -1706,7 +1706,7 @@ function bind_clicks() {
         ' field. Dismiss this notice to clear highlights.';
     if ($(this).attr('data-mode') == 'value')
       var notice = 'Highlighting <strong>'+objids.length+' events</strong>' +
-        ' where <strong>' + field + '</strong> is <strong>' + $(this).text() +
+        ' where <strong>' + field + '</strong> is <strong>' + xmlEnt($(this).text()) +
         '</strong>. Dismiss this notice to clear highlights.';
 
     $('#logs').prepend(
