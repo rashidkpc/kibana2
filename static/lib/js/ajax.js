@@ -1,11 +1,11 @@
 $(document).ready(function () {
 
   // Bind all click/change/whatever handlers
-  bind_clicks()
-  popover_setup()
+  bind_clicks();
+  popover_setup();
 
   // Common color profile.
-  window.graph_colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"]
+  window.graph_colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"];
 
   // Hide sidebar by default
   sbctl('hide',false);
@@ -61,7 +61,7 @@ function pageload(hash) {
     if(typeof window.hashjson.time == 'undefined')
       window.hashjson.time = {user_interval:0};
     else if (typeof window.hashjson.time.user_interval == 'undefined')
-        window.hashjson.time.user_interval = 0;
+      window.hashjson.time.user_interval = 0;
 
     switch (window.hashjson.mode) {
     case 'terms':
@@ -132,7 +132,7 @@ function getPage() {
 
         // Determine fields to be displayed
         var fields = window.hashjson.fields.length == 0 ?
-          resultjson.kibana.default_fields : window.hashjson.fields
+          resultjson.kibana.default_fields : window.hashjson.fields;
 
         // Create 'Columns' section
         $('#fields').html("<div class='input-prepend'>" +
@@ -140,7 +140,7 @@ function getPage() {
           "<input id='field_filter' type='text' class='span' placeholder='Columns' /></div>" +
           "<ul class='unselected nav nav-pills nav-stacked'></ul>");
 
-        var all_fields = array_unique(get_all_fields(resultjson).concat(fields))
+        var all_fields = array_unique(get_all_fields(resultjson).concat(fields));
 
         // Create sidebar field list
         var fieldstr = '';
@@ -148,10 +148,10 @@ function getPage() {
           var field_name = all_fields[index].toString();
           var afield = field_alias(field_name) + "_field";
           var mode = $.inArray(field_name,window.hashjson.fields) >= 0 ?
-            'selected' : 'unselected'
+            'selected' : 'unselected';
           fieldstr += sidebar_field_string(field_name,mode);
         }
-        $('#fields ul.unselected').append(fieldstr)
+        $('#fields ul.unselected').append(fieldstr);
 
         // Store list of fields for filter use
         window.field_list = $('#fields > ul > li');
@@ -183,7 +183,7 @@ function getPage() {
           Date.parse(window.resultjson.kibana.time.to),
           100,
           window.hashjson.time.user_interval
-        )
+        );
 
         if (typeof window.sb == 'undefined') {
           sbctl('show',false);
@@ -246,7 +246,7 @@ function getGraph(interval) {
         } else {
           if(typeof window.segment !== 'undefined')
             window['segment'] = undefined;
-            try { delete window['segment'] } catch (e) {}
+          try { delete window['segment']; } catch (e) {}
         }
 
       }
@@ -282,7 +282,7 @@ function pieChart(data,selector){
         $("#tooltip").remove();
         var label = (!item.series.label) ? "missing" : item.series.label;
         showTooltip(
-          pos.pageX+30, pos.pageY, 
+          pos.pageX+30, pos.pageY,
           "<b>"+label+"</b>" + " " + Math.round(item.series.percent) + "%"
         );
       }
@@ -309,8 +309,8 @@ function getID() {
     type: "GET",
     cache: false,
     success: function (json) {
-      window.resultjson = JSON.parse(json)
-      var hit = resultjson.hits.hits[0]
+      window.resultjson = JSON.parse(json);
+      var hit = resultjson.hits.hits[0];
       blank_page();
       setMeta(1);
 
@@ -320,14 +320,14 @@ function getID() {
         "<h2>Details for log ID: "+hit._id+" in "+hit._index+"</h2><br>"+str);
     }
   });
-  sbctl('hide',false)
+  sbctl('hide',false);
   window.hashjson.id = undefined;
-  window.hashjson.index = undefined
-  window.hashjson.mode = undefined
+  window.hashjson.index = undefined;
+  window.hashjson.mode = undefined;
   try{
     delete window.hashjson.id;
-    delete window.hashjson.index
-    delete window.hashjson.mode
+    delete window.hashjson.index;
+    delete window.hashjson.mode;
   }catch(e){}
 }
 
@@ -369,7 +369,7 @@ function getAnalysis() {
           Date.parse(window.resultjson.kibana.time.to),
           100,
           window.hashjson.time.user_interval
-        )
+        );
 
         if(resultjson.hits.total == 0) {
           setMeta(resultjson.hits.total);
@@ -412,9 +412,9 @@ function getAnalysis() {
           $('#logs').html(
             title+CreateTableView(termsTable(resultjson),'logs analysis'));
 
-          sbctl('hide',false)
+          sbctl('hide',false);
           graphLoading();
-          window.hashjson.graphmode = 'count'
+          window.hashjson.graphmode = 'count';
           getGraph(window.interval);
 
           // Calculate data for pie chart
@@ -422,19 +422,19 @@ function getAnalysis() {
           $.each(resultjson.facets.terms.terms,function(i,term) {
             data[i] = { label: term['term'], data: term['count'], color: window.graph_colors[i] };
           });
-          var remain = data.slice(window.graph_colors.length,data.length)
-          var r = 0
+          var remain = data.slice(window.graph_colors.length,data.length);
+          var r = 0;
           for (var x in remain) { r += remain[x].data; }
-          data = data.slice(0,window.graph_colors.length)
-          data.push({ label: "The Rest", data: r, color: '#AAA' })
-          pieChart(data,'#piechart')
+          data = data.slice(0,window.graph_colors.length);
+          data.push({ label: "The Rest", data: r, color: '#AAA' });
+          pieChart(data,'#piechart');
 
           break;
 
         case 'score':
           if (resultjson.hits.count == resultjson.hits.total) {
             var basedon = "<strong>all "
-              + resultjson.hits.count + "</strong>"
+              + resultjson.hits.count + "</strong>";
           } else {
             var basedon = 'the <strong>' +
               resultjson.hits.count + ' most recent</strong>';
@@ -449,9 +449,9 @@ function getAnalysis() {
             ' events for your query in your selected timeframe.<br><br>';
           $('#logs').html(
             title+CreateTableView(analysisTable(resultjson),'logs analysis'));
-          sbctl('hide',false)
+          sbctl('hide',false);
           graphLoading();
-          window.hashjson.graphmode = 'count'
+          window.hashjson.graphmode = 'count';
           getGraph(window.interval);
           break;
         case 'trend':
@@ -466,9 +466,9 @@ function getAnalysis() {
             ' and end of the selected timeframe for your query.<br><br>';
           $('#logs').html(
             title+CreateTableView(analysisTable(resultjson),'logs analysis'));
-          sbctl('hide',false)
+          sbctl('hide',false);
           graphLoading();
-          window.hashjson.graphmode = 'count'
+          window.hashjson.graphmode = 'count';
           getGraph(window.interval);
           break;
         case 'mean':
@@ -487,7 +487,7 @@ function getAnalysis() {
 
           resultjson.facets.stats._type = undefined;
           try{
-            delete resultjson.facets.stats._type
+            delete resultjson.facets.stats._type;
           }catch(e){}
 
           for (var obj in resultjson.facets.stats) {
@@ -498,9 +498,9 @@ function getAnalysis() {
             i++;
           }
           $('#logs').html(title+CreateTableView(tbl,'logs'));
-          sbctl('hide',false)
+          sbctl('hide',false);
           graphLoading();
-          window.hashjson.graphmode = 'mean'
+          window.hashjson.graphmode = 'mean';
           getGraph(window.interval);
           break;
         }
@@ -527,7 +527,7 @@ function analysisTable(resultjson) {
     for (var count = 0; count < fields.length; count++) {
       metric[fields[count]]=xmlEnt(idv[count]);
     }
-    var analyze_field = fields.join(' ')
+    var analyze_field = fields.join(' ');
     metric['Count'] = object.count;
     metric['Percent'] =  Math.round(
       metric['Count'] / resultjson.hits.count * 10000
@@ -559,7 +559,7 @@ function termsTable(resultjson) {
   for (var obj in resultjson.facets.terms.terms) {
     var object = resultjson.facets.terms.terms[obj];
     var metric = {};
-    var color = i < window.graph_colors.length ? 
+    var color = i < window.graph_colors.length ?
       " <i class=icon-sign-blank style='color:"+window.graph_colors[i]+"'><i>" : '';
 
     metric['Rank'] = (i + 1) + color;
@@ -568,13 +568,13 @@ function termsTable(resultjson) {
     for (var count = 0; count < fields.length; count++) {
       // TODO: This is so wrong, really shouldn't be matching a string here
       if (typeof termv[count] === 'undefined' || termv[count] == "null" ) {
-        var value = ''
+        var value = '';
       } else {
-        var value = xmlEnt(termv[count])
+        var value = xmlEnt(termv[count]);
       }
       metric[fields[count]] = value;
     }
-    var analyze_field = fields.join(' ')
+    var analyze_field = fields.join(' ');
     metric['Count'] = addCommas(object.count);
     metric['Percent'] =  Math.round(
       object.count / resultjson.hits.total * 10000
@@ -617,10 +617,10 @@ function popover_setup() {
   $(document).click(function(e) {
     if(popover_visible & popover_clickedaway & !$(e.target).is("a.micro"))
     {
-      $('.popover').remove()
-      popover_visible = popover_clickedaway = false
+      $('.popover').remove();
+      popover_visible = popover_clickedaway = false;
     } else {
-      popover_clickedaway = true
+      popover_clickedaway = true;
     }
   });
 }
@@ -641,7 +641,7 @@ function enable_popovers() {
         " <small><span class='small event_count'>"+
         "(<a class='jlink highlight_events' data-field='"+field+"'" +
           " data-mode='field' data-objid='"+objids+"'>" +
-          objids.length+" events</a> on this page)</span></small>";  
+          objids.length+" events</a> on this page)</span></small>";
       return str;
     },
     content: function() {
@@ -649,10 +649,10 @@ function enable_popovers() {
       var field = $(this).attr('data-field');
       var objids = get_objids_with_field(window.resultjson,field);
       var counts = get_related_fields(window.resultjson,field);
-      var str = ''
+      var str = '';
 
       if(counts.length > 0) {
-        str = '<span class=related><small><strong>Related fields:</strong><br> '
+        str = '<span class=related><small><strong>Related fields:</strong><br> ';
         var i = 0
         $.each(counts, function(index,value) {
           var display = i < related_limit ? 'inline-block' : 'none';
@@ -666,7 +666,7 @@ function enable_popovers() {
         str += "</small></span>";
       }
 
-      str =  microAnalysisTable(window.resultjson,field,5) + 
+      str =  microAnalysisTable(window.resultjson,field,5) +
         "<span id=micrograph></span>"+
         str +
         "<div class='btn-group'>" +
@@ -686,28 +686,28 @@ function enable_popovers() {
       $('.popover').remove();
     }
     $(this).popover('show');
-    var data = top_field_values(window.resultjson,$(this).attr('data-field'),5)
+    var data = top_field_values(window.resultjson,$(this).attr('data-field'),5);
     var i = 0, chart = [];
     for (var point in data) {
       chart.push([[data[point][1],0]])
       i = i + 1;
     }
-    tiny_bar(chart,'#micrograph')
-    popover_clickedaway = false
-    popover_visible = true
-    e.preventDefault()
+    tiny_bar(chart,'#micrograph');
+    popover_clickedaway = false;
+    popover_visible = true;
+    e.preventDefault();
 
   });
 }
 
 function microAnalysisTable (json,field,count) {
-  var counts = top_field_values(json,field,count)
-  var table = []
+  var counts = top_field_values(json,field,count);
+  var table = [];
   var colors = window.graph_colors;
   var i = 0;
   $.each(counts, function(index,value){
     var show_val = value[0] == '' ? '<i>blank</i>' : xmlEnt(value[0]);
-    var objids = get_objids_with_field_value(window.resultjson,field,value[0])
+    var objids = get_objids_with_field_value(window.resultjson,field,value[0]);
     var field_val = "<i class=icon-sign-blank style='color:"+colors[i]+"'></i> "+
     "<a class='jlink highlight_events' data-mode='value'"+
     " data-field='"+field+"' data-objid='"+objids+"'>"+show_val+"</a>";
@@ -722,18 +722,18 @@ function microAnalysisTable (json,field,count) {
     i = i+1;
   });
   return CreateTableView(table,
-    'table table-condensed table-bordered micro',false,['99%','30px','30px'])
+    'table table-condensed table-bordered micro',false,['99%','30px','30px']);
 }
 
 function pageLinks() {
   // Pagination
-  var perpage = window.resultjson.kibana.per_page
+  var perpage = window.resultjson.kibana.per_page;
   var str = "<table class='pagelinks'><tr>";
   var end = window.hashjson.offset + window.resultjson.hits.hits.length;
   if (end < resultjson.hits.total)
   {
-    //str += "<i data-action='nextpage' class='page icon-arrow-right jlink'></i> "
-    str += "<td width='1%'><a data-action='nextpage' class='page jlink'>Older</a></td>"
+    //str += "<i data-action='nextpage' class='page icon-arrow-right jlink'></i> ";
+    str += "<td width='1%'><a data-action='nextpage' class='page jlink'>Older</a></td>";
   }
   str += "<td width='99%'><strong>" + window.hashjson.offset + " TO " + end + "</strong></td>";
   if (window.hashjson.offset - perpage >= 0) {
@@ -751,7 +751,7 @@ function pageLinks() {
 // This is very ugly
 function blank_page() {
   var selectors = ['#graph','#graphheader','#feedlinks','#logs','.pagelinks',
-    '#fields','#analyze']
+    '#fields','#analyze'];
 
   for (var selector in selectors) {
     $(selectors[selector]).text("");
@@ -853,20 +853,20 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     }
 
     var id = object._id;
-    var alt = i % 2 == 0 ? '' : 'alt'
+    var alt = i % 2 == 0 ? '' : 'alt';
     var time = prettyDateString(
-      Date.parse(get_field_value(object,'@timestamp')) + tOffset);
+      Date.parse(get_field_value(object,'@timestamp')));
     str += '<tr data-object="' + objid + '" id="logrow_' + objid + '" '+
       'class="' + alt + ' logrow">';
 
     str += '<td class=firsttd>' + time + '</td>';
     for (var index in fields) {
       var field = fields[index];
-      if (typeof hlfield === "undefined") 
+      if (typeof hlfield === "undefined")
         var value = get_field_value(object,field);
       else
       {
-        if ( field.toString() == hlfield.toString() ) 
+        if ( field.toString() == hlfield.toString() )
           var value = hlvalue;
         else
           var value = get_field_value(object,field);
@@ -898,7 +898,7 @@ function details_table(objid,theme) {
   var obj = window.resultjson.hits.hits[objid];
 
   //obj_fields = get_object_fields(obj);
-  var obj_fields = flatten_json(obj['_source'])
+  var obj_fields = flatten_json(obj['_source']);
   var str = "<table class='"+theme+"'>" +
     "<tr><th>Field</th><th>Action</th><th>Value</th></tr>";
 
@@ -907,7 +907,7 @@ function details_table(objid,theme) {
 
   var i = 1;
   for (index in obj_fields) {
-    var field = index
+    var field = index;
     var value = obj_fields[index];
     var field_id = field.replace('@', 'ATSYM');
     //var value = get_field_value(obj,field);
@@ -922,16 +922,20 @@ function details_table(objid,theme) {
 
     // Are URLs clickable ?
     if (resultjson.kibana.clickable_urls) {
-      var value = value === undefined ? "-" : value.toString();
+      //var value = value === undefined ? "-" : value.toString();
+      value = value === undefined ? "-" : value.toString();
       // Detect URLs and inserts delimiters
-      var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
-        function (all, text, char) {
+      //var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
+      value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
+        function (all, text, ch) {
           return "@KIBANA_LINK_START@" + text + "@KIBANA_LINK_END@";
         }
       );
-      var value = xmlEnt(wbr(value),10);
+      //var value = xmlEnt(wbr(value),10);
+      value = xmlEnt(wbr(value),10);
       // Replace delimiters by HTML code
-      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"), 
+      //var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"),
+      value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"),
         function (all, text) {
           // Clean link
           var stripped = text.replace( new RegExp("<del>&#8203;</del>","g"),"");
@@ -973,13 +977,13 @@ function mSearch(field, value, mode) {
     var fields = $.trim(results[2]).split(/\s+/).slice(1);
     var values = value.toString().split('||');
     var query = '';
-    var glue = ''
+    var glue = '';
     // TODO: This only works if a query already exists I think?
     for (var count = 0;count < fields.length;count++) {
       value = values[count];
       if (value == "null" || typeof value === "undefined") {
         value = fields[count];
-        field = '_missing_'
+        field = '_missing_';
       } else {
         field = fields[count];
       }
@@ -1024,7 +1028,7 @@ function mFields(field) {
     // Add column
     $('#logs').find('tr.logrow').each(function(){
         var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
-        var value = get_field_value(obj,field)
+        var value = get_field_value(obj,field);
         $(this).find('td').last().after(
           '<td class="column" data-field="'+field+'">' + xmlEnt(wbr(value, 10)) + '</td>');
     });
@@ -1054,7 +1058,7 @@ function mFields(field) {
       $.each(window.resultjson.kibana.default_fields, function(index,field){
         $('#logs').find('tr.logrow').each(function(){
           var obj = window.resultjson.hits.hits[$(this).attr('data-object')];
-          var value = get_field_value(obj,field)
+          var value = get_field_value(obj,field);
           $(this).find('td').last().after(
             '<td class="column" data-field="'+field+'">' +
             xmlEnt(wbr(value, 10)) + '</td>');
@@ -1084,7 +1088,7 @@ function feedLinks(obj) {
     "<a href=export/" + Base64.encode(JSON.stringify(obj, null, '')) + ">export " +
     "<i class='icon-hdd'></i></a> "+
     "<a href=stream#" + Base64.encode(JSON.stringify(obj, null, '')) + ">stream " +
-    "<i class='icon-dashboard'></i></a>"
+    "<i class='icon-dashboard'></i></a>";
 }
 
 $(function () {
@@ -1111,7 +1115,7 @@ $(function () {
 
       window.hashjson.mode = mode;
       if (mode == 'columns')
-        window.hashjson.fields = field.split(',,')
+        window.hashjson.fields = field.split(',,');
       else
         window.hashjson.analyze_field = field;
     }
@@ -1148,78 +1152,73 @@ function datepickers(from,to) {
     "<input size=19 id=timeto class='datetimeRange'" +
     " type=text name=timeto> grouped by " +
     "<select id=user_interval name=user_interval> " + options + "</select>" +
-    "<button id='timechange' class='btn btn-small jlink' " + 
+    "<button id='timechange' class='btn btn-small jlink' " +
     "style='visibility: hidden'> filter</button></div>");
 
-  var from_date = utc_date_obj(new Date(from - tOffset))
-  var to_date   = utc_date_obj(new Date(to - tOffset));
+  var from_date = new Date(from);
+  var to_date   = new Date(to);
   $('#timefrom').datetimeEntry({
     maxDatetime : to_date,
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   });
-  $('#timefrom').datetimeEntry('setDatetime',from_date)
+  $('#timefrom').datetimeEntry('setDatetime',from_date);
 
   $('#timeto').datetimeEntry({
     minDatetime: $('#timefrom').datetimeEntry('getDatetime'),
-    maxDatetime: utc_date_obj(new Date()),
+    maxDateTime: new Date(),
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
-  },to);
-  $('#timeto').datetimeEntry('setDatetime',to_date)
+  });
+  $('#timeto').datetimeEntry('setDatetime',to_date);
 
 
-  // LOL Wat? o_from and o_to are globals?! I should be beaten with a hose for 
+  // LOL Wat? o_from and o_to are globals?! I should be beaten with a hose for
   // the horrid way time is handled in this application. Stupid FLOT.
   $('#timefrom,#timeto').datepicker({
     format: 'yyyy-mm-dd'
   }).on('show', function(ev) {
-    o_from = local_date_obj(
-      new Date($('#timefrom').datetimeEntry('getDatetime').getTime() - tOffset));
-    o_to = local_date_obj(
-      new Date($('#timeto').datetimeEntry('getDatetime').getTime() - tOffset));
+    o_from = $('#timefrom').datetimeEntry('getDatetime');
+    o_to = $('#timeto').datetimeEntry('getDatetime');
   });
 }
 
 // Render the date/time picker
 // Must make this pretty
 function renderDateTimePicker(from, to, force) {
-  $('.datepicker').remove()
-
-  from = from + tOffset
-  to = to + tOffset
+  $('.datepicker').remove();
 
   if (!$('#timechange').length || force == true) {
 
-    datepickers(from,to)
+    datepickers(from,to);
 
     $('#timefrom').datepicker().on('changeDate', function(ev) {
-      o_from.setUTCFullYear(ev.date.getFullYear())
-      o_from.setUTCMonth(ev.date.getMonth())
-      o_from.setUTCDate(ev.date.getDate())
-      $('.datepicker').remove()
+      o_from.setFullYear(ev.date.getFullYear());
+      o_from.setMonth(ev.date.getMonth());
+      o_from.setDate(ev.date.getDate());
+      $('.datepicker').remove();
       renderDateTimePicker(
-        o_from.getTime() + tOffset,
-        o_to.getTime() + tOffset,
+        o_from.getTime(),
+        o_to.getTime(),
         true
       );
-      window.hashjson.timeframe = 'custom'
+      window.hashjson.timeframe = 'custom';
       $('#timeinput').val('custom');
-    })
+    });
 
     $('#timeto').datepicker().on('changeDate', function(ev) {
-      o_to.setUTCFullYear(ev.date.getFullYear())
-      o_to.setUTCMonth(ev.date.getMonth())
-      o_to.setUTCDate(ev.date.getDate())
-      $('.datepicker').remove()
+      o_to.setFullYear(ev.date.getFullYear());
+      o_to.setMonth(ev.date.getMonth());
+      o_to.setDate(ev.date.getDate());
+      $('.datepicker').remove();
       renderDateTimePicker(
         o_from.getTime() + tOffset,
         o_to.getTime() + tOffset,
         true
       );
-      window.hashjson.timeframe = 'custom'
+      window.hashjson.timeframe = 'custom';
       $('#timeinput').val('custom');
-    })
+    });
 
     $('input.datetimeRange').datetimeEntry({datetimeFormat: 'Y-O-D H:M:S'}).
     change(function() {
@@ -1229,7 +1228,7 @@ function renderDateTimePicker(from, to, force) {
     });
 
     $('#user_interval').change(function () {
-      var interval = $('#user_interval').val()
+      var interval = $('#user_interval').val();
       if(typeof window.hashjson.time == 'undefined')
         window.hashjson.time = {user_interval:interval};
       else
@@ -1265,9 +1264,8 @@ function renderDateTimePicker(from, to, force) {
 
 function field_time(selector) {
   var tz_offset = int_to_tz(window.tOffset);
-  var str = ISODateString(
-    new Date($(selector).datetimeEntry('getDatetime').getTime())
-    ) + tz_offset;
+  var str = ISODateString($(selector).datetimeEntry('getDatetime'))
+    + tz_offset;
   return str;
 }
 
@@ -1281,7 +1279,7 @@ function tiny_bar(data,selector) {
     },
     xaxis: {show:false, max: window.resultjson.kibana.per_page},
     yaxis: {show:false},
-    grid: {show:false},  
+    grid: {show:false}
   });
 }
 
@@ -1304,26 +1302,24 @@ function logGraph(data, interval, metric) {
   if(typeof window.resultjson.kibana.time !== 'undefined') {
     // add null value at time from.
     if(window.hashjson.timeframe != 'all') {
-      from = Date.parse(window.resultjson.kibana.time.from) + tOffset
-      array.push(
-        Array(from, null));
+      from = Date.parse(window.resultjson.kibana.time.from);
+      array.push(Array(from, null));
     }
   }
 
   for (var index in data) {
     var value = data[index][metric];
-    array.push(Array(data[index].time + tOffset, value));
+    array.push(Array(data[index].time, value));
   }
 
   if(typeof window.resultjson.kibana.time !== 'undefined') {
     // add null value at time to.
-    to = Date.parse(window.resultjson.kibana.time.to) + tOffset
-    array.push(
-      Array(to, null));
+    to = Date.parse(window.resultjson.kibana.time.to);
+    array.push(Array(to, null));
   }
 
   from = array[0][0];
-  to = array[array.length -1][0]
+  to = array[array.length -1][0];
 
   renderDateTimePicker(from,to,true);
 
@@ -1336,8 +1332,8 @@ function logGraph(data, interval, metric) {
     $('#graph').bind("plotselected", function (event, ranges) {
       if (!intset) {
         intset = true;
-        var from = utc_date_obj(new Date(parseInt(ranges.xaxis.from.toFixed(0))))
-        var to = utc_date_obj(new Date(parseInt(ranges.xaxis.to.toFixed(0))))
+        var from = new Date(parseInt(ranges.xaxis.from.toFixed(0)));
+        var to = new Date(parseInt(ranges.xaxis.to.toFixed(0)));
         var time = {
           "from": ISODateString(from)+int_to_tz(window.tOffset),
           "to": ISODateString(to)+int_to_tz(window.tOffset)
@@ -1396,9 +1392,12 @@ function logGraph(data, interval, metric) {
       },
       xaxis: {
         mode: "time",
-        timeformat: "%H:%M:%S<br>%m-%d",
+        tickFormatter: function (val, axis) {
+          var d = new Date(parseInt(val));
+          return d.format("HH:MM:ss<br/>mm-dd");
+        },
         label: "Datetime",
-        color: "#000",
+        color: "#000"
       },
       yaxis: {
         min: 0,
@@ -1473,22 +1472,22 @@ function sbctl(mode,user_selected) {
 }
 
 function move_column(field,dir) {
-  var x = dir == 'right' ? 1 : -2
-  var len = $('#logs thead th').length
+  var x = dir == 'right' ? 1 : -2;
+  var len = $('#logs thead th').length;
   if (len == 2)
-    return
-  var thi = $('#logs th.column[data-field="'+field+'"]').index()
+    return;
+  var thi = $('#logs th.column[data-field="'+field+'"]').index();
 
-  dest = thi+x
+  dest = thi+x;
   if (x == -2 && thi == 1)
-    dest = len-1
+    dest = len-1;
   if (x == 1 && thi == (len-1))
-    dest = 0
+    dest = 0;
 
 
-  var th1 = $('#logs thead th:eq('+thi+')')
-  var th2 = $('#logs thead th:eq('+dest+')')
-  th1.detach().insertAfter(th2)
+  var th1 = $('#logs thead th:eq('+thi+')');
+  var th2 = $('#logs thead th:eq('+dest+')');
+  th1.detach().insertAfter(th2);
 
   $('#logs tr.logrow').each(function() {
     var tr = $(this);
@@ -1500,7 +1499,7 @@ function move_column(field,dir) {
 
   window.hashjson.fields = $('#logs th.column').map(
     function(){return $(this).attr("data-field");}
-    ).get()
+    ).get();
 }
 
 function showError(title,text) {
@@ -1518,7 +1517,7 @@ function showError(title,text) {
       Date.parse(window.hashjson.time.to)+tOffset
     );
   }
-  sbctl('hide')
+  sbctl('hide');
 }
 
 function getGraphColor(mode) {
@@ -1549,13 +1548,13 @@ function resetAll() {
 
 function highlight_events(objids) {
   for (objid in objids) {
-    $('#logs tr#logrow_'+objids[objid]).addClass('highlight')
+    $('#logs tr#logrow_'+objids[objid]).addClass('highlight');
   }
 }
 
 function unhighlight_events(objids) {
   for (objid in objids) {
-    $('#logs tr#logrow_'+objids[objid]).removeClass('highlight')
+    $('#logs tr#logrow_'+objids[objid]).removeClass('highlight');
   }
 }
 
@@ -1567,7 +1566,7 @@ function bind_clicks() {
 
   $('body').delegate("i.shift_column", "click",
     function () {
-      move_column($(this).parent().attr('data-field'),$(this).attr('data-mode'))
+      move_column($(this).parent().attr('data-field'),$(this).attr('data-mode'));
     });
 
   // Side bar expand/collapse
@@ -1591,7 +1590,7 @@ function bind_clicks() {
     window.hashjson.timeframe = $(this).val();
     if (window.hashjson.timeframe == "custom") {
       //Initialize the date picker with a 15 minute window into the past
-      var d = new Date()
+      var d = new Date();
       var startDate = new Date(d - (15 * 60 * 1000));
       renderDateTimePicker(
         startDate, d);
@@ -1626,7 +1625,7 @@ function bind_clicks() {
   $("#logs").delegate("a.page", "click",
     function () {
       var per_page = window.resultjson.kibana.per_page;
-      var action = $(this).attr('data-action')
+      var action = $(this).attr('data-action');
       switch (action) {
       case 'nextpage':
         window.hashjson.offset += per_page;
@@ -1646,7 +1645,7 @@ function bind_clicks() {
     window.hashjson.offset = 0;
     var mode  = $(this).attr('rel');
     var field = $(this).attr('data-field');
-    analyzeField(field, mode)
+    analyzeField(field, mode);
   });
 
   // Analysis table rescore
@@ -1674,18 +1673,18 @@ function bind_clicks() {
       if (!search || e.keyCode == 27) { //esc key
           $(this).val('');
           window.field_list.show();
-          return;        
+          return;
       }
-      
+
       window.field_list.hide();
       var shown = window.field_list.filter(function(index) {
           return ($(this).attr('data-field').toLowerCase().indexOf(search) !== -1);
       }).show();
-      
+
       if (shown.length == 1 && e.keyCode == 13) { // enter key
           shown.children('i').click(); //toggle column
           $(this).val('');
-          window.field_list.show();       
+          window.field_list.show();
       }
   });
 
