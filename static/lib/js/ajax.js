@@ -883,6 +883,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
         value + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
+    hlfield = undefined;
     i++;
   }
 
