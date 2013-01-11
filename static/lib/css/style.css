@@ -222,6 +222,10 @@ table.formatting td {
   color: #A92C10;
 }
 
+#field_filter {
+  width: 130px;
+}
+
 span.raw {
   display:none;
 }
