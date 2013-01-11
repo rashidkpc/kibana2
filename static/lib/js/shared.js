@@ -1,6 +1,6 @@
 function get_object_fields(obj) {
   var field_array = [];
-  obj = flatten_json(obj._source)
+  obj = flatten_json(obj._source);
   for (field in obj) {
     field_array.push(field);
   }
@@ -39,7 +39,7 @@ function array_unique(arr) {
         results.push(sorted_arr[i]);
     }
   }
-  return results
+  return results;
 }
 
 function get_objids_with_field(json,field) {
@@ -76,9 +76,9 @@ function get_objids_with_field_value(json,field,value) {
 }
 
 function get_related_fields(json,field) {
-  var field_array = []
+  var field_array = [];
   for (hit in json.hits.hits) {
-    var obj_fields = get_object_fields(json.hits.hits[hit])
+    var obj_fields = get_object_fields(json.hits.hits[hit]);
     //var obj_fields = jQuery.grep(get_object_fields(json.hits.hits[hit]), function(value){
     //  return (value.charAt(0) != '@');
     //});
@@ -106,7 +106,7 @@ function get_field_value(object,field,opt) {
   var value = recurse_field_dots(object['_source'],field);
 
   if(value === null)
-    return ''
+    return '';
   if($.isArray(value))
     if (opt == 'raw') {
       return value;
@@ -117,7 +117,7 @@ function get_field_value(object,field,opt) {
             if (typeof(el) == 'object') {
                 complex = true;
             }
-        })
+        });
         if (complex) {
             return JSON.stringify(value, null, 4);
         }
@@ -126,7 +126,7 @@ function get_field_value(object,field,opt) {
   if(typeof value === 'object' && value != null)
     // Leaving this out for now
     //return opt == 'raw' ? value : JSON.stringify(value,null,4)
-    return JSON.stringify(value,null,4)
+    return JSON.stringify(value,null,4);
 
   return (value != null) ? value.toString() : '';
 }
@@ -137,7 +137,7 @@ function get_field_value(object,field,opt) {
 function get_all_values_for_field(json,field) {
   var field_array = [];
   for (hit in json.hits.hits) {
-    var value = get_field_value(json.hits.hits[hit],field,'raw')
+    var value = get_field_value(json.hits.hits[hit],field,'raw');
     if(typeof value === 'object' && value != null) {
       field_array.push.apply(field_array,value);
     } else {
@@ -170,14 +170,14 @@ function count_values_in_array(array) {
   for (var i = 0; i < tuples.length; i++) {
     var key = tuples[i][0];
     var value = tuples[i][1];
-    count_array.push([key,value])
+    count_array.push([key,value]);
   }
   return count_array;
 }
 
 function top_field_values(json,field,count) {
   var result = count_values_in_array(get_all_values_for_field(json,field));
-  return result.slice(0,count)
+  return result.slice(0,count);
 }
 
  /**
@@ -258,7 +258,7 @@ function ISODateString(d) {
   }
 
   function pad(n) {
-    return n < 10 ? '0' + n : n
+    return n < 10 ? '0' + n : n;
   }
   return d.getFullYear() + '-' +
     pad(d.getMonth() + 1) + '-' +
@@ -269,25 +269,24 @@ function ISODateString(d) {
 }
 
 function pickDateString(d) {
-  return dateFormat(d,'yyyy-mm-dd HH:MM:ss')
+  return dateFormat(d,'yyyy-mm-dd HH:MM:ss');
 }
 
 function prettyDateString(d) {
   d = new Date(parseInt(d));
-  d = utc_date_obj(d);
   return dateFormat(d,window.time_format);
 }
 
 function utc_date_obj(d) {
   return new Date(
-    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),  
+    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
     d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(),
     d.getUTCMilliseconds());
 }
 
 function local_date_obj(d) {
   return new Date(Date.UTC(
-    d.getFullYear(), d.getMonth(), d.getDate(),  
+    d.getFullYear(), d.getMonth(), d.getDate(),
     d.getHours(), d.getMinutes(), d.getSeconds()));
 }
 
@@ -301,17 +300,17 @@ function is_int(value) {
 
 function flatten_json(object,root,array) {
   if (typeof array === 'undefined')
-    var array = {};
+    array = {};
   if (typeof root === 'undefined')
-    var root = '';
+    root = '';
   for(var index in object) {
-    var obj = object[index]
+    var obj = object[index];
     var rootname = root.length == 0 ? index : root + '.' + index;
     if(typeof obj == 'object' ) {
       if($.isArray(obj))
         array[rootname] = typeof obj === 'undefined' ? null : obj.join(',');
       else
-        flatten_json(obj,rootname,array)
+        flatten_json(obj,rootname,array);
     } else {
       array[rootname] = typeof obj === 'undefined' ? null : obj;
     }
@@ -330,9 +329,9 @@ function xmlEnt(value) {
     .replace(/  /g, '&nbsp;&nbsp;')
     .replace(/&lt;del&gt;/g, '<del>')
     .replace(/&lt;\/del&gt;/g, '</del>');
-  return stg1
+  return stg1;
   } else {
-    return value
+    return value;
   }
 }
 
@@ -356,25 +355,25 @@ function sortObj(arr) {
 
 // WTF. Has to be a better way to do this. Hi Tyler.
 function int_to_tz(offset) {
-  var hour = offset / 1000 / 3600
-  var str = ""
+  var hour = offset / 1000 / 3600;
+  var str = "";
   if (hour == 0) {
-    str = "+0000"
+    str = "+0000";
   }
   if (hour < 0) {
     if (hour > -10)
-      str = "-0" + (hour * -100)
+      str = "-0" + (hour * -100);
     else
-      str = "-" + (hour * -100)
+      str = "-" + (hour * -100);
   }
   if (hour > 0) {
     if (hour < 10)
-      str = "+0" + (hour * 100)
+      str = "+0" + (hour * 100);
     else
-      str = "+" + (hour * 100)
+      str = "+" + (hour * 100);
   }
   str = str.substring(0,3) + ":" + str.substring(3);
-  return str
+  return str;
 }
 
 // Sets #hash, thus refreshing results
@@ -401,11 +400,11 @@ function addCommas(nStr) {
 function wbr(str, num) {
   str = htmlEntities(str);
   return str.replace(RegExp("(@?\\w{" + num + "}|[:;,])([\\w\"'])([\\w@]*)", "g"),
-    function (all, text, char, trailer) {
+    function (all, text, ch, trailer) {
       if (/@KIBANA_\w+_(START|END)@/.test(all)) {
-        return text + char + trailer;
+        return text + ch + trailer;
       } else {
-        return text + "<del>&#8203;</del>" + char + trailer;
+        return text + "<del>&#8203;</del>" + ch + trailer;
       }
     }
   );
