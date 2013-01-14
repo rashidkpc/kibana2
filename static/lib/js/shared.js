@@ -79,9 +79,6 @@ function get_related_fields(json,field) {
   var field_array = []
   for (hit in json.hits.hits) {
     var obj_fields = get_object_fields(json.hits.hits[hit])
-    //var obj_fields = jQuery.grep(get_object_fields(json.hits.hits[hit]), function(value){
-    //  return (value.charAt(0) != '@');
-    //});
     if ($.inArray(field,obj_fields) >= 0) {
       field_array.push.apply(field_array,obj_fields);
     }
@@ -97,7 +94,8 @@ function recurse_field_dots(object,field) {
   else if (nested = field.match(/(.*?)\.(.*)/))
     if(typeof object[nested[1]] != 'undefined')
       value = (typeof object[nested[1]][nested[2]] != 'undefined') ?
-        object[nested[1]][nested[2]] : recurse_field_dots(object[nested[1]],nested[2]);
+        object[nested[1]][nested[2]] : recurse_field_dots(
+          object[nested[1]],nested[2]);
 
   return value;
 }
@@ -379,7 +377,7 @@ function int_to_tz(offset) {
 
 // Sets #hash, thus refreshing results
 function setHash(json) {
-  window.location.hash = Base64.encode(JSON.stringify(json));
+  window.location.hash = encodeURIComponent(Base64.encode(JSON.stringify(json)));
 }
 
 // Add commas to numbers
@@ -400,7 +398,8 @@ function addCommas(nStr) {
 // num = number of letters between <wbr> tags
 function wbr(str, num) {
   str = htmlEntities(str);
-  return str.replace(RegExp("(@?\\w{" + num + "}|[:;,])([\\w\"'])([\\w@]*)", "g"),
+  return str.replace(
+    RegExp("(@?\\w{" + num + "}|[:;,])([\\w\"'])([\\w@]*)", "g"),
     function (all, text, char, trailer) {
       if (/@KIBANA_\w+_(START|END)@/.test(all)) {
         return text + char + trailer;
@@ -412,5 +411,9 @@ function wbr(str, num) {
 }
 
 function htmlEntities(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(str).replace(
+      /&/g, '&amp;').replace(
+      /</g, '&lt;').replace(
+      />/g, '&gt;').replace(
+      /"/g, '&quot;');
 }
