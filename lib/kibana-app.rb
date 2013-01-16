@@ -6,6 +6,8 @@ ruby_19 { require 'csv' }
 
 class KibanaApp < Sinatra::Base
 
+  register Gon::Sinatra
+
   configure do
     set :bind, defined?(KibanaConfig::KibanaHost) ? KibanaConfig::KibanaHost : '0.0.0.0'
     set :port, KibanaConfig::KibanaPort
@@ -31,19 +33,24 @@ class KibanaApp < Sinatra::Base
         raise "Unknown script_url mode #{mode}"
       end
       "#{base}#{url_fragment}"
-     end
-
+    end
   end
 
   get '/' do
+    gon.index_key_message    = KibanaConfig::Index_key_message 
+    gon.index_key_timestamp  = KibanaConfig::Index_key_timestamp
+
     if KibanaConfig::Allow_iframed
       headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" 
     end
-    send_file File.join(settings.public_folder, 'index.html')
+    erb :index
   end
 
   get '/stream' do
-    send_file File.join(settings.public_folder, 'stream.html')
+    gon.index_key_message    = KibanaConfig::Index_key_message
+    gon.index_key_timestamp  = KibanaConfig::Index_key_timestamp
+
+    erb :stream
   end
 
   # Returns
@@ -103,7 +110,7 @@ class KibanaApp < Sinatra::Base
     req           = ClientRequest.new(params[:hash])
 
     query_end     = SortedQuery.new(
-      req.search,req.from,req.to,0,limit,'@timestamp','desc')
+      req.search,req.from,req.to,0,limit,KibanaConfig::Index_key_timestamp,'desc')
     indices_end   = Kelastic.index_range(req.from,req.to)
     result_end    = KelasticMulti.new(query_end,indices_end)
 
@@ -111,7 +118,7 @@ class KibanaApp < Sinatra::Base
     if (result_end.response['hits']['hits'].length < limit)
       limit         = (result_end.response['hits']['hits'].length / 2).to_i
       query_end     = SortedQuery.new(
-        req.search,req.from,req.to,0,limit,'@timestamp','desc')
+        req.search,req.from,req.to,0,limit, KibanaConfig::Index_key_timestamp,'desc')
       indices_end   = Kelastic.index_range(req.from,req.to)
       result_end    = KelasticMulti.new(query_end,indices_end)
     end
@@ -121,7 +128,7 @@ class KibanaApp < Sinatra::Base
     count_end     = KelasticResponse.count_field(result_end.response,fields)
 
     query_begin   = SortedQuery.new(
-      req.search,req.from,req.to,0,limit,'@timestamp','asc')
+      req.search,req.from,req.to,0,limit, KibanaConfig::Index_key_timestamp,'asc')
     indices_begin = Kelastic.index_range(req.from,req.to).reverse
     result_begin  = KelasticMulti.new(query_begin,indices_begin)
     count_begin   = KelasticResponse.count_field(result_begin.response,fields)
@@ -272,7 +279,7 @@ class KibanaApp < Sinatra::Base
         i = m.items.new_item
         hash    = IdRequest.new(hit['_id'],hit['_index']).hash
         i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
-        i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
+        i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,KibanaConfig::Index_key_timestamp))
         i.link  = link_to("/##{hash}")
         i.description = "<pre>#{hit.to_yaml}</pre>"
       end
@@ -316,7 +323,7 @@ class KibanaApp < Sinatra::Base
   get '/turl/:id' do
     b64hash = KtransientURL[params[:id]]
 
-    redirect to("/index.html##{b64hash}") unless b64hash.nil?
+    redirect to("/##{b64hash}") unless b64hash.nil?
       "sorry! #{params[:id]} does not match any entry in Kibana's transient" + 
       " url table"
   end
