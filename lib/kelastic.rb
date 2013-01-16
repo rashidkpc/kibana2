@@ -247,37 +247,40 @@ class KelasticMulti
       return @response
     end
 
-    index = indices.first
-    @url = "#{Kelastic.index_path(index)}/_search"
-    # TODO: This badly needs error handling for missing indices
-    @response = Kelastic.run(@url,query)
-    if @response['kibana'].has_key?("error")
-      return @response
-    end
-
-
     # Store the original values for reference
     target = query.query['size']
     offset = query.query['from']
 
-    i = 1
-    # Didn't get enough hits, and still have indices left?
-    while @response['hits']['hits'].length < target and i < indices.length
-      # Subtract from size however many hits we already have
-      query.query['size'] = target - response['hits']['hits'].length
+    i = 0
+    while i < indices.length
 
-      # Calculate an offset to account for anything that might have been shown
-      # on the previous page, otherwise, set to 0
-      query.query['from'] = (offset - response['hits']['total'] < 0) ?
-        0 : (offset - response['hits']['total'])
+      #If response is nil then create it as a dynamic Hash and initilize some necessary keys
+      if @response.nil?
+        @response = auto_hash
+        @response['hits']['total']=0
+        @response['hits']['hits']=[]
+        @response['kibana']['per_page']=target
+      end
 
       index = indices[i]
       @url = "#{Kelastic.index_path(index)}/_search"
-      if @response['kibana'].has_key?("error")
-        return @response
+
+      #get count if offset is greater than zero
+      segment_response = Kelastic.run(@url,query)
+      if segment_response['kibana'].has_key?("error")
+        return segment_response
       end
 
-      segment_response = Kelastic.run(@url,query)
+      if segment_response['hits']['total'] < offset
+        while segment_response['hits']['hits'].length < query.query['from']
+          query.query['from'] = query.query['from'] - target
+        end
+        segment_response = Kelastic.run(@url,query)
+        if segment_response['kibana'].has_key?("error")
+          return segment_response
+        end
+        query.query['from'] = offset
+      end
 
       if !segment_response['status'] && segment_response['hits']
         # Concatonate the hits array
@@ -289,18 +292,27 @@ class KelasticMulti
       elsif segment_response['status'] && 404 == segment_response['status']
         i += 1
       else
-        raise "Bad response for query to: #{@url}, query: #{query} response" +
-              " data: #{segment_response.to_yaml}"
+        raise "Bad response for query to: #{@url}, query: #{query} response data: #{segment_response.to_yaml}"
       end
     end
 
     @response['kibana']['index'] = indices
+
+    #Sort the combined segment responses by 'sort' value. 
+    #If the reponse hits length is greater than the page size then slice those off the end. 
+    #They should end up displaying on the next page.
+    @response['hits']['hits'] = @response['hits']['hits'].sort_by { |k| k['sort'][0].to_i }.reverse.slice(0,target)
 
   end
 
   def to_s
     JSON.pretty_generate(@response)
   end
+
+  def auto_hash
+    Hash.new { |hash, key| hash[key] = auto_hash }
+  end
+
 end
 
 =begin
