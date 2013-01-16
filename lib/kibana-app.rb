@@ -1,12 +1,6 @@
 require 'rubygems'
 require 'sinatra/base'
 
-if ENV["KIBANA_CONFIG"]
-  require ENV["KIBANA_CONFIG"]
-else
-  require 'KibanaConfig'
-end
-
 ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
 
