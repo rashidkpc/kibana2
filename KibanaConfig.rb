@@ -130,6 +130,8 @@ module KibanaConfig
   # Authentication options for the auth_ldap module
   Ldap_host = '127.0.0.1'
   Ldap_port = 389
+  # Adds a '@domain.local' suffix to the username when authenticating against an LDAP directory
+  # Ldap_domain_fqdn = 'domain.local'
 
   # Storage Module
   Storage_module = 'elasticsearch'  # mongo
