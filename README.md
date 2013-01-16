@@ -24,7 +24,7 @@ Install:
 	bundle install  
 
 Configure:  
-Set your elasticsearch server in lib/KibanaConfig.rb:  
+Set your elasticsearch server in KibanaConfig.rb:  
 	Elasticsearch = "elasticsearch:9200"  
 
 Run:  

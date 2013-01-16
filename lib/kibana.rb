@@ -1,9 +1,14 @@
+if ENV["KIBANA_CONFIG"]
+    require ENV["KIBANA_CONFIG"]
+else
+    require File.expand_path("./KibanaConfig.rb")
+end
+
 require 'rubygems'
 require 'date'
 require 'rss/maker'
 require 'yaml'
 require 'compat'
-require 'KibanaConfig'
 require 'client_request'
 require 'id_request'
 require 'kransient_url'
