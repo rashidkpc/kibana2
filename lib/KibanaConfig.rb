@@ -46,6 +46,18 @@ module KibanaConfig
   # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
   Default_fields = ['@message']
 
+  # If set to true, Kibana will use the Highlight feature of Elasticsearch to 
+  # display highlighted search results
+  Highlight_results = true
+
+  # A field needs to be specified for the highlight feature. By default, 
+  # Elasticsearch doesn't allow highlighting on _all because the field has to 
+  # be either stored or part of the _source field.
+  Highlighted_field = "@message"
+
+  # Make URLs clickable in detailed view
+  Clickable_URLs = true
+
   # The default operator used if no explicit operator is specified.
   # For example, with a default operator of OR, the query capital of
   # Hungary is translated to capital OR of OR Hungary, and with default
@@ -88,6 +100,9 @@ module KibanaConfig
   # indexes.  
   # Smart_index_pattern = ['logstash-web-%Y.%m.%d', 'logstash-mail-%Y.%m.%d'] 
   Smart_index_pattern = 'logstash-%Y.%m.%d'
+  
+  # Number of seconds between each index. 86400 = 1 day.
+  Smart_index_step = 86400 
 
   # ElasticSearch has a default limit on URL size for REST calls,
   # so Kibana will fall back to _all if a search spans too many

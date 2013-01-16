@@ -3,11 +3,6 @@ require 'json'
 require 'base64'
 require 'time'
 
-$LOAD_PATH << './lib'
-$LOAD_PATH << '..'
-require 'KibanaConfig' unless defined?(KibanaConfig)
-require 'compat'
-
 =begin
 = Class: ClientRequest
   Creates an object out of the hash passed by a client
@@ -18,7 +13,7 @@ class ClientRequest
   attr_accessor :search,:from,:to,:offset,:fields,:analyze
 
   def initialize(hash)
-    @request = JSON.parse(Base64.decode64(hash))
+    @request = JSON.parse(Base64.decode64(URI.unescape(hash)))
 
     @search = @request['search']
     if @search != "" and @search.include? "|"
@@ -44,7 +39,8 @@ class ClientRequest
       @from = (Time.at(0))
       @to = (Time.now)
     else
-      diff = (@request['timeframe'].to_i <= 0 ? KibanaConfig::Fallback_interval  : @request['timeframe'].to_i)
+      diff = (@request['timeframe'].to_i <= 0 ? 
+        KibanaConfig::Fallback_interval  : @request['timeframe'].to_i)
 
       @from = (Time.now - diff)
       @to = (Time.now)

@@ -2,11 +2,6 @@ require 'rubygems'
 require 'json'
 require 'tzinfo'
 
-$LOAD_PATH << './lib'
-$LOAD_PATH << '..'
-require 'KibanaConfig' unless defined?(KibanaConfig)
-require 'compat'
-
 =begin
 = Class: Query
   A basic query contains only the data needed to get results, without any
@@ -107,6 +102,37 @@ class SortedQuery < Query
       field => {
         "order" => order
       }
+    }
+  end
+end
+
+=begin
+= Class: HighlightedQuery < Query
+  Sort results ascending or decending by a given field and highlight results
+
+== Parameters:
+  query::   The query text. Blank or * queries are converted to match_all
+  from::    Beginning of time range
+  to::      End of time range (Default: NOW)
+  offset::  Offset from beginning of results
+  field::   Field to sort on, be careful of fields with many unique values
+  order::   desc/asc
+=end
+class HighlightedQuery < Query
+  attr_accessor :query,:from,:to
+  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
+    super(question, from, to)
+    @query['from'] = offset
+    @query['size'] = size
+    @query['sort'] = {
+      field => {
+        "order" => order
+      }
+    }
+    @query['highlight'] = {
+      "pre_tags" => [ "@KIBANA_HIGHLIGHT_START@" ],
+      "post_tags" => [ "@KIBANA_HIGHLIGHT_END@" ],
+      "fields" => { KibanaConfig::Highlighted_field => { "fragment_size" => 9999 } }
     }
   end
 end
