@@ -94,7 +94,7 @@ function getPage() {
   // Show the user an animated loading thingy
   setMeta('loading');
 
-  var sendhash = window.location.hash.replace(/^#/, '');;
+  var sendhash = encodeURIComponent(window.location.hash.replace(/^#/, ''));
 
   //Get the data and display it
   window.request = $.ajax({
@@ -103,7 +103,7 @@ function getPage() {
     cache: false,
     success: function (json) {
       // Make sure we're still on the same page
-      if (sendhash == window.location.hash.replace(/^#/, '')) {
+      if (sendhash == encodeURIComponent(window.location.hash.replace(/^#/, ''))) {
         //Parse out the result
         window.resultjson = JSON.parse(json);
 
@@ -205,7 +205,7 @@ function getPage() {
 function getGraph(interval) {
 
   //generate the parameter for the php script
-  var sendhash = window.location.hash.replace(/^#/, '');
+  var sendhash = encodeURIComponent(window.location.hash.replace(/^#/, ''));
   var mode = window.hashjson.graphmode;
   window.segment = typeof window.segment === 'undefined' ? '' : window.segment;
   //Get the data and display it
@@ -215,7 +215,7 @@ function getGraph(interval) {
     cache: false,
     success: function (json) {
       // Make sure we're still on the same page
-      if (sendhash == window.location.hash.replace(/^#/, '')) {
+      if (sendhash == encodeURIComponent(window.location.hash.replace(/^#/, ''))) {
 
         //Parse out the returned JSON
         var graphjson = JSON.parse(json);
@@ -302,7 +302,7 @@ function analyzeField(field, mode) {
 
 function getID() {
   // Show the user an animated loading thingy
-  var sendhash = window.location.hash.replace(/^#/, '');
+  var sendhash = encodeURIComponent(window.location.hash.replace(/^#/, ''));
   //Get the data and display it
   window.request = $.ajax({
     url: "api/id/"+window.hashjson.id+"/"+window.hashjson.index,
@@ -334,7 +334,7 @@ function getID() {
 function getAnalysis() {
   setMeta('loading');
   //generate the parameter for the php script
-  var sendhash = window.location.hash.replace(/^#/, '');
+  var sendhash = encodeURIComponent(window.location.hash.replace(/^#/, ''));
   //Get the data and display it
   window.request = $.ajax({
     url: "api/analyze/" + window.hashjson.analyze_field + "/" +
@@ -343,7 +343,7 @@ function getAnalysis() {
     cache: false,
     success: function (json) {
       // Make sure we're still on the same page
-      if (sendhash == window.location.hash.replace(/^#/, '')) {
+      if (sendhash == encodeURIComponent(window.location.hash.replace(/^#/, ''))) {
 
         //Parse out the returned JSON
         var field = window.hashjson.analyze_field;
@@ -883,6 +883,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
         value + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
+    hlfield = undefined;
     i++;
   }
 

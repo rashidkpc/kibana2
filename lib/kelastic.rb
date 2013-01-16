@@ -45,7 +45,8 @@ class Kelastic
         end
       end
 
-      @status = JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
+      @status = JSON.parse(
+        http.request(Net::HTTP::Get.new(url.request_uri)).body)
       indices = @status.keys
       @status.keys.each do |index|
         if @status[index]['aliases'].count > 0
@@ -55,21 +56,25 @@ class Kelastic
       indices.uniq.sort
     end
 
-    # Returns list of index-date names which intersect with range defined by from and to
+    # Returns list of index-date names which intersect with range defined by 
+    # from and to
     def index_range(from,to,limit = -1)
-      step_time = from
       if KibanaConfig::Smart_index == true
       	index_pattern = "logstash-%Y.%m.%d"
       	if KibanaConfig::Smart_index_pattern != ""
       	  index_pattern = KibanaConfig::Smart_index_pattern
       	end
         requested = [] # Initialize empty array
-        index_pattern = index_pattern.kind_of?(Array) ? index_pattern : [index_pattern]
+        index_pattern = index_pattern.kind_of?(Array) ? 
+          index_pattern : [index_pattern]
         for index in index_pattern do
+          step_time = from
           begin
             requested << step_time.getutc.strftime(index)
           end while (step_time += KibanaConfig::Smart_index_step) <= to
-          requested << to.getutc.strftime(index) unless requested.include? to.getutc.strftime(index)
+          unless requested.include? to.getutc.strftime(index)
+            requested << to.getutc.strftime(index)
+          end
         end
 
         intersection = requested & all_indices
@@ -96,11 +101,14 @@ class Kelastic
       end
     end
 
-    # TODO: Verify this index exists?  This is no longer being called.  Possibly remove?
+    # TODO: Verify this index exists?  This is no longer being called.  
+    # Possibly remove?
     def current_index
       if KibanaConfig::Smart_index == true
-        index_pattern = (KibanaConfig::Smart_index_pattern.empty? ? "logstash-%Y.%m.%d" : KibanaConfig::Smart_index_pattern)
-        index_patterns = (index_pattern.kind_of?(Array) ? index_pattern : [index_pattern])
+        index_pattern = (KibanaConfig::Smart_index_pattern.empty? ? 
+          "logstash-%Y.%m.%d" : KibanaConfig::Smart_index_pattern)
+        index_patterns = (index_pattern.kind_of?(Array) ? 
+          index_pattern : [index_pattern])
 
         index_patterns.map do |index|
           (Time.now.utc).strftime(index)
@@ -227,7 +235,8 @@ end
 
 =begin
 = Class: KelasticMulti
-  - Will query indices sequentially and append to result set until query['size'] is reached
+  - Will query indices sequentially and append to result set until 
+    query['size'] is reached
 == Requires:
   query['size']
   query['from']
@@ -286,7 +295,8 @@ class KelasticMulti
       elsif segment_response['status'] && 404 == segment_response['status']
         i += 1
       else
-        raise "Bad response for query to: #{@url}, query: #{query} response data: #{segment_response.to_yaml}"
+        raise "Bad response for query to: #{@url}, query: #{query} response" +
+              " data: #{segment_response.to_yaml}"
       end
     end
 

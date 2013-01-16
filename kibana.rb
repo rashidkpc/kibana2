@@ -48,7 +48,9 @@ helpers do
 end
 
 get '/' do
-  headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" if KibanaConfig::Allow_iframed
+  if KibanaConfig::Allow_iframed
+    headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" 
+  end
   send_file File.join(settings.public_folder, 'index.html')
 end
 
@@ -86,9 +88,11 @@ get '/api/graph/:mode/:interval/:hash/?:segment?' do
   req     = ClientRequest.new(params[:hash])
   case params[:mode]
   when "count"
-    query   = DateHistogram.new(req.search,req.from,req.to,params[:interval].to_i)
+    query   = DateHistogram.new(
+      req.search,req.from,req.to,params[:interval].to_i)
   when "mean"
-    query   = StatsHistogram.new(req.search,req.from,req.to,req.analyze,params[:interval].to_i)
+    query   = StatsHistogram.new(
+      req.search,req.from,req.to,req.analyze,params[:interval].to_i)
   end
   indices = Kelastic.index_range(req.from,req.to)
   result  = KelasticSegment.new(query,indices,segment)
@@ -110,14 +114,16 @@ get '/api/analyze/:field/trend/:hash' do
   show  = KibanaConfig::Analyze_show
   req           = ClientRequest.new(params[:hash])
 
-  query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+  query_end     = SortedQuery.new(
+    req.search,req.from,req.to,0,limit,'@timestamp','desc')
   indices_end   = Kelastic.index_range(req.from,req.to)
   result_end    = KelasticMulti.new(query_end,indices_end)
 
   # Oh snaps. too few results for full limit analysis, rerun with less
   if (result_end.response['hits']['hits'].length < limit)
     limit         = (result_end.response['hits']['hits'].length / 2).to_i
-    query_end     = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','desc')
+    query_end     = SortedQuery.new(
+      req.search,req.from,req.to,0,limit,'@timestamp','desc')
     indices_end   = Kelastic.index_range(req.from,req.to)
     result_end    = KelasticMulti.new(query_end,indices_end)
   end
@@ -126,7 +132,8 @@ get '/api/analyze/:field/trend/:hash' do
   fields = params[:field].split(',,')
   count_end     = KelasticResponse.count_field(result_end.response,fields)
 
-  query_begin   = SortedQuery.new(req.search,req.from,req.to,0,limit,'@timestamp','asc')
+  query_begin   = SortedQuery.new(
+    req.search,req.from,req.to,0,limit,'@timestamp','asc')
   indices_begin = Kelastic.index_range(req.from,req.to).reverse
   result_begin  = KelasticMulti.new(query_begin,indices_begin)
   count_begin   = KelasticResponse.count_field(result_begin.response,fields)
@@ -162,7 +169,8 @@ get '/api/analyze/:field/terms/:hash' do
   fields = Array.new
   fields = params[:field].split(',,')
   query   = TermsFacet.new(req.search,req.from,req.to,fields)
-  indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
+  indices = Kelastic.index_range(
+    req.from,req.to,KibanaConfig::Facet_index_limit)
   result  = KelasticMultiFlat.new(query,indices)
 
   # Not sure this is required. This should be able to be handled without
@@ -228,9 +236,11 @@ get '/api/stream/:hash/?:from?' do
   delay = 10
 
   # Calculate 'from'  and 'to' based on last event in stream.
-  from = params[:from].nil? ? Time.now - (10 + delay) : Time.parse("#{params[:from]}+0:00")
+  from = params[:from].nil? ? 
+    Time.now - (10 + delay) : Time.parse("#{params[:from]}+0:00")
 
-  # ES's range filter is inclusive. delay-1 should give us the correct window. Maybe?
+  # ES's range filter is inclusive. delay-1 should give us the correct window.
+  # Maybe?
   to = Time.now - (delay)
 
   # Build and execute
@@ -261,7 +271,8 @@ get '/rss/:hash/?:count?' do
 
   headers "Content-Type"        => "application/rss+xml",
           "charset"             => "utf-8",
-          "Content-Disposition" => "inline; filename=kibana_rss_#{Time.now.to_i}.xml"
+          "Content-Disposition" => "inline; " + 
+                                   "filename=kibana_rss_#{Time.now.to_i}.xml"
 
   content = RSS::Maker.make('2.0') do |m|
     m.channel.title = "Kibana #{req.search}"
@@ -296,8 +307,9 @@ get '/export/:hash/?:count?' do
   result  = KelasticMulti.new(query,indices)
   flat    = KelasticResponse.flatten_response(result.response,req.fields)
 
-  headers "Content-Disposition" => "attachment;filename=Kibana_#{Time.now.to_i}.csv",
-    "Content-Type" => "application/octet-stream"
+  headers "Content-Type" => "application/octet-stream",
+    "Content-Disposition" => "attachment;filename=Kibana_#{Time.now.to_i}.csv"
+    
 
   if RUBY_VERSION < "1.9"
     FasterCSV.generate({:col_sep => sep}) do |file|
@@ -321,7 +333,8 @@ get '/turl/:id' do
   b64hash = KtransientURL[params[:id]]
 
   redirect to("/index.html##{b64hash}") unless b64hash.nil?
-  "sorry! #{params[:id]} does not match any entry in Kibana's transient url table"
+    "sorry! #{params[:id]} does not match any entry in Kibana's transient" + 
+    " url table"
 end
 
 # Adds _64hash to hash table and returns and ID

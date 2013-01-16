@@ -49,7 +49,7 @@ function pageload(hash) {
 function getStream() {
   var timeframe = window.freq;
   var maxEvents = 100;
-  var b64json = Base64.encode(JSON.stringify(window.hashjson));
+  var b64json = encodeURIComponent(Base64.encode(JSON.stringify(window.hashjson)));
   var from = ""
 
   if (window.last_time != "") {
