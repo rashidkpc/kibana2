@@ -399,7 +399,7 @@ function wbr(str, num) {
   str = htmlEntities(str);
   return str.replace(
     RegExp("(@?\\w{" + num + "}|[:;,])([\\w\"'])([\\w@]*)", "g"),
-    function (all, text, char, trailer) {
+    function (all, text, ch, trailer) {
       if (/@KIBANA_\w+_(START|END)@/.test(all)) {
         return text + ch + trailer;
       } else {
