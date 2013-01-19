@@ -2,6 +2,7 @@ $(document).ready(function () {
 
   // Bind all click/change/whatever handlers
   bind_clicks()
+  populate_selectboxes();
   popover_setup()
 
   // Common color profile.
@@ -1518,6 +1519,30 @@ function unhighlight_all_events() {
   $('#logs .highlight').removeClass('highlight');
 }
 
+// Populate the select elements
+function populate_selectboxes() {
+  populate_selectbox("select#openFavoriteSelect", "name", "hashcode");
+  populate_selectbox("select#deleteFavoriteSelect", "name", "id");
+}
+
+function populate_selectbox(selectbox, value, index) {
+  var $form = $(selectbox).parents('form');
+  var selectMessage = $(selectbox).get(0).options[0].text;
+  $.ajax({
+    url: $form.attr('action'),
+    type: $form.attr('method'),
+    cache: false,
+    dataType: 'json',
+    success: function( json ) {
+      $(selectbox).get(0).options.length = 0;
+      $(selectbox).get(0).options[0] = new Option(selectMessage, "-1");
+      $.each(json, function(idx, itm) {
+        $(selectbox).get(0).options[$(selectbox).get(0).options.length] = new Option(xmlEnt(itm[value]), itm[index]);
+      });
+    }
+  });
+}
+
 function bind_clicks() {
 
   $('body').delegate("i.shift_column", "click",
@@ -1654,4 +1679,96 @@ function bind_clicks() {
     unhighlight_all_events();
   });
 
+
+  // Favorites drop-down menu
+  $('.favoritesMenu > li').bind('mouseover', openSubMenu);
+  $('.favoritesMenu > li').bind('mouseout', closeSubMenu);
+  function openSubMenu() {
+    $(this).find('ul').css('visibility', 'visible');	
+  };
+  function closeSubMenu() {
+    $(this).find('ul').css('visibility', 'hidden');	
+  };
+
+  // Favorites management modal boxes
+  $(".modalbox").fancybox();
+
+  $("#addFavoriteForm").submit(function() { return false; });
+
+  // Adding a favorite search
+  $("#addFavoriteButton").on("click", function(e){
+    window.inprogress = true;
+    e.preventDefault();
+    $("#addFavoriteInput").removeClass("error");
+  
+    // validate and process form
+    var name = $("input#addFavoriteInput").val();
+    if ((name.length <= 1) || (name.length >= 40)) {    
+      $("#addFavoriteInput").addClass("error");
+      return false;  
+    }  
+    var sendhash = window.location.hash.replace(/^#/, '');
+    var $form = $(this).parents('form');
+    var data = $form.serialize() + '&hashcode=' + sendhash;
+    
+    window.request = $.ajax({
+      url: $form.attr('action'),
+      type: $form.attr('method'),
+      cache: false,
+      data: data,
+      success: function (json) {
+        result = JSON.parse(json)
+        if (result.success) {
+          $form.each(function(){
+            this.reset();
+	  });
+          setTimeout(function() { populate_selectboxes()}, 1000);
+          window.inprogress = false;
+          $.fancybox.close();
+        }
+        else {        
+          $("#addFavoriteInput").addClass("error");
+        }
+      }
+    });
+    return false;
+  });
+
+  // Open a favorite search
+  $("#openFavoriteButton").on("click", function(){
+    window.location.hash = $("#openFavoriteSelect").val();
+    window.inprogress = false;
+    pageload(window.location.hash);
+    $.fancybox.close();
+  });
+
+  // Delete a favorite search
+  $("#deleteFavoriteButton").on("click", function(e){
+    window.inprogress = true;
+    e.preventDefault();
+
+    var id = $("#deleteFavoriteSelect").val();
+    var data = { "id" : id };
+    var $form = $(this).parents('form');
+
+    window.request = $.ajax({
+      url: '/api/favorites',
+      type: 'delete',
+      cache: false,
+      data: data,
+      success: function (json) {
+        result = JSON.parse(json);
+        if (result.success) {
+          $form.each(function(){
+            this.reset();
+          });
+          setTimeout(function() { populate_selectboxes()}, 1000);
+          window.inprogress = false;
+          $.fancybox.close();
+        }
+      }
+    });
+    return false;
+  });
+ 
 }

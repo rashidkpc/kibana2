@@ -539,6 +539,56 @@ get '/export/:hash/?:count?' do
 
 end
 
+post '/api/favorites' do
+  if @@auth_module
+    name = params[:addFavoriteInput]
+    hashcode = params[:hashcode]
+    user = session[:username]
+
+    # checks if favorite name already exists
+    if !name.nil? and !hashcode.nil? and name != "" and hashcode != ""
+      favorites = @@storage_module.get_favorites(user)
+      favorites.each do |fav|
+        if fav["name"] == name
+          return JSON.generate( { :success => false , :message => "Name already exists" } )
+        end
+      end
+      # adds a new favorite
+      result = @@storage_module.set_favorite(name,user,hashcode)
+      return JSON.generate( { :success => result , :message => "" } )
+    else
+      halt 500, "Invalid action"
+    end
+  end
+end
+
+get '/api/favorites' do
+  if @@auth_module
+    user = session[:username]
+    results = @@storage_module.get_favorites(user)
+    JSON.generate(results)
+  end
+end
+
+delete '/api/favorites' do
+  if @@auth_module
+    id = params[:id]
+    user = session[:username]
+    # check if the user owns the favorite
+    if !id.nil? and id != ""
+      r = @@storage_module.get_favorite(id)
+      if !r.nil? and r[:user] == user
+        result = @@storage_module.del_favorite(id)
+        return JSON.generate( { :success => result, :message => ""} )
+      else
+        return JSON.generate( { :success => false, :message => "Operation not permitted" } )
+      end
+    else
+      halt 500, "Invalid action"
+    end
+  end
+end
+
 get '/js/timezone.js' do
   erb :timezone
 end

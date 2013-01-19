@@ -2,5 +2,38 @@
     </div>
   </div>
 
+  <!-- hidden inline forms -->
+  <div id="addFavoriteModal" class="inlinemodal">
+    <h2>Add a favorite</h2>
+    <form id="addFavoriteForm" action="/api/favorites" method="post" name="addFavoriteForm">
+      <label for="addFavoriteInput">Favorite Name</label>
+      <input id="addFavoriteInput" class="modaltxt" name="addFavoriteInput" />
+      <label></label>
+      <button id="addFavoriteButton" class="btn btn-primary">Save</button>
+    </form>
+  </div>
+
+  <div id="openFavoriteModal" class="inlinemodal">
+    <h2>Open a Favorite</h2>
+    <form id="openFavoriteForm" action="/api/favorites" method="get" name="openFavoriteForm">
+      <select name="openFavoriteSelect" id="openFavoriteSelect">
+        <option>select a favorite</option>
+      </select>
+      <label></label>
+      <button id="openFavoriteButton" class="btn btn-primary">Open</button>
+    </form>
+  </div>
+
+  <div id="deleteFavoriteModal" class="inlinemodal">
+    <h2>Delete a Favorite</h2>
+    <form id="deleteFavoriteForm" action="/api/favorites" method="get" name="deleteFavoriteForm">
+      <select name="deleteFavoriteSelect" id="deleteFavoriteSelect">
+        <option>select a favorite</option>
+      </select>
+      <label></label>
+      <button id="deleteFavoriteButton" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+
   </body>
 </html>
