@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    kibana (0.0.1)
+    kibana (0.2.0)
       fastercsv
       json
       sinatra
