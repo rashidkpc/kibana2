@@ -57,7 +57,7 @@ function get_objids_with_field_value(json,field,value) {
   for (hit in json.hits.hits) {
     var hit_obj = json.hits.hits[hit];
     if(has_field(hit_obj,field)) {
-      var field_val = get_field_value(hit_obj,field,'raw')
+      var field_val = get_field_value(hit_obj,field,'raw');
       if($.isArray(field_val)) {
         if($.inArray(value,field_val) >= 0) {
           objid_array.push(hit);
@@ -271,7 +271,7 @@ function pickDateString(d) {
 }
 
 function prettyDateString(d) {
-  d = new Date(parseInt(d));
+  d = new Date(parseInt(d) + window.ltOffset);
   return dateFormat(d,window.time_format);
 }
 

@@ -653,7 +653,7 @@ function enable_popovers() {
 
       if(counts.length > 0) {
         str = '<span class=related><small><strong>Related fields:</strong><br> ';
-        var i = 0
+        var i = 0;
         $.each(counts, function(index,value) {
           var display = i < related_limit ? 'inline-block' : 'none';
           str += "<span style='display:"+display+"'><a data-field='" + value[0] + "' "+
@@ -689,7 +689,7 @@ function enable_popovers() {
     var data = top_field_values(window.resultjson,$(this).attr('data-field'),5);
     var i = 0, chart = [];
     for (var point in data) {
-      chart.push([[data[point][1],0]])
+      chart.push([[data[point][1],0]]);
       i = i + 1;
     }
     tiny_bar(chart,'#micrograph');
@@ -1141,7 +1141,7 @@ function datepickers(from,to) {
     hour:60*60*1000,
     day:60*60*24*1000
   };
-  var options = ''
+  var options = '';
   $.each(interval_opts,function(i,interval) {
     options += '<option value='+interval+(interval == graph_interval ? ' selected' : '') +
       '>'+i+'</option>';
@@ -1156,8 +1156,8 @@ function datepickers(from,to) {
     "<button id='timechange' class='btn btn-small jlink' " +
     "style='visibility: hidden'> filter</button></div>");
 
-  var from_date = new Date(from);
-  var to_date   = new Date(to);
+  var from_date = new Date(from + window.ltOffset);
+  var to_date   = new Date(to + window.ltOffset);
   $('#timefrom').datetimeEntry({
     maxDatetime : to_date,
     datetimeFormat: 'Y-O-D H:M:S',
@@ -1167,7 +1167,7 @@ function datepickers(from,to) {
 
   $('#timeto').datetimeEntry({
     minDatetime: $('#timefrom').datetimeEntry('getDatetime'),
-    maxDateTime: new Date(),
+    maxDateTime: new Date(new Date().getTime() + window.ltOffset),
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   });
@@ -1199,8 +1199,8 @@ function renderDateTimePicker(from, to, force) {
       o_from.setDate(ev.date.getDate());
       $('.datepicker').remove();
       renderDateTimePicker(
-        o_from.getTime(),
-        o_to.getTime(),
+        o_from.getTime() - window.ltOffset,
+        o_to.getTime() - window.ltOffset,
         true
       );
       window.hashjson.timeframe = 'custom';
@@ -1213,8 +1213,8 @@ function renderDateTimePicker(from, to, force) {
       o_to.setDate(ev.date.getDate());
       $('.datepicker').remove();
       renderDateTimePicker(
-        o_from.getTime() + tOffset,
-        o_to.getTime() + tOffset,
+        o_from.getTime() - window.ltOffset,
+        o_to.getTime() - window.ltOffset,
         true
       );
       window.hashjson.timeframe = 'custom';
@@ -1333,17 +1333,16 @@ function logGraph(data, interval, metric) {
     $('#graph').bind("plotselected", function (event, ranges) {
       if (!intset) {
         intset = true;
-        var from = new Date(parseInt(ranges.xaxis.from.toFixed(0)));
-        var to = new Date(parseInt(ranges.xaxis.to.toFixed(0)));
+        var from = parseInt(ranges.xaxis.from.toFixed(0));
+        var to = parseInt(ranges.xaxis.to.toFixed(0));
         var time = {
-          "from": ISODateString(from)+int_to_tz(window.tOffset),
-          "to": ISODateString(to)+int_to_tz(window.tOffset)
+          "from": ISODateString(from + window.ltOffset)+int_to_tz(window.tOffset),
+          "to": ISODateString(to + window.ltOffset)+int_to_tz(window.tOffset)
         };
         window.hashjson.offset = 0;
         window.hashjson.time = time;
         window.hashjson.timeframe = "custom";
         setHash(window.hashjson);
-
       }
     });
 
@@ -1394,7 +1393,7 @@ function logGraph(data, interval, metric) {
       xaxis: {
         mode: "time",
         tickFormatter: function (val, axis) {
-          var d = new Date(parseInt(val));
+          var d = new Date(parseInt(val) + window.ltOffset);
           return d.format("HH:MM:ss<br/>mm-dd");
         },
         label: "Datetime",
