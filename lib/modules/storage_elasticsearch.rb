@@ -17,14 +17,31 @@ class Permissions
   end
 end
 
+# class for storing favorites
+class Favorites
+  %w(id name user hashcode).each do |meth|
+    define_method(meth) { @data[meth.to_sym] }
+  end
+
+  define_method(:[]) { | key | @data[key] }
+  define_method(:[]=) { | key, value | @data[key]=value }
+
+  def initialize values
+    @data = Hash.new
+    %w(id name user hashcode).each do |meth|
+      @data[meth.to_sym] = values[meth]
+    end
+  end
+end
+
 class StorageElasticSearch
   # Required function, accepts a KibanaConfig object
   def initialize(config)
     @config = config
     @index = 'kibana'
-    @type = 'permission'
     puts "Initializing elasticsearch module"
-    @esm = Elasticsearchmod.new(@index,@type)
+    @esm = Elasticsearchmod.new(@index,'permission')
+    @esf = Elasticsearchmod.new(@index,'favorite')
     puts "Initializing elasticsearch for kibana storage..."
     if ! get_permissions(config::Auth_Admin_User)
       puts "Default Kibana admin user does not exist ... creating"
@@ -73,6 +90,42 @@ class StorageElasticSearch
   def disable_user(username)
     return false
   end
+
+  # Sets a favorite
+  def set_favorite(name,user,hashcode)
+    id = (0...10).map{65.+(rand(26)).chr}.join
+    values = {"id" => id, "name" => name, "user" => user, "hashcode" => hashcode}
+    r = @esf.set_by_id(id, values)
+    return r["ok"]
+  end
+
+  # Deletes a favorite
+  def del_favorite(id)
+    r = @esf.del_by_id(id)
+    return r["ok"]
+  end
+
+  # Get the user's favorites
+  def get_favorites(user)
+    favorites = Array.new(0)
+    response = @esf.get_records_with_term("user",user)
+    response.each do |item|
+      favorite = Favorites.new item
+      favorites << favorite
+    end
+  end
+
+  # Get a favorite
+  def get_favorite(id)
+    r = @esf.get_by_id(id)
+    if r
+      fav = Favorites.new r
+      return fav
+    else
+      return nil
+    end
+  end
+
 end
 
 # Required function, returns the storage

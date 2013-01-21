@@ -67,6 +67,16 @@ class Elasticsearchmod
     return results
   end
 
+  def get_records_with_term(term, value)
+    return nil if term.empty? or value.empty?
+    results = Array.new
+    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } },"size":"1000" }')
+    r['hits']['hits'].each do |hit|
+      results << hit['_source']
+    end
+    return results
+  end
+
   class << self
     def server
       list = KibanaConfig::Elasticsearch

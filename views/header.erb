@@ -23,24 +23,29 @@
   <script type="text/javascript" src="lib/js/shared.js"></script>
   <script type="text/javascript" src="lib/js/ajax.js"></script>
   <script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="lib/fancybox/jquery.fancybox.js?v=2.1.3"></script>
+  <script type="text/javascript" src="lib/fancybox/jquery.fancybox.pack.js?v=2.1.3"></script>
+  <script type="text/javascript" src="lib/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
 
+  <link rel="stylesheet" href="lib/css/jquery-ui-1.8.16.custom.css">
+  <link rel="stylesheet" href="lib/css/jquery.ui.datepicker.css">
   <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="lib/css/style.css">
   <link rel="stylesheet" href="lib/css/font-awesome.css">
-  <link rel="stylesheet" href="lib/css/jquery-ui-1.8.16.custom.css">
-  <link rel="stylesheet" href="lib/css/jquery.ui.datepicker.css">
-
+  <link rel="stylesheet" href="lib/fancybox/jquery.fancybox.css?v=2.1.3" type="text/css" media="screen" />
+  <link rel="stylesheet" href="lib/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
+  
   <style type="text/css">
-    body {
+
+  body {
     padding-top: 55px;
     padding-bottom: 40px;
     }
   </style>
   <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 
-</head>
+</head> 
 <body>
-
   <div class="navbar navbar-fixed-top navbar-inverse">
     <div class="navbar-inner">
     <div class="container-fluid">
@@ -63,6 +68,17 @@
         <td width='85%'><input type="text" placeholder="Search" id=queryinput></td>
         <td width='1%'><button class="btn btn-primary" type=submit>Search</button></td>
         <td width='1%'><button class="btn btn-danger" type="reset" id=resetall>Reset</button></td>
+        <td width='1%'>
+          <ul class="favoritesMenu">
+            <li><a href="#" class="btn btn-success"><i class="icon-sort-down"></i></a>
+              <ul>
+                <li><a href=#addFavoriteModal class='modalbox'>Add a favorite</a></li>
+                <li><a href=#openFavoriteModal class='modalbox'>Open a favorite</a></li>
+                <li><a href=#deleteFavoriteModal class='modalbox'>Delete a favorite</a></li>
+              </ul>
+            </li>
+          </ul>
+        </td>
         <td><div id=meta></div></td>
       </tr></table>
       </form>
