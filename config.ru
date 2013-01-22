@@ -1,17 +1,6 @@
-root_dir = File.dirname(__FILE__)
-app_file = File.join(root_dir, 'kibana.rb')
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "lib")))
 
-require app_file
+require 'rubygems'
+require 'kibana'
 
-begin
-  require 'sinatra'
-rescue LoadError
-  require 'rubygems'
-  require 'sinatra'
-end
-
-set :environment, ENV['RACK_ENV'].to_sym
-set :app_file, app_file
-disable :run
-
-run Sinatra::Application
+run KibanaApp

@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "..", "lib")))
+
+require "rubygems"
+require "optparse"
+require "kibana"
+
+options = {}
+
+optparse = OptionParser.new do |opts|
+  # Set a banner, displayed at the top
+  # of the help screen.
+  opts.banner = "Usage: Kibana [options] ..."
+
+  opts.separator ''
+  opts.separator "Configuration options:"
+
+  opts.on_tail( "-v", "--version", "Show version") do
+    puts "Kibana version #{Kibana::VERSION}"
+    exit
+  end
+
+  opts.separator ""
+  opts.separator "Common options:"
+
+  opts.on_tail("-h", "--help", "Display this screen" ) do
+    puts opts
+    exit
+  end
+end
+
+begin
+  optparse.parse!
+  KibanaApp.run!
+rescue OptionParser::InvalidArgument, OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $!.to_s
+  puts optparse
+  exit
+end

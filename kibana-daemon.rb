@@ -9,8 +9,12 @@ require 'fileutils'
 # / just after forking..
 scriptdir = Pathname.new(File.dirname(__FILE__)).realpath
 
-# store pidfile in tmp dir
-pid_dir = File.join(scriptdir, "tmp")
+# store pidfile
+if ENV['PID_DIR']
+  pid_dir=ENV['PID_DIR']
+else
+  pid_dir = File.join(scriptdir, "tmp")
+end
 
 if !File.directory?(pid_dir)
   if ARGV[0] == "start"
