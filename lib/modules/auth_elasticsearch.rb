@@ -98,6 +98,15 @@ class AuthElasticSearch
     g = @gesm.get_all('group')
     return g.sort
   end
+
+  def del_user(name)
+    r = @gesm.del_by_id(name)
+  end
+
+  def del_group(name)
+    r = @gesm.del_by_id(name)
+  end
+
 end
 
 # Required function, returns the auth
