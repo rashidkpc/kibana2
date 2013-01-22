@@ -25,7 +25,7 @@ class Elasticsearchmod
 
   def get_all(field=nil)
     results = Array.new
-    r = Elasticsearchmod.run("#{@query_url}/_search", '{}')
+    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "size": 1000 }')
     r['hits']['hits'].each do |hit|
       if field
         results << hit['_source'][field]
@@ -57,7 +57,7 @@ class Elasticsearchmod
   def get_record_ids_with_term(term, value)
     return nil if term.empty? or value.empty?
     results = Array.new
-    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } } }')
+    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } }, "size": 1000 }')
     r = r['hits']
     if r['total'] >= 1
       r['hits'].each do |hit|
@@ -70,7 +70,7 @@ class Elasticsearchmod
   def get_records_with_term(term, value)
     return nil if term.empty? or value.empty?
     results = Array.new
-    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } },"size":"1000" }')
+    r = Elasticsearchmod.run("#{@query_url}/_search", '{ "query": { "term": { "'+term+'": "'+value+'" } }, "size": 1000 }')
     r['hits']['hits'].each do |hit|
       results << hit['_source']
     end
