@@ -1,6 +1,6 @@
 require 'net/ldap'
 
-class AuthLDAP
+class UsersLDAP
   # Required function, accepts a KibanaConfig object
   def initialize(config)
     @ldap = Net::LDAP.new
@@ -11,21 +11,29 @@ class AuthLDAP
     @ldap_suffix = (defined? config::Ldap_domain_fqdn) ? "@" + config::Ldap_domain_fqdn : ""
   end
 
-  # Required function, authenticates a username/password
-  def authenticate(username,password)
-    begin
-      @ldap.auth username + @ldap_suffix, password
-      if @ldap.bind
-        return true
-      end
-    rescue
-    end
-    return false
+  # Required function, returns user's groups membership
+  def membership(username)
+    grlist = []
+    return grlist.uniq.sort
+  end
+
+  # Required function, returns a list of all groups
+  def groups()
+    grlist = []
+    return grlist.uniq.sort
+  end
+
+  def del_user(name)
+    return
+  end
+
+  def del_group(name)
+    return
   end
 end
 
 # Required function, returns the auth
 # class for this module.
-def get_auth_module(config)
-  return AuthLDAP.new(config)
+def get_users_module(config)
+  return UsersLDAP.new(config)
 end

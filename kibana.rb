@@ -26,6 +26,16 @@ configure do
   set :public_folder, Proc.new { File.join(root, "static") }
   enable :sessions
 
+  @@users_module = nil
+  begin
+    if KibanaConfig::Users_module != ""
+      require "./lib/modules/users_#{KibanaConfig::Users_module}"
+      @@users_module = get_users_module(KibanaConfig)
+    end
+  rescue
+    puts "Failed to load the users module: #{KibanaConfig::Users_module}"
+  end
+
   @@auth_module = nil
   begin
     if KibanaConfig::Auth_module != ""
@@ -96,7 +106,7 @@ before do
 
         # check any groups this user belongs to for additional
         # permissions defined in the storage module
-        @@auth_module.membership(session[:username]).each do |group|
+        @@users_module.membership(session[:username]).each do |group|
           g_perms = @@storage_module.get_permissions(group)
           if g_perms
             if defined?(g_perms[:tags]) and g_perms[:tags]
@@ -207,29 +217,29 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
       # so we take the substring starting at position 1
       locals[:user_data] = @@storage_module.get_permissions(params[:captures][1][1..-1])
       locals[:can_delete] = (locals[:user_data][:username]==KibanaConfig::Auth_Admin_User) ? false : true
-      locals[:can_change_groups] = @@auth_module.respond_to?('add_user_2group')
-      locals[:allgroups] = @@auth_module.groups()
+      locals[:can_change_groups] = @@users_module.respond_to?('add_user_2group')
+      locals[:allgroups] = @@users_module.groups()
       # If they are a group, set group values
       if locals[:user_data][:username].start_with?("@")
         locals[:is_group]=true
-        locals[:group_members] = @@auth_module.group_members(locals[:user_data][:username])
-        locals[:allusers] = @@auth_module.users()
+        locals[:group_members] = @@users_module.group_members(locals[:user_data][:username])
+        locals[:allusers] = @@users_module.users()
 	locals[:type] = "Group"
       else
-        locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
-        locals[:user_groups] = @@auth_module.membership(locals[:user_data][:username])
+        locals[:can_change_pass] = @@users_module.respond_to?('set_password')
+        locals[:user_groups] = @@users_module.membership(locals[:user_data][:username])
 	locals[:type] = "User"
       end
     elsif mode == "newuser"
       locals[:mode] = "new"
       locals[:type] = "User"
-      locals[:allgroups] = @@auth_module.groups()
-      locals[:can_change_pass] = @@auth_module.respond_to?('set_password')
+      locals[:allgroups] = @@users_module.groups()
+      locals[:can_change_pass] = @@users_module.respond_to?('set_password')
     elsif mode == "newgroup"
       locals[:mode] = "new"
       locals[:type] = "Group"
       locals[:is_group] = true
-      locals[:allusers] = @@auth_module.users()
+      locals[:allusers] = @@users_module.users()
     else
       halt 404, "Invalid action"
     end
@@ -256,12 +266,12 @@ post '/auth/admin/save' do
     puts "Deleting #{username}"
     @@storage_module.del_permissions(username)
     if username.start_with?("@")
-      @@auth_module.del_group(username)
+      @@users_module.del_group(username)
     else
-      @@auth_module.del_user(username)
+      @@users_module.del_user(username)
     end
   else
-    if @@auth_module.lookup_user(username).nil?
+    if @@users_module.lookup_user(username).nil?
       puts "Creating #{username}"
       # sets password to "" if password undefined
       params[:pass1] = "" if params[:pass1].nil?
@@ -271,14 +281,14 @@ post '/auth/admin/save' do
     is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
     @@storage_module.set_permissions(username,usertags,is_admin)
     # Update the auth group info
-    if username.start_with?("@") and @@auth_module.respond_to?('add_group')
+    if username.start_with?("@") and @@users_module.respond_to?('add_group')
       members = params[:members]
-      @@auth_module.add_group(username, members)
+      @@users_module.add_group(username, members)
     elsif params[:pass1] != nil
       password = params[:pass1]
-      @@auth_module.set_password(username, password)
+      @@users_module.set_password(username, password)
       user_groups = params[:user_groups]
-      old_groups = @@auth_module.membership(username)
+      old_groups = @@users_module.membership(username)
       if user_groups.nil?
         del_groups = old_groups
       elsif old_groups.nil?
@@ -289,12 +299,12 @@ post '/auth/admin/save' do
       end
       if not add_groups.nil?
         add_groups.each do |group|
-          @@auth_module.add_user_2group(username, group)
+          @@users_module.add_user_2group(username, group)
         end
       end
       if not del_groups.nil?
         del_groups.each do |group|
-          @@auth_module.rm_user_from_group(username, group)
+          @@users_module.rm_user_from_group(username, group)
         end
       end
     end
