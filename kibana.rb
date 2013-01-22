@@ -97,9 +97,9 @@ before do
         # check any groups this user belongs to for additional
         # permissions defined in the storage module
         @@auth_module.membership(session[:username]).each do |group|
-          g_perms = @@storage_module.get_permissions("@" + group)
+          g_perms = @@storage_module.get_permissions(group)
           if g_perms
-            if defined?(g_perms[:tags])
+            if defined?(g_perms[:tags]) and g_perms[:tags]
               @user_perms[:tags] = (@user_perms[:tags] + g_perms[:tags]).uniq
             end
             if defined?(g_perms[:is_admin])
@@ -212,8 +212,7 @@ get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
       # If they are a group, set group values
       if locals[:user_data][:username].start_with?("@")
         locals[:is_group]=true
-        group=locals[:user_data][:username][/[^@].*/]
-        locals[:group_members] = @@auth_module.group_members(group)
+        locals[:group_members] = @@auth_module.group_members(locals[:user_data][:username])
         locals[:allusers] = @@auth_module.users()
 	locals[:type] = "Group"
       else
@@ -240,27 +239,44 @@ end
 
 post '/auth/admin/save' do
   if params[:Groupname] != nil
-    params[:Username]= params[:Groupname]
+    # prefix group name with only one @
+    params[:Username]= params[:Groupname].gsub(/^@*(.*)$/, '@\1') 
+  else
+    # strip first @ from username
+    params[:Username] = params[:Username].gsub(/^@+/, '')
   end
-  username = params[:Username]
+  # strip illegal characters from username/groupname
+  username = params[:Username].gsub(/[^@0-9A-Za-z_-]/, '')
+  if username.length < 3
+    sleep(1)
+    redirect '/auth/admin'
+  end
   usertags = params[:usertags]
   if params[:delete] != nil
     puts "Deleting #{username}"
     @@storage_module.del_permissions(username)
+    if username.start_with?("@")
+      @@auth_module.del_group(username)
+    else
+      @@auth_module.del_user(username)
+    end
   else
-    puts "Updating #{username}"
+    if @@auth_module.lookup_user(username).nil?
+      puts "Creating #{username}"
+      # sets password to "" if password undefined
+      params[:pass1] = "" if params[:pass1].nil?
+    else
+      puts "Updating #{username}"
+    end
     is_admin = (defined?(params[:is_admin]) && params[:is_admin] == "on") ? true : false
     @@storage_module.set_permissions(username,usertags,is_admin)
     # Update the auth group info
     if username.start_with?("@") and @@auth_module.respond_to?('add_group')
-      group=username[/[^@].*/]
       members = params[:members]
-      @@auth_module.add_group(group, members)
+      @@auth_module.add_group(username, members)
     elsif params[:pass1] != nil
-      if params[:pass1] != ""
-        password = params[:pass1]
-        @@auth_module.set_password(username, password)
-      end
+      password = params[:pass1]
+      @@auth_module.set_password(username, password)
       user_groups = params[:user_groups]
       old_groups = @@auth_module.membership(username)
       if user_groups.nil?
