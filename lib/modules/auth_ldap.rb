@@ -22,18 +22,6 @@ class AuthLDAP
     end
     return false
   end
-
-  # Required function, returns user's groups membership
-  def membership(username)
-    grlist = []
-    return grlist.uniq.sort
-  end
-
-  # Required function, returns a list of all groups
-  def groups()
-    grlist = []
-    return grlist.uniq.sort
-  end
 end
 
 # Required function, returns the auth
