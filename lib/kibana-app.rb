@@ -329,4 +329,44 @@ class KibanaApp < Sinatra::Base
   get '/js/timezone.js' do
     erb :timezone
   end
+
+  # Saved Search URL Routes
+  #
+  # Get a list of saved searches or a particular saved search
+  get '/api/saved/:name?' do
+    if params[:name].nil?
+      # return a list of all known saved files
+      data = {
+        "files" => Dir["#{KibanaConfig::Storage_dir}/*"].map {|f|
+          File.basename(f)
+        },
+      }
+      JSON.generate(data)
+    else
+      # return the contents of a named file
+      begin
+        File.read(File.join(KibanaConfig::Storage_dir, params[:name]))
+      rescue Errno::ENOENT
+        return 404
+      end
+    end
+  end
+
+  # Save a search
+  put '/api/saved/:name' do
+    File.open("#{KibanaConfig::Storage_dir}/#{params[:name]}", 'w') do |f|
+      f.write(request.body.read)
+    end
+    return [201, "Created /api/saved/#{params[:name]}"]
+  end
+
+  # Delete a saved search
+  delete '/api/saved/:name' do
+    begin
+      File.delete("#{KibanaConfig::Storage_dir}/#{params[:name]}")
+      return [200, "Deleted /api/saved/#{params[:name]}"]
+    rescue Errno::ENOENT
+      return 404
+    end
+  end
 end

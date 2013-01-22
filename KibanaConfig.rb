@@ -137,4 +137,7 @@ module KibanaConfig
 
   # Use this interval as fallback.
   Fallback_interval = 900
+
+  # directory for hash storage
+  Storage_dir = 'saved'
 end
