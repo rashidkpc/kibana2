@@ -17,7 +17,7 @@ logstash >= 1.1.0
 elasticsearch >= 0.18.0  
 
 java >= 1.6 if you want to run Kibana in JRuby	
-warble if you want to create an executable standalone war file  
+warbler if you want to create an executable standalone war file  
 
 ## Installation
 Install:  
