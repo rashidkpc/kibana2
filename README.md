@@ -15,7 +15,9 @@ ruby >= 1.8.7 (probably?)
 bundler  
 logstash >= 1.1.0  
 elasticsearch >= 0.18.0  
+
 java >= 1.6 if you want to run Kibana in JRuby	
+warble if you want to create an executable standalone war file  
 
 ## Installation
 Install:  
@@ -42,7 +44,10 @@ Currently you still need Ruby for creating the archive.
 git clone --branch=jruby https://github.com/falkenbt/Kibana.git	
 cd Kibana  	
 Configure your environment (see above). 	
-warble [executable] war	
+rake war  
+or  
+warble executable war  
+if you want to include a webserver (default: winstone).  
 
 Run:	
 	java -jar Kibana.war [--httpPort=5601]
