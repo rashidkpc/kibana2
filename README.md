@@ -15,6 +15,7 @@ ruby >= 1.8.7 (probably?)
 bundler  
 logstash >= 1.1.0  
 elasticsearch >= 0.18.0  
+java >= 1.6 if you want to run Kibana in JRuby	
 
 ## Installation
 Install:  
@@ -32,6 +33,21 @@ Run:
 
 Use:  
   Point your browser at http://localhost:5601
+
+## JRuby
+
+To run Kibana with JRuby, e.g. if you have to run in on a windows machine, you can create a (executable) WAR archive.
+Currently you still need Ruby for creating the archive.	
+
+git clone --branch=jruby https://github.com/falkenbt/Kibana.git	
+cd Kibana  	
+Configure your environment (see above). 	
+warble [executable] war	
+
+Run:	
+	java -jar Kibana.war [--httpPort=5601]
+
+Todo: Externalize the configuration. Any help would be appreciated.  
 
 ## FAQ
 Q: Why is there no last button?  
