@@ -246,7 +246,7 @@ post '/auth/admin/save' do
     params[:Username] = params[:Username].gsub(/^@+/, '')
   end
   # strip illegal characters from username/groupname
-  username = params[:Username].gsub(/[^@0-9A-Za-z_-]/, '')
+  username = params[:Username].gsub(/[^@0-9A-Za-z_\\.-]/, '')
   if username.length < 3
     sleep(1)
     redirect '/auth/admin'
