@@ -41,16 +41,21 @@ Use:
 To run Kibana with JRuby, e.g. if you have to run in on a windows machine, you can create a (executable) WAR archive.
 Currently you still need Ruby for creating the archive.	
 
+```
 git clone --branch=jruby https://github.com/falkenbt/Kibana.git	
 cd Kibana  	
+gem install bundler  
+bundle install   
+```
+
 Configure your environment (see above). 	
-rake war  
+`rake war  `
 or  
-warble executable war  
+`warble executable war  `
 if you want to include a webserver (default: winstone).  
 
 Run:	
-	java -jar Kibana.war [--httpPort=5601]
+`	java -jar Kibana.war [--httpPort=5601]`
 
 Todo: Externalize the configuration. Any help would be appreciated.  
 
