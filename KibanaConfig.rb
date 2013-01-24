@@ -38,9 +38,17 @@ module KibanaConfig
   # Time_format = 'isoDateTime' 
   Time_format = 'mm/dd HH:MM:ss'
 
+  # ElasticSearch key labelfor timestamps field.
+  # Change this if using any logger other than logstash
+  Index_key_timestamp = '@timestamp'
+
+  # ElasticSearch key label for message field.
+  # Change this if using any logger other than logstash
+  Index_key_message = '@message'
+
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
-  Default_fields = ['@message']
+  Default_fields = [Index_key_message]
 
   # If set to true, Kibana will use the Highlight feature of Elasticsearch to 
   # display highlighted search results
@@ -49,7 +57,7 @@ module KibanaConfig
   # A field needs to be specified for the highlight feature. By default, 
   # Elasticsearch doesn't allow highlighting on _all because the field has to 
   # be either stored or part of the _source field.
-  Highlighted_field = "@message"
+  Highlighted_field = Index_key_message
 
   # Make URLs clickable in detailed view
   Clickable_URLs = true
@@ -121,7 +129,7 @@ module KibanaConfig
   # Primary field. By default Elastic Search has a special
   # field called _all that is searched when no field is specified.
   # Dropping _all can reduce index size significantly. If you do that
-  # you'll need to change primary_field to be '@message'
+  # you'll need to change primary_field to be the variable Index_key_message
   Primary_field = '_all'
 
   # Default Elastic Search index to query

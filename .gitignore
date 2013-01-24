@@ -2,3 +2,4 @@
 KibanaConfig.rbackup.rb
 *.DS_Store
 /tmp/*
+.rbenv-gemsets

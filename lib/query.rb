@@ -39,7 +39,7 @@ class Query
     # Build the filter part
     @filter = {
       "range" => {
-        "@timestamp" => {
+        "#{KibanaConfig::Index_key_timestamp}" => {
           "from" => from,
           "to" => to
         }
@@ -94,7 +94,7 @@ end
 =end
 class SortedQuery < Query
   attr_accessor :query,:from,:to
-  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
+  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = KibanaConfig::Index_key_timestamp, order = "desc")
     super(question, from, to)
     @query['from'] = offset
     @query['size'] = size
@@ -120,7 +120,7 @@ end
 =end
 class HighlightedQuery < Query
   attr_accessor :query,:from,:to
-  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = "@timestamp", order = "desc")
+  def initialize(question, from, to, offset = 0, size = KibanaConfig::Per_page, field = KibanaConfig::Index_key_timestamp, order = "desc")
     super(question, from, to)
     @query['from'] = offset
     @query['size'] = size
@@ -149,7 +149,7 @@ end
   order::   desc/asc
 =end
 class DateHistogram < Query
-  def initialize(question, from, to, interval, field = '@timestamp')
+  def initialize(question, from, to, interval, field = KibanaConfig::Index_key_timestamp)
     super(question, from, to)
     @query['facets'] = {
       "count" => {
@@ -237,7 +237,7 @@ end
   field::   Field to analyze
 =end
 class StatsHistogram < Query
-  def initialize(question, from, to, field, interval, key_field = '@timestamp')
+  def initialize(question, from, to, field, interval, key_field = KibanaConfig::Index_key_timestamp)
     super(question, from, to)
     @query['facets'] = {
       "mean" => {

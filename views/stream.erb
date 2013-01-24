@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+  <head>
+  <title>Kibana Stream</title>
+    <%= include_gon(:namespace => 'KibanaConfigExports') %>
+    <script src="js/timezone.js" type="text/javascript"></script>
+    <script src="lib/js/lib/jquery.min.js" type="text/javascript"></script>
+    <script src="lib/js/lib/safebase64.js" type="text/javascript"></script>
+    <script src="lib/js/lib/jquery.history.js" type="text/javascript"></script>
+    <script src="lib/js/lib/json2.js" type="text/javascript"></script>
+    <script src="lib/js/lib/date.js" type="text/javascript"></script>
+    <script src="lib/js/lib/jquery.flot.min.js" type="text/javascript"></script>
+    <script src="lib/js/shared.js" type="text/javascript"></script>
+    <script src="lib/js/stream.js" type="text/javascript"></script>
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <link href="lib/css/font-awesome.css" rel="stylesheet">
+        <link href="lib/css/style.css" rel="stylesheet">
+          <link href="lib/css/stream.css" rel="stylesheet">
+            <style type="text/css">
+              /*<![CDATA[*/
+                body {
+                  padding-top: 20px;
+                  padding-bottom: 40px;
+                }
+              /*]]>*/
+            </style>
+          </link>
+        </link>
+      </link>
+    </link>
+  </head>
+  <body>
+    <div class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid topbar" id="streamgraph"></div>
+        <div class="container-fluid topbar" id="streamcontrol">
+          <span class="pull-left" id="pause">
+            <a href="/">
+              <img src="images/logo.png" style="padding:4px 0px 0px 5px" />
+            </a>
+            <button class="btn btn-small btn-warning icon-pause" id="pause_stream" style="margin-left: 10px;">Pause</button>
+          </span>
+          <span class="pull-right" id="counter">
+            <h3></h3>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid" id="stream">
+      <div class="row-fluid">
+        <span id="query">
+          <h4></h4>
+        </span>
+        <table class="table table-condensed" id="tweets">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

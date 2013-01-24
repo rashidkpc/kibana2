@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
 
   # Dependencies
   gem.add_runtime_dependency 'sinatra'
+  gem.add_runtime_dependency 'gon-sinatra'
   gem.add_runtime_dependency 'json'
   gem.add_runtime_dependency 'fastercsv'
   gem.add_runtime_dependency 'tzinfo'
