@@ -123,6 +123,9 @@ module KibanaConfig
   # Authentication Module
   Auth_module = 'elasticsearch'
 
+  # Users and groups management Module
+  Users_module = 'elasticsearch'
+
   Auth_Admin_User  = 'kibana'
   Auth_Admin_Pass  = 'password'
   Auth_Admin_Perms  = { 'is_admin' => true, 'enabled' => true, 'tags' => ['*'] }
