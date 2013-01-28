@@ -1,17 +1,58 @@
 #!/bin/bash 
+### BEGIN INIT INFO
+# Provides:          kibana
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Make sense of a mountain of logs.
+### END INIT INFO
 
-# Author - Matt Mencel - 2012
-# Borrowed heavily from Patrick McKenzie's example 
-# http://www.kalzumeus.com/2010/01/15/deploying-sinatra-on-ubuntu-in-which-i-employ-a-secretary/
 #
-# kibana-daemon       Startup script for the Kibana Web UI running on sinatra 
 # chkconfig: 2345 20 80
 #
-## Copy to /etc/init.d/kibana and make it executable
-## Add to system startup through chkconfig (CentOS/RHEL) or Upstart (Ubuntu)
-KIBANA_PATH="/var/www/Kibana"
+KIBANA_PATH="/usr/share/kibana"
 
-ruby $KIBANA_PATH/kibana-daemon.rb $1
-RETVAL=$?
+### BEGIN INIT INFO
+# Provides:          kibana
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Make sense of a mountain of logs.
+### END INIT INFO
+
+KIBANA_PATH="/usr/share/kibana"
+
+case "$1" in
+start)
+  ruby $KIBANA_PATH/kibana-daemon.rb $1
+  RETVAL=$?
+;;
+
+stop)
+  ruby $KIBANA_PATH/kibana-daemon.rb $1
+  RETVAL=$?
+;;
+
+restart)
+  ruby $KIBANA_PATH/kibana-daemon.rb $1
+  RETVAL=$?
+;;
+
+status)
+  ruby $KIBANA_PATH/kibana-daemon.rb $1
+;;
+
+force-reload)
+  ruby $KIBANA_PATH/kibana-daemon.rb zap
+  ruby $KIBANA_PATH/kibana-daemon.rb start
+  RETVAL=$?
+;;
+
+*)
+  echo "Usage: $0 {start|stop|restart|status|force-reload}"
+  exit 1
+esac
 
 exit $RETVAL
