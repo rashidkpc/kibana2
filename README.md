@@ -42,7 +42,7 @@ To run Kibana with JRuby, e.g. if you have to run in on a windows machine, you c
 Currently you still need Ruby for creating the archive.	
 
 ```
-git clone --branch=jruby https://github.com/falkenbt/Kibana.git	
+git clone --branch=jruby https://github.com/rashidkpc/Kibana.git	
 cd Kibana  	
 gem install bundler  
 bundle install   
