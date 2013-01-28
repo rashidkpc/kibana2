@@ -13,17 +13,6 @@
 #
 KIBANA_PATH="/usr/share/kibana"
 
-### BEGIN INIT INFO
-# Provides:          kibana
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Make sense of a mountain of logs.
-### END INIT INFO
-
-KIBANA_PATH="/usr/share/kibana"
-
 case "$1" in
 start)
   ruby $KIBANA_PATH/kibana-daemon.rb $1
