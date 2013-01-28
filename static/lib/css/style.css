@@ -515,7 +515,7 @@ modaltxtarea.error:focus {
 .inlinemodal {
        display: none;
        z-index:9999;
-        background: white;
+       background: white;
 }
 
 .favoritesMenu {
@@ -569,4 +569,6 @@ modaltxtarea.error:focus {
    width:130px;
 }
 
-
+.favoriteSelect {
+   width : 400px;
+}
