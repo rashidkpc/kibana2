@@ -1,0 +1,34 @@
+#logs .logs .informational {
+  background-color: #DFFFDF;
+  border: 1px solid #97FF97;
+}
+ 
+#logs .logs .notice {
+  background-color: #B9FFB9;
+  border: 1px solid #5BFF5B;
+}
+ 
+#logs .logs .warning {
+  background-color:#FFFF9B;
+  border: 1px solid #FFFF00;
+}
+ 
+#logs .logs .error {
+  background-color: #FFC175;
+  border: 1px solid #FF8F00;
+}
+ 
+#logs .logs .critical {
+  background-color: #FFA0A0;
+  border: 1px solid #FFA0A0;
+}
+ 
+#logs .logs .alert {
+  background-color: #FF0000;
+  border: 1px solid #FF0000;
+}
+ 
+#logs .logs .emergency {
+  background-color: #FF53FF;
+  border: 1px solid #FF00FF;
+}
