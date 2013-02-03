@@ -6,18 +6,24 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Kibana Help</title>
 
-  <link rel="stylesheet" href="lib/css/jquery-ui-1.8.16.custom.css">
-  <link rel="stylesheet" href="lib/css/jquery.ui.datepicker.css">
   <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="lib/css/style.css">
   <link rel="stylesheet" href="lib/css/font-awesome.css">
 
   <style type="text/css">
     body {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding: 60px;
     }
+
+    .examples {
+    background-color: #EEEEEE;
+    border-radius: 6px 6px 6px 6px;
+    margin-bottom: 10px;
+    padding: 10px;
+    }
+
   </style>
+
   <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>
 
@@ -32,6 +38,7 @@
           </a>
           <div class="nav-collapse">
             <ul class="nav">
+              <li><a href="index.html">Search</a></li>
               <li class="active"><a href="help.html">Documentation</a></li>
               <li><a href="https://lucene.apache.org/core/old_versioned_docs/versions/3_5_0/queryparsersyntax.html" target="_blank">Apache Lucene</a></li>
               <li><a href="http://kibana.org/index.html" target="_blank">Kibana Home</a></li>
@@ -43,27 +50,25 @@
       </div>
     </div>
 
-      <div id=main>
-        <div>
-            <div id=graph>
-              <div class=hero-unit>
-                <h1><img src=images/kibana_banner.png></h1>
-                <br><br>
-                <p><strong>Welcome to <a href="http://kibana.org/index.html" target="_blank">Kibana</a></strong> a user friendly way to view, search and visualize your log data.</p>
-                <p>Some useful query examples:</p>
-                <p>4.3.2.1 AND 1.2.3.4<br>
-                4.3.2.1 AND NOT 1.2.3.4<br>
-                *kibana.org*</p>
-                <p>Learn lots more about 
-                <a rel="nofollow" href="https://lucene.apache.org/core/old_versioned_docs/versions/3_5_0/queryparsersyntax.html" target="_blank">Lucene query syntax</a> 
-                at the <a rel="nofollow" href="https://lucene.apache.org" target="_blank">Apache Lucene</a> and <a rel="nofollow" href="http://kibana.org/about.html" target="_blank">Kibana</a> Project page.</p>
-                <br>
-                <footer>
-                  <p>&copy; Rashid Khan 2012. Visual style provided by <a href="http://twitter.github.com/bootstrap">Twitter Bootstrap</a>. Icons provided by <a href="http://www.glyphicons.com">Glyphicons</a>.</p>
-                </footer>
-              </div>
-            </div>
-        </div>
+    <div id=main>
+      <h1><img src=images/kibana_banner.png></h1>
+      <br><br>
+      <p><strong>Welcome to <a href="http://kibana.org/index.html" target="_blank">Kibana</a></strong> a user friendly way to view, search and visualize your log data.</p>
+      <p>Some useful query examples:</p>
+      <div class="examples">
+        <p>4.3.2.1 AND 1.2.3.4<br>
+        4.3.2.1 AND NOT 1.2.3.4<br>
+        *kibana.org*</p>
       </div>
-  </body>
+      <p>Learn lots more about 
+      <a rel="nofollow" href="https://lucene.apache.org/core/old_versioned_docs/versions/3_5_0/queryparsersyntax.html" target="_blank">Lucene query syntax</a> 
+      at the <a rel="nofollow" href="https://lucene.apache.org" target="_blank">Apache Lucene</a> and <a rel="nofollow" href="http://kibana.org/about.html" target="_blank">Kibana</a> Project page.</p>
+    </div>
+</body>
+
+<footer>
+  <hr>
+  &copy; Rashid Khan 2012. Visual style provided by <a href="http://twitter.github.com/bootstrap">Twitter Bootstrap</a>. Icons provided by <a href="http://www.glyphicons.com">Glyphicons</a>.
+</footer>
+
 </html>
