@@ -915,6 +915,8 @@ function details_table(objid,theme) {
     var buttons = "<span class='raw'>" + xmlEnt(value) + "</span>" +
       "<i class='jlink icon-large icon-search msearch' " +
       "data-action='' data-field='"+field+"'></i> " +
+      "<i class='jlink icon-large icon-filter msearch' " +
+      "data-action='FILTER ' data-field='"+field+"'></i> " +
       "<i class='jlink icon-large icon-ban-circle msearch' " +
       "data-action='NOT ' data-field='"+field+"'></i> ";
 
@@ -991,7 +993,12 @@ function mSearch(field, value, mode) {
     var query = field + ":" + "\"" + addslashes(value.toString()) + "\"";
   }
   var glue = queryinput != "" ? " AND " : " ";
-  window.hashjson.search = queryinput + glue + query;
+  if (query.indexOf('FILTER') !== -1) {
+    window.hashjson.search = query.slice(7);
+  }
+  else {
+    window.hashjson.search = queryinput + glue + query;
+  }
   setHash(window.hashjson);
   scroll(0, 0);
 }
