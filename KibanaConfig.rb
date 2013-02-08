@@ -1,23 +1,13 @@
 module KibanaConfig
 
-  # A Note: While the only option you really have to set is "Elasticsearch" it
-  # is HIGHLY recommended you glance over every option. I personally consider
-  # 'Facet_index_limit' really important.
-
-  # Your elastic search server(s). This may be set as an array for round robin
-  # load balancing
-  # Elasticsearch = ["elasticsearch1:9200","elasticsearch2:9200"]
-  Elasticsearch = "localhost:9200"
+  es_ip = ENV['ES_IP'] ?  ENV['ES_IP'] : '127.0.0.1'
+  es_port = ENV['ES_PORT'] ?  ENV['ES_PORT'] : 9200
+  Elasticsearch = "#{es_ip}:#{es_port}"
+  KibanaPort = ENV['KIBANA_PORT'] ? ENV['KIBANA_PORT'] : 5601
+  KibanaHost = ENV['KIBANA_HOST'] ? ENV['KIBANA_HOST'] : 'localhost'
 
   #Set the Net::HTTP read/open timeouts for the connection to the ES backend
   ElasticsearchTimeout = 500
-
-  # The port Kibana should listen on
-  KibanaPort = 5601
-
-  # The adress ip Kibana should listen on. Comment out or set to
-  # 0.0.0.0 to listen on all interfaces.
-  KibanaHost = '127.0.0.1'
 
   # The record type as defined in your logstash configuration.
   # Seperate multiple types with a comma, no spaces. Leave blank
@@ -89,14 +79,15 @@ module KibanaConfig
   # turn this behavior off if you use something other than daily
   # indexing
   Smart_index = true
-  
+
   # You can define your custom pattern here for index names if you 
   # use something other than daily indexing. Pattern needs to have 
   # date formatting like '%Y.%m.%d'.  Will accept an array of smart 
   # indexes.  
   # Smart_index_pattern = ['logstash-web-%Y.%m.%d', 'logstash-mail-%Y.%m.%d'] 
-  Smart_index_pattern = 'logstash-%Y.%m.%d'
-  
+  # Smart_index_pattern = 'logstash-%Y.%m.%d'
+  Smart_index_pattern = ENV['SMART_INDEX'] ? ENV['SMART_INDEX'] : 'logstash-%Y.%m.%d'
+
   # Number of seconds between each index. 86400 = 1 day.
   Smart_index_step = 86400 
 
