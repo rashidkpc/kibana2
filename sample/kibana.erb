@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+### BEGIN INIT INFO
+# Provides:          kibana
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Make sense of a mountain of logs.
+### END INIT INFO
+#
+#
+# chkconfig: 2345 20 80
+#
+# this is an example .erb template to be used with chef or puppet
+# it assumes that you are using bundler and RVM to run the kibana-daemon
+
+KIBANA_HOME=<%= @kibana_home %>
+USER=<%= @user %>
+export PID_DIR="<%= @pid_dir %>"
+export LOG_DIR="<%= @log_dir %>"
+export ES_PORT="<%= @es_port %>"
+export ES_IP="<%= @es_ip %>"
+export KIBANA_HOST="<%= @server_name %>"
+export SMART_INDEX="<%= @smart_index %>"
+export KIBANA_APP="<%= @app_name %>"
+export KIBANA_PORT="<%= @kibana_port %>"
+export RACK_ENV="production"
+mkdir -p $PID_DIR $LOG_DIR
+chown -R kibana:kibana $PID_DIR $LOG_DIR
+
+KIBANA_CMD="cd $KIBANA_HOME && source ~/.bash_profile && bundle exec ruby kibana-daemon.rb $1"
+
+case "$1" in
+start)
+  su kibana -c "$KIBANA_CMD"
+  RETVAL=$?
+;;
+
+stop)
+  su kibana -c "$KIBANA_CMD"
+  RETVAL=$?
+;;
+
+restart)
+  su kibana -c "$KIBANA_CMD"
+  RETVAL=$?
+;;
+
+status)
+  su kibana -c "$KIBANA_CMD"
+;;
+
+force-reload)
+  su kibana -c "cd $KIBANA_HOME && source ~/.bash_profile && bundle exec kibana-daemon.rb zap"
+  su kibana -c "cd $KIBANA_HOME && source ~/.bash_profile && bundle exec kibana-daemon.rb start"
+  RETVAL=$?
+;;
+
+*)
+  echo "Usage: $0 {start|stop|restart|status|force-reload}"
+  exit 1
+esac
+
+exit $RETVAL
