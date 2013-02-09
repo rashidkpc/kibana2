@@ -51,10 +51,10 @@ Configure your environment (see above).
 `jruby -S rake war  `
 or  
 `jruby -S warble executable war  `
-if you want to include a webserver (default: winstone).  
+if you want to include a webserver (default: jetty).  
 
 Run:	
-`	java -jar Kibana.war [--httpPort=5601]`
+`	java [-Djetty.port=5601] -jar Kibana.war`
 
 Todo: Externalize the configuration. Any help would be appreciated.  
 
