@@ -282,7 +282,7 @@ function pieChart(data,selector){
         $("#tooltip").remove();
         var label = (!item.series.label) ? "missing" : item.series.label;
         showTooltip(
-          pos.pageX+30, pos.pageY, 
+          pos.pageX+30, pos.pageY,
           "<b>"+label+"</b>" + " " + Math.round(item.series.percent) + "%"
         );
       }
@@ -559,7 +559,7 @@ function termsTable(resultjson) {
   for (var obj in resultjson.facets.terms.terms) {
     var object = resultjson.facets.terms.terms[obj];
     var metric = {};
-    var color = i < window.graph_colors.length ? 
+    var color = i < window.graph_colors.length ?
       " <i class=icon-sign-blank style='color:"+window.graph_colors[i]+"'><i>" : '';
 
     metric['Rank'] = (i + 1) + color;
@@ -641,7 +641,7 @@ function enable_popovers() {
         " <small><span class='small event_count'>"+
         "(<a class='jlink highlight_events' data-field='"+field+"'" +
           " data-mode='field' data-objid='"+objids+"'>" +
-          objids.length+" events</a> on this page)</span></small>";  
+          objids.length+" events</a> on this page)</span></small>";
       return str;
     },
     content: function() {
@@ -666,7 +666,7 @@ function enable_popovers() {
         str += "</small></span>";
       }
 
-      str =  microAnalysisTable(window.resultjson,field,5) + 
+      str =  microAnalysisTable(window.resultjson,field,5) +
         "<span id=micrograph></span>"+
         str +
         "<div class='btn-group'>" +
@@ -862,11 +862,11 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     str += '<td class=firsttd>' + time + '</td>';
     for (var index in fields) {
       var field = fields[index];
-      if (typeof hlfield === "undefined") 
+      if (typeof hlfield === "undefined")
         var value = get_field_value(object,field);
       else
       {
-        if ( field.toString() == hlfield.toString() ) 
+        if ( field.toString() == hlfield.toString() )
           var value = hlvalue;
         else
           var value = get_field_value(object,field);
@@ -932,7 +932,7 @@ function details_table(objid,theme) {
       );
       var value = xmlEnt(wbr(value),10);
       // Replace delimiters by HTML code
-      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"), 
+      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"),
         function (all, text) {
           // Clean link
           var stripped = text.replace( new RegExp("<del>&#8203;</del>","g"),"");
@@ -1149,7 +1149,7 @@ function datepickers(from,to) {
     "<input size=19 id=timeto class='datetimeRange'" +
     " type=text name=timeto> grouped by " +
     "<select id=user_interval name=user_interval> " + options + "</select>" +
-    "<button id='timechange' class='btn btn-small jlink' " + 
+    "<button id='timechange' class='btn btn-small jlink' " +
     "style='visibility: hidden'> filter</button></div>");
 
   var from_date = utc_date_obj(new Date(from - tOffset))
@@ -1170,7 +1170,7 @@ function datepickers(from,to) {
   $('#timeto').datetimeEntry('setDatetime',to_date)
 
 
-  // LOL Wat? o_from and o_to are globals?! I should be beaten with a hose for 
+  // LOL Wat? o_from and o_to are globals?! I should be beaten with a hose for
   // the horrid way time is handled in this application. Stupid FLOT.
   $('#timefrom,#timeto').datepicker({
     format: 'yyyy-mm-dd'
@@ -1675,18 +1675,18 @@ function bind_clicks() {
       if (!search || e.keyCode == 27) { //esc key
           $(this).val('');
           window.field_list.show();
-          return;        
+          return;
       }
-      
+
       window.field_list.hide();
       var shown = window.field_list.filter(function(index) {
           return ($(this).attr('data-field').toLowerCase().indexOf(search) !== -1);
       }).show();
-      
+
       if (shown.length == 1 && e.keyCode == 13) { // enter key
           shown.children('i').click(); //toggle column
           $(this).val('');
-          window.field_list.show();       
+          window.field_list.show();
       }
   });
 
