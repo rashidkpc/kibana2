@@ -909,9 +909,8 @@ function details_table(objid,theme) {
   var i = 1;
   for (index in obj_fields) {
     var field = index
-    var value = obj_fields[index];
     var field_id = field.replace('@', 'ATSYM');
-    //var value = get_field_value(obj,field);
+    var value = get_field_value(obj,field);
     var buttons = "<span class='raw'>" + xmlEnt(value) + "</span>" +
       "<i class='jlink icon-large icon-search msearch' " +
       "data-action='' data-field='"+field+"'></i> " +
