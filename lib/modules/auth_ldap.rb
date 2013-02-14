@@ -25,6 +25,10 @@ class AuthLDAP
   # Required function, authenticates a username/password
   def authenticate(username,password)
     begin
+      if username == @auth_admin_user and password == @auth_admin_pass
+        puts "Bypassing LDAP authentication for Auth_Admin_User"
+        return true
+      end
       @ldap.auth @ldap_prefix + username + @ldap_suffix, password
       if @ldap.bind
         return true
