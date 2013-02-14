@@ -135,6 +135,16 @@ module KibanaConfig
   Ldap_port = 389
   # Adds a '@domain.local' suffix to the username when authenticating against an LDAP directory
   # Ldap_domain_fqdn = 'domain.local'
+  # DNs that contain users and groups
+  # Ldap_user_base = 'ou=Users,dc=example,dc=com'
+  # Ldap_group_base = 'ou=Groups,dc=example,dc=com'
+
+  # In order to bind with a full DN, not just a bare username, set Ldap_user_attribute to the attribute that contains the username
+  # Ldap_user_attribute = 'uid'
+  # Will attempt to authenticate with the DN:
+  #   Ldap_user_attribute=username,Ldap_user_base
+  # so, to use the examples given:
+  #   uid=username,ou=Users,dc=example,dc=com
 
   # Storage Module
   Storage_module = 'elasticsearch'  # mongo

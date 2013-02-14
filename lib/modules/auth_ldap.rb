@@ -8,13 +8,28 @@ class AuthLDAP
     @ldap.port = (defined? config::Ldap_port) ? config::Ldap_port : 389
     @ldap_user_base = (defined? config::Ldap_user_base) ? config::Ldap_user_base : "dc=example, dc=com"
     @ldap_group_base = (defined? config::Ldap_group_base) ? config::Ldap_group_base : "dc=example, dc=com"
-    @ldap_suffix = (defined? config::Ldap_domain_fqdn) ? "@" + config::Ldap_domain_fqdn : ""
+    if (defined? config::Ldap_domain_fqdn)
+      @ldap_suffix = "@" + config::Ldap_domain_fqdn
+      @ldap_prefix = ""
+    elsif (defined? config::Ldap_user_attribute)
+      @ldap_suffix = "," + @ldap_user_base
+      @ldap_prefix = config::Ldap_user_attribute + "="
+    else
+      @ldap_suffix = ""
+      @ldap_prefix = ""
+    end
+    @auth_admin_user = (defined? config::Auth_Admin_User) ? config::Auth_Admin_User : ""
+    @auth_admin_pass = (defined? config::Auth_Admin_Pass) ? config::Auth_Admin_Pass : ""
   end
 
   # Required function, authenticates a username/password
   def authenticate(username,password)
     begin
-      @ldap.auth username + @ldap_suffix, password
+      if username == @auth_admin_user and password == @auth_admin_pass
+        puts "Bypassing LDAP authentication for Auth_Admin_User"
+        return true
+      end
+      @ldap.auth @ldap_prefix + username + @ldap_suffix, password
       if @ldap.bind
         return true
       end
