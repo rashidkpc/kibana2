@@ -15,14 +15,15 @@ Gem::Specification.new do |gem|
   gem.version = Kibana::VERSION
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 
-  # Dependencies
   gem.add_runtime_dependency 'sinatra'
   gem.add_runtime_dependency 'json'
   gem.add_runtime_dependency 'fastercsv'
+  gem.add_runtime_dependency 'daemons'
   gem.add_runtime_dependency 'tzinfo'
-  gem.add_runtime_dependency 'thin'
+  gem.add_runtime_dependency 'thin' unless RUBY_PLATFORM =~ /java/i
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'rspec-mocks'
+  gem.add_development_dependency 'warbler'
 end

@@ -923,20 +923,16 @@ function details_table(objid,theme) {
 
     // Are URLs clickable ?
     if (resultjson.kibana.clickable_urls) {
-      //var value = value === undefined ? "-" : value.toString();
-      value = value === undefined ? "-" : value.toString();
+      var value = value === undefined ? "-" : value.toString();
       // Detect URLs and inserts delimiters
-      //var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
-      value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
-        function (all, text, ch) {
+      var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([-\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
+        function (all, text, char) {
           return "@KIBANA_LINK_START@" + text + "@KIBANA_LINK_END@";
         }
       );
-      //var value = xmlEnt(wbr(value),10);
-      value = xmlEnt(wbr(value),10);
+      var value = xmlEnt(wbr(value),10);
       // Replace delimiters by HTML code
-      //var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"),
-      value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"),
+      var value = value.replace(RegExp("@KIBANA_LINK_START@(.*?)@KIBANA_LINK_END@", "g"),
         function (all, text) {
           // Clean link
           var stripped = text.replace( new RegExp("<del>&#8203;</del>","g"),"");
