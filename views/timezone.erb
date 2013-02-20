@@ -5,7 +5,7 @@ var tmp_offset = "<%="#{
 
 window.time_format = "<%= defined?(KibanaConfig::Time_format) ? KibanaConfig::Time_format : "mm/dd HH:MM:ss" %>";
 
-// window.tOffset = KibanaConfig::Timezone - local timezone
+
 if (tmp_offset == 'user') {
 	var d = new Date();
 	window.tOffset = -d.getTimezoneOffset() * 60 * 1000;
@@ -13,5 +13,6 @@ if (tmp_offset == 'user') {
 	window.tOffset = parseFloat(tmp_offset) * 3600 * 1000;
 }
 
+// = KibanaConfig::Timezone - local timezone
 window.ltOffset = window.tOffset -
 	(- new Date().getTimezoneOffset() * 60 * 1000);
