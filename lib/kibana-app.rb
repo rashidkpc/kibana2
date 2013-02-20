@@ -12,6 +12,9 @@ class KibanaApp < Sinatra::Base
     set :port, KibanaConfig::KibanaPort
     set :public_folder, File.join(root, 'public')
     set :views, File.join(root, 'views')
+	if KibanaConfig::Allow_iframed
+      set :protection, :except => :frame_options
+    end
     enable :sessions
   end
 
@@ -37,9 +40,6 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/' do
-    if KibanaConfig::Allow_iframed
-      headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" 
-    end
     send_file File.join(settings.public_folder, 'index.html')
   end
 
