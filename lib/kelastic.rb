@@ -135,7 +135,7 @@ class Kelastic
       field = field.sub(".",".properties.")
       types = h.sort_by { |k,v| v }[0][1]
       types.each do | type |
-        r << field.split(".").inject(type[1]['properties']) { |hash, key|
+        r << field.split(".",3).inject(type[1]['properties']) { |hash, key|
           if defined?hash[key]
             hash[key]
           end
