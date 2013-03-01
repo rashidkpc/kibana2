@@ -11,3 +11,6 @@ if (tmp_offset == 'user') {
 } else {
 	window.tOffset = parseFloat(tmp_offset) * 3600 * 1000;
 }
+
+window.default_fields = [ "<%= KibanaConfig::Default_fields.join("\", \"") %>" ];
+window.timestamp_field = "<%= KibanaConfig::Timestamp_field %>";
