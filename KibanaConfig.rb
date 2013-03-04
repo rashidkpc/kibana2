@@ -14,7 +14,10 @@ module KibanaConfig
   # The adress ip Kibana should listen on. Comment out or set to
   # 0.0.0.0 to listen on all interfaces.
   KibanaHost = '127.0.0.1'
-  
+ 
+  # Change URL path for Kibana requests
+  KibanaURL = '/'
+ 
   # Below is an example showing how to configure the same variables
   # using environment variables, which can be set in an init script
   # es_ip = ENV['ES_IP'] ?  ENV['ES_IP'] : '127.0.0.1'
