@@ -273,8 +273,8 @@ post '/auth/admin/save' do
   else
     if @@users_module.lookup_user(username).nil?
       puts "Creating #{username}"
-      # sets password to "" if password undefined
-      params[:pass1] = "" if params[:pass1].nil?
+      # sets password to "password" if password undefined
+      params[:pass1] = "password" if params[:pass1].nil?
     else
       puts "Updating #{username}"
     end
@@ -285,8 +285,7 @@ post '/auth/admin/save' do
       members = params[:members]
       @@users_module.add_group(username, members)
     elsif params[:pass1] != nil
-      password = params[:pass1]
-      @@users_module.set_password(username, password)
+      @@users_module.set_password(username, params[:pass1]) if (params[:pass1].length > 0)
       user_groups = params[:user_groups]
       old_groups = @@users_module.membership(username)
       if user_groups.nil?
