@@ -1588,7 +1588,7 @@ function bind_clicks() {
       //Initialize the date picker with a 15 minute window into the past
       var to = new Date().getTime();
       var from = to - (15 * 60 * 1000);
-      renderDateTimePicker(from, to, true);
+      renderDateTimePicker(from, to);
     }
   });
 
