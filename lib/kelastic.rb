@@ -181,6 +181,28 @@ class Kelastic
       path
     end
 
+    # Get a new indices array without index closed 
+    def collect_open_indices(indices)
+      # Ignore indices closed
+      url = URI.parse("http://#{Kelastic.server}/_cluster/state")
+      http = Net::HTTP.new(url.host,url.port)    
+      responses = JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body) 
+      i = 0
+      new_indices = []
+      if indices.length == 1
+        new_indices.push(indices.first)
+      else
+        while i < indices.length
+          s = responses['metadata']['indices'][indices[i]]['state']
+          if s.eql?('open')
+            new_indices.push(indices[i])
+          end
+          i += 1
+        end
+      end
+      new_indices
+    end
+
   end
 
 end
@@ -197,6 +219,8 @@ end
 class KelasticSegment
  attr_accessor :response,:url
   def initialize(query,indices,segment)
+
+    indices = Kelastic.collect_open_indices(indices)
 
     # Make sure we're passed an array, if not, make one
     indices = indices.kind_of?(Array) ? indices : [indices]
@@ -241,6 +265,8 @@ end
 class KelasticMulti
  attr_accessor :response,:url
   def initialize(query,indices)
+
+    indices = Kelastic.collect_open_indices(indices)
 
     if indices.length < 1
       @response = Kelastic.error_msg("no index")
@@ -315,6 +341,8 @@ end
 class KelasticMultiFlat
   attr_accessor :response,:url
   def initialize(query,indices)
+
+    indices = Kelastic.collect_open_indices(indices)
 
     if indices.length < 1
       @response = Kelastic.error_msg("no index")
