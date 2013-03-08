@@ -192,7 +192,7 @@ get '/auth/admin' do
   erb :admin, :locals => locals
 end
 
-get %r{/auth/admin/([\w]+)(/[@% \w]+)?} do
+get %r{/auth/admin/([\w]+)(/[@% \w_-]+)?} do
   locals = {}
   mode = params[:captures].first
   if @@auth_module
