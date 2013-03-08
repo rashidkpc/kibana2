@@ -879,8 +879,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
 	      return "<span class='highlightedtext'>" + text + "</span>";
 	    }
 	);
-      var severity_class = ''; if(field === '@fields.syslog_severity') severity_class = value;
-      str += '<td class="column ' + severity_class + '"  data-field="'+field+'">' +
+      str += '<td class="column" data-field="'+field+'">' +
         value + '</td>';
     }
     str += '</tr><tr class="hidedetails"></tr>';
