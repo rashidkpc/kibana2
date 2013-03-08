@@ -12,7 +12,6 @@ class KibanaApp < Sinatra::Base
     set :port, KibanaConfig::KibanaPort
     set :public_folder, File.join(root, 'public')
     set :views, File.join(root, 'views')
-    set :url, defined?(KibanaConfig::KibanaURL) ? KibanaConfig::KibanaURL : ''
     enable :sessions
   end
 
@@ -37,19 +36,19 @@ class KibanaApp < Sinatra::Base
 
   end
 
-  get url + '/' do
+  get '/' do
     if KibanaConfig::Allow_iframed
       headers "X-Frame-Options" => "allow","X-XSS-Protection" => "0" 
     end
     send_file File.join(settings.public_folder, 'index.html')
   end
 
-  get url + '/stream' do
+  get '/stream' do
     send_file File.join(settings.public_folder, 'stream.html')
   end
 
   # Returns
-  get url + '/api/search/:hash/?:segment?' do
+  get '/api/search/:hash/?:segment?' do
     segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
     req     = ClientRequest.new(params[:hash])
@@ -72,7 +71,7 @@ class KibanaApp < Sinatra::Base
     JSON.generate(result.response)
   end
 
-  get url + '/api/graph/:mode/:interval/:hash/?:segment?' do
+  get '/api/graph/:mode/:interval/:hash/?:segment?' do
     segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
     req     = ClientRequest.new(params[:hash])
@@ -90,7 +89,7 @@ class KibanaApp < Sinatra::Base
     JSON.generate(result.response)
   end
 
-  get url + '/api/id/:id/:index' do
+  get '/api/id/:id/:index' do
     ## TODO: Make this verify that the index matches the smart index pattern.
     id      = params[:id]
     index   = "#{params[:index]}"
@@ -99,7 +98,7 @@ class KibanaApp < Sinatra::Base
     JSON.generate(result.response)
   end
 
-  get url + '/api/analyze/:field/trend/:hash' do
+  get '/api/analyze/:field/trend/:hash' do
     limit = KibanaConfig::Analyze_limit
     show  = KibanaConfig::Analyze_show
     req           = ClientRequest.new(params[:hash])
@@ -151,7 +150,7 @@ class KibanaApp < Sinatra::Base
     JSON.generate(result_end.response)
   end
 
-  get url + '/api/analyze/:field/terms/:hash' do
+  get '/api/analyze/:field/terms/:hash' do
     limit   = KibanaConfig::Analyze_show
     req     = ClientRequest.new(params[:hash])
     fields = Array.new
@@ -169,7 +168,7 @@ class KibanaApp < Sinatra::Base
     JSON.generate(result.response)
   end
 
-  get url + '/api/analyze/:field/score/:hash' do
+  get '/api/analyze/:field/score/:hash' do
     limit = KibanaConfig::Analyze_limit
     show  = KibanaConfig::Analyze_show
     req     = ClientRequest.new(params[:hash])
@@ -199,7 +198,7 @@ class KibanaApp < Sinatra::Base
     JSON.generate(result.response)
   end
 
-  get url + '/api/analyze/:field/mean/:hash' do
+  get '/api/analyze/:field/mean/:hash' do
     req     = ClientRequest.new(params[:hash])
     query   = StatsFacet.new(req.search,req.from,req.to,params[:field])
     indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
@@ -218,7 +217,7 @@ class KibanaApp < Sinatra::Base
     end
   end
 
-  get url + '/api/stream/:hash/?:from?' do
+  get '/api/stream/:hash/?:from?' do
     # This is delayed by 10 seconds to account for indexing time and a small time
     # difference between us and the ES server.
     delay = 10
@@ -243,7 +242,7 @@ class KibanaApp < Sinatra::Base
     end
   end
 
-  get url + '/rss/:hash/?:count?' do
+  get '/rss/:hash/?:count?' do
     # TODO: Make the count number above/below functional w/ hard limit setting
     count = KibanaConfig::Rss_show
     # count = params[:count].nil? ? 30 : params[:count].to_i
@@ -282,7 +281,7 @@ class KibanaApp < Sinatra::Base
     content.to_s
   end
 
-  get url + '/export/:hash/?:count?' do
+  get '/export/:hash/?:count?' do
 
     count = KibanaConfig::Export_show
     # TODO: Make the count number above/below functional w/ hard limit setting
@@ -315,7 +314,7 @@ class KibanaApp < Sinatra::Base
   #
   # Access route
   # Extract the _64hash from the KtransientURL hash table and redirects
-  get url + '/turl/:id' do
+  get '/turl/:id' do
     b64hash = KtransientURL[params[:id]]
 
     redirect to("/index.html##{b64hash}") unless b64hash.nil?
@@ -324,11 +323,11 @@ class KibanaApp < Sinatra::Base
   end
 
   # Adds _64hash to hash table and returns and ID
-  get url + '/turl/save/:hash' do
+  get '/turl/save/:hash' do
     "#{KtransientURL << params[:hash]}"
   end
 
-  get url + '/js/timezone.js' do
+  get '/js/timezone.js' do
     erb :timezone
   end
 end
