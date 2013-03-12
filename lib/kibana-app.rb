@@ -310,6 +310,24 @@ class KibanaApp < Sinatra::Base
     end
   end
 
+  get '/raw/:hash/?:count?' do
+    count = KibanaConfig::Export_show
+    # TODO: Make the count number above/below functional w/ hard limit setting
+    # count = params[:count].nil? ? 20000 : params[:count].to_i
+    sep   = KibanaConfig::Export_delimiter
+
+    req     = ClientRequest.new(params[:hash])
+    query   = SortedQuery.new(req.search,req.from,req.to,0,count)
+    indices = Kelastic.index_range(req.from,req.to)
+    result  = KelasticMulti.new(query,indices)
+    flat    = KelasticResponse.flatten_response(result.response, %w{@message})
+
+    headers "Content-Type" => "text/plain",
+      "Content-Disposition" => "attachment;filename=Kibana_#{Time.now.to_i}.txt"
+
+    flat.map(&:first).join("\n")
+  end
+
   # Transient URL Routes
   #
   # Access route
