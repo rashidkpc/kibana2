@@ -64,6 +64,7 @@ class KibanaApp < Sinatra::Base
     # server communication
     result.response['kibana']['time'] = {
       "from" => req.from.iso8601, "to" => req.to.iso8601}
+    result.response['kibana']['timestamp_field'] = KibanaConfig::Timestamp_field
     result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
     # Enable clickable URL links
     result.response['kibana']['clickable_urls'] = KibanaConfig::Clickable_URLs
@@ -104,7 +105,7 @@ class KibanaApp < Sinatra::Base
     req           = ClientRequest.new(params[:hash])
 
     query_end     = SortedQuery.new(
-      req.search,req.from,req.to,0,limit,'@timestamp','desc')
+      req.search,req.from,req.to,0,limit,KibanaConfig::Timestamp_field,'desc')
     indices_end   = Kelastic.index_range(req.from,req.to)
     result_end    = KelasticMulti.new(query_end,indices_end)
 
@@ -112,7 +113,7 @@ class KibanaApp < Sinatra::Base
     if (result_end.response['hits']['hits'].length < limit)
       limit         = (result_end.response['hits']['hits'].length / 2).to_i
       query_end     = SortedQuery.new(
-        req.search,req.from,req.to,0,limit,'@timestamp','desc')
+        req.search,req.from,req.to,0,limit,KibanaConfig::Timestamp_field,'desc')
       indices_end   = Kelastic.index_range(req.from,req.to)
       result_end    = KelasticMulti.new(query_end,indices_end)
     end
@@ -122,7 +123,7 @@ class KibanaApp < Sinatra::Base
     count_end     = KelasticResponse.count_field(result_end.response,fields)
 
     query_begin   = SortedQuery.new(
-      req.search,req.from,req.to,0,limit,'@timestamp','asc')
+      req.search,req.from,req.to,0,limit,KibanaConfig::Timestamp_field,'asc')
     indices_begin = Kelastic.index_range(req.from,req.to).reverse
     result_begin  = KelasticMulti.new(query_begin,indices_begin)
     count_begin   = KelasticResponse.count_field(result_begin.response,fields)
@@ -235,6 +236,7 @@ class KibanaApp < Sinatra::Base
     query   = SortedQuery.new(req.search,from,to,0,30)
     indices = Kelastic.index_range(from,to)
     result  = KelasticMulti.new(query,indices)
+    result.response['kibana']['timestamp_field'] = KibanaConfig::Timestamp_field
     output  = JSON.generate(result.response)
 
     if result.response['hits']['total'] > 0
@@ -273,7 +275,7 @@ class KibanaApp < Sinatra::Base
         i = m.items.new_item
         hash    = IdRequest.new(hit['_id'],hit['_index']).hash
         i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
-        i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
+        i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,KibanaConfig::Timestamp_field))
         i.link  = link_to("/##{hash}")
         i.description = "<pre>#{hit.to_yaml}</pre>"
       end
