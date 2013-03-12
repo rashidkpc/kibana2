@@ -49,6 +49,9 @@ module KibanaConfig
   # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
   Default_fields = ['@message']
 
+  # Set which field is used for timestamp. Must be set as a string.
+  Timestamp_field = '@timestamp'
+
   # If set to true, Kibana will use the Highlight feature of Elasticsearch to 
   # display highlighted search results
   Highlight_results = true
