@@ -132,7 +132,7 @@ class Kelastic
 
     def collect_item_attributes(h,field)
       r = []
-      field = field.sub(".",".properties.")
+      field = field.gsub("\.",".properties.")
       types = h.sort_by { |k,v| v }[0][1]
       types.each do | type |
         r << field.split(".",3).inject(type[1]['properties']) { |hash, key|
