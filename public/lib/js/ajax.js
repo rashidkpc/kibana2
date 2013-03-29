@@ -680,7 +680,7 @@ function enable_popovers() {
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
       return str;
-    },
+    }
   }).click(function(e) {
     if(popover_visible) {
       $('.popover').remove();
@@ -1282,7 +1282,7 @@ function tiny_bar(data,selector) {
     },
     xaxis: {show:false, max: window.resultjson.kibana.per_page},
     yaxis: {show:false},
-    grid: {show:false},  
+    grid: {show:false}
   });
 }
 
@@ -1399,7 +1399,7 @@ function logGraph(data, interval, metric) {
         mode: "time",
         timeformat: "%H:%M:%S<br>%m-%d",
         label: "Datetime",
-        color: "#000",
+        color: "#000"
       },
       yaxis: {
         min: 0,

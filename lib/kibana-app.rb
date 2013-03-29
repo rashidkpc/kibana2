@@ -328,6 +328,7 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/js/timezone.js' do
+    headers "Content-Type" => "text/javascript"
     erb :timezone
   end
 end
