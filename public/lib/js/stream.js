@@ -50,13 +50,14 @@ function getStream() {
   var timeframe = window.freq;
   var maxEvents = 100;
   var b64json = encodeURIComponent(Base64.encode(JSON.stringify(window.hashjson)));
+  var cacheBuster = "?cacheBuster=" + new Date().getTime();
   var from = ""
 
   if (window.last_time != "") {
     from = "/" + window.last_time;
   }
 
-  $.getJSON("api/stream/" + b64json + from, null, function(data) {
+  $.getJSON("api/stream/" + b64json + from + cacheBuster, null, function(data) {
     if (data != null) {
       window.i++;
       var fields = window.hashjson.fields
@@ -143,7 +144,7 @@ function getStream() {
         },
         xaxis: {show:false, mode: "time"},
         yaxis: {show:false},
-        grid: {show:false},  
+        grid: {show:false}
       }
     );
   
