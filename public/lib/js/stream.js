@@ -143,7 +143,7 @@ function getStream() {
         },
         xaxis: {show:false, mode: "time"},
         yaxis: {show:false},
-        grid: {show:false},  
+        grid: {show:false}
       }
     );
   
