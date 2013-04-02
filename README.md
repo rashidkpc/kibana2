@@ -100,7 +100,8 @@ Q: Kibana is great, but I want to make it so users have to authenticate in order
 to access it. How do I do that?
 A: This can be handled a number of ways. The best way is to run Kibana with 
 Passenger and Apache or Nginx. There's sample configurations in the sample 
-directory. You can then add your preferred authentication method there.
+directory. You can then handle your preferred authentication mechanism with
+Apache or Nginx.
 
 Q: Where can I get some help with this?                                         
 A: Find me on Freenode - rashidkpc in #logstash   
