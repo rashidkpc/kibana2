@@ -93,5 +93,14 @@ for certain fields if this is not the desired behavior.  Helpful References:
   http://www.elasticsearch.org/guide/reference/mapping/core-types.html  
   http://www.elasticsearch.org/guide/reference/api/admin-indices-templates.html  
 
+Q: How do I run Kibana under Apache?
+A: There's a few samples in the sample/apache directory on how to do this.
+
+Q: Kibana is great, but I want to make it so users have to authenticate in order
+to access it. How do I do that?
+A: This can be handled a number of ways. The best way is to run Kibana with 
+Passenger and Apache or Nginx. There's sample configurations in the sample 
+directory. You can then add your preferred authentication method there.
+
 Q: Where can I get some help with this?                                         
 A: Find me on Freenode - rashidkpc in #logstash   
