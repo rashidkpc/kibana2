@@ -105,7 +105,7 @@ function getPage() {
       // Make sure we're still on the same page
       if (sendhash == encodeURIComponent(window.location.hash.replace(/^#/, ''))) {
         //Parse out the result
-        window.resultjson = JSON.parse(json);
+        window.resultjson = json;
 
         //console.log(
         //  'curl -XGET \'http://localhost:9200/'+resultjson.index+
@@ -218,7 +218,7 @@ function getGraph(interval) {
       if (sendhash == encodeURIComponent(window.location.hash.replace(/^#/, ''))) {
 
         //Parse out the returned JSON
-        var graphjson = JSON.parse(json);
+        var graphjson = json;
 
         if ($(".legend").length > 0) {
           window.graphdata = graphjson.facets[mode].entries.concat(
@@ -309,7 +309,7 @@ function getID() {
     type: "GET",
     cache: false,
     success: function (json) {
-      window.resultjson = JSON.parse(json)
+      window.resultjson = json
       var hit = resultjson.hits.hits[0]
       blank_page();
       setMeta(1);
@@ -347,7 +347,7 @@ function getAnalysis() {
 
         //Parse out the returned JSON
         var field = window.hashjson.analyze_field;
-        resultjson = JSON.parse(json);
+        resultjson = json;
 
         $('.pagelinks').html('');
         $('#fields').html('');
