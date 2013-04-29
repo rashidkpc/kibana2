@@ -64,10 +64,10 @@ class Kelastic
         for index in index_pattern do
           step_time = from
           begin
-            requested << step_time.getutc.strftime(index)
+            requested << step_time.getlocal.strftime(index)
           end while (step_time += KibanaConfig::Smart_index_step) <= to
-          unless requested.include? to.getutc.strftime(index)
-            requested << to.getutc.strftime(index)
+          unless requested.include? to.getlocal.strftime(index)
+            requested << to.getlocal.strftime(index)
           end
         end
 
