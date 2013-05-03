@@ -1162,7 +1162,7 @@ function datepickers(from,to) {
 
   $('#timeto').datetimeEntry({
     minDatetime: $('#timefrom').datetimeEntry('getDatetime'),
-    maxDatetime: utc_date_obj(new Date()),
+    maxDatetime: to_date,
     datetimeFormat: 'Y-O-D H:M:S',
     spinnerImage: ''
   },to);
