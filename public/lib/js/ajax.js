@@ -360,7 +360,7 @@ function getAnalysis() {
             '</button>',
             "I'm not able to analyze <strong>" + field + "</strong>. " +
             "Statistical analysis is only available for fields " +
-            "that are stored a number (eg float, int) in ElasticSearch");
+            "that are stored as a number (eg. float, int) in ElasticSearch.");
           return;
         }
 
