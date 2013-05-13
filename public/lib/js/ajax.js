@@ -18,7 +18,7 @@ $(document).ready(function () {
         "I'm not totally sure what happened, but maybe refreshing, or "+
         "hitting Reset will help. If that doesn't work, you can try "+
         "restarting your browser. If all else fails, it is possible your"+
-        " configuation has something funky going on. <br><br>If it helps,"+
+        " configuration has something funky going on. <br><br>If it helps,"+
         " I received a <strong>" + xhr.status + " " + xhr.statusText +
         "</strong> from: " + settings.url);
     }
@@ -360,7 +360,7 @@ function getAnalysis() {
             '</button>',
             "I'm not able to analyze <strong>" + field + "</strong>. " +
             "Statistical analysis is only available for fields " +
-            "that are stored a number (eg float, int) in ElasticSearch");
+            "that are stored as a number (eg. float, int) in ElasticSearch.");
           return;
         }
 
