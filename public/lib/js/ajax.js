@@ -18,7 +18,7 @@ $(document).ready(function () {
         "I'm not totally sure what happened, but maybe refreshing, or "+
         "hitting Reset will help. If that doesn't work, you can try "+
         "restarting your browser. If all else fails, it is possible your"+
-        " configuation has something funky going on. <br><br>If it helps,"+
+        " configuration has something funky going on. <br><br>If it helps,"+
         " I received a <strong>" + xhr.status + " " + xhr.statusText +
         "</strong> from: " + settings.url);
     }
@@ -360,7 +360,7 @@ function getAnalysis() {
             '</button>',
             "I'm not able to analyze <strong>" + field + "</strong>. " +
             "Statistical analysis is only available for fields " +
-            "that are stored a number (eg float, int) in ElasticSearch");
+            "that are stored as a number (eg. float, int) in ElasticSearch.");
           return;
         }
 
@@ -680,7 +680,7 @@ function enable_popovers() {
           "data-field="+field+"><i class='icon-bar-chart'></i> Stats</button>" +
         "</div>";
       return str;
-    },
+    }
   }).click(function(e) {
     if(popover_visible) {
       $('.popover').remove();
@@ -909,9 +909,8 @@ function details_table(objid,theme) {
   var i = 1;
   for (index in obj_fields) {
     var field = index;
-    var value = obj_fields[index];
     var field_id = field.replace('@', 'ATSYM');
-    //var value = get_field_value(obj,field);
+    var value = get_field_value(obj,field);
     var buttons = "<span class='raw'>" + xmlEnt(value) + "</span>" +
       "<i class='jlink icon-large icon-search msearch' " +
       "data-action='' data-field='"+field+"'></i> " +

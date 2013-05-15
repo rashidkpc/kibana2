@@ -22,9 +22,7 @@ module KibanaConfig
   # Elasticsearch = "#{es_ip}:#{es_port}"
   # KibanaPort = ENV['KIBANA_PORT'] ? ENV['KIBANA_PORT'] : 5601
   # KibanaHost = ENV['KIBANA_HOST'] ? ENV['KIBANA_HOST'] : 'localhost'
-
-  #Set the Net::HTTP read/open timeouts for the connection to the ES backend
-  ElasticsearchTimeout = 500
+  
 
   # The record type as defined in your logstash configuration.
   # Seperate multiple types with a comma, no spaces. Leave blank
@@ -42,6 +40,10 @@ module KibanaConfig
 
   # Format for timestamps. Defaults to mm/dd HH:MM:ss.
   # For syntax see: http://blog.stevenlevithan.com/archives/date-time-format
+  #
+  # Do not use isoUtcDatetime or the "UTC:" prefix described in the above
+  # article, as timezone correction is already performed by the "Timezone"
+  # config variable.
   # Time_format = 'isoDateTime' 
   Time_format = 'mm/dd HH:MM:ss'
 
