@@ -15,7 +15,7 @@ class Kelastic
 	attr_accessor :response,:url
   def initialize(query,index)
 
-    @url = "http://#{Kelastic.server}/#{index}/_search"
+    @url = "#{Kelastic.server}/#{index}/_search"
     # TODO: This badly needs error handling for missing indices
   	@response = Kelastic.run(@url,query)
 
@@ -31,7 +31,7 @@ class Kelastic
 
   class << self
     def all_indices
-      url = URI.parse("http://#{Kelastic.server}/_aliases")
+      url = URI.parse("#{Kelastic.server}/_aliases")
       http = Net::HTTP.new(url.host,url.port)
       if KibanaConfig.constants.include?("ElasticsearchTimeout")
         if KibanaConfig::ElasticsearchTimeout != ''
@@ -89,9 +89,11 @@ class Kelastic
         $eslb ||= 0
         $eslb = $eslb < list.length ? $eslb : 0
         server = list[$eslb]
+        server = "http://#{server}" unless server.start_with?('http://')
         $eslb += 1
         server
       else
+        list = "http://#{list}" unless list.start_with?('http://')
         list
       end
     end
@@ -114,7 +116,7 @@ class Kelastic
     end
 
     def mapping(index)
-      url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
+      url = URI.parse("#{Kelastic.server}/#{index}/_mapping")
       http = Net::HTTP.new(url.host,url.port)
       if KibanaConfig.constants.include?("ElasticsearchTimeout")
         if KibanaConfig::ElasticsearchTimeout != ''
@@ -180,9 +182,9 @@ class Kelastic
 
     def index_path(index)
       if KibanaConfig::Type != ''
-        path = "http://#{Kelastic.server}/#{index}/#{KibanaConfig::Type}"
+        path = "#{Kelastic.server}/#{index}/#{KibanaConfig::Type}"
       else
-        path = "http://#{Kelastic.server}/#{index}"
+        path = "#{Kelastic.server}/#{index}"
       end
       path
     end
