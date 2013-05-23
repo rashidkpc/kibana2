@@ -39,8 +39,9 @@ class Kelastic
         end
       end
 
-      @status = JSON.parse(
-        http.request(Net::HTTP::Get.new(url.request_uri)).body)
+      req = Net::HTTP::Get.new(url.request_uri)
+      req.basic_auth(url.user,url.password) if url.user
+      @status = JSON.parse(http.request(req).body)
       indices = @status.keys
       @status.keys.each do |index|
         if @status[index]['aliases'].count > 0
@@ -120,7 +121,9 @@ class Kelastic
           http.read_timeout = KibanaConfig::ElasticsearchTimeout
         end
       end
-      JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
+      req = Net::HTTP::Get.new(url.request_uri)
+      req.basic_auth(url.user,url.password) if url.user
+      JSON.parse(http.request(req).body)
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -161,9 +164,12 @@ class Kelastic
           http.read_timeout = KibanaConfig::ElasticsearchTimeout
         end
       end
-      res = http.post(url.path, query.to_s,
-                      'Accept' => 'application/json',
-                      'Content-Type' => 'application/json')
+      req = Net::HTTP::Post.new(url.request_uri,
+        { 'Accept' => 'application/json',
+          'content-type'=>'applications/json' })
+      req.basic_auth(url.user,url.password) if url.user
+      req.body = query.to_s
+      res = http.request(req)
 
       o = JSON.parse(res.body)
       o['kibana'] = {'per_page' => KibanaConfig::Per_page}
