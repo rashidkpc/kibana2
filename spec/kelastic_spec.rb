@@ -27,8 +27,17 @@ describe "Kelastic" do
   end
 
   context "#all_indices" do
+    def stub_http_get_and_return_body(mock_body)
+      http = Net::HTTP.new("localhost",9200)
+      Net::HTTP.should_receive(:new).with('localhost',9200).and_return(http)
+      response = double("response")
+      response.stub(:body) {
+        mock_body
+      }
+      http.should_receive(:request).with(anything()).and_return(response)
+    end
     it "should return list of indices" do
-      Net::HTTP.should_receive(:get).with(URI.parse("http://localhost:9200/_aliases")).and_return(%Q{
+      stub_http_get_and_return_body(%Q{
           {"logstash-2012.11.06":{"aliases":{}}}
       })
 
@@ -36,7 +45,7 @@ describe "Kelastic" do
     end
 
     it "should return list of indices and aliases" do
-      Net::HTTP.should_receive(:get).with(URI.parse("http://localhost:9200/_aliases")).and_return(%Q{
+      stub_http_get_and_return_body(%Q{
           {"logstash-2012.11.06":{"aliases":{ "foo": "bar", "baz": "doh"}}}
       })
 
@@ -107,7 +116,7 @@ describe "Kelastic" do
 
       result = Kelastic.index_range(Time.parse("2012-11-02 17:00:00 +0100"), Time.parse("2012-11-04 18:00:00 +0100"))
 
-      result.should == "_all"
+      result.should == [ "_all" ]
 
       KibanaConfig::Smart_index = true
     end
