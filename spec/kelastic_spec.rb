@@ -5,12 +5,37 @@ require "kelastic"
 
 describe "Kelastic" do
   context "#initialize" do
-    it "should construct correct url" do
+    it "should construct correct default url" do
       Kelastic.should_receive(:run).and_return({})
 
       k = Kelastic.new("foo", "my_index")
 
       k.url.should == "http://localhost:9200/my_index/_search"
+    end
+
+    it "should construct correct url from hostname" do
+      # test_url("http://user:pass@elasticsearch.test:9202")
+      originalElasticsearchUrlConfig = KibanaConfig::Elasticsearch
+      begin
+        KibanaConfig::Elasticsearch = "elasticsearch.test:9202"
+        Kelastic.should_receive(:run).and_return({})
+        k = Kelastic.new("foo", "my_index")
+        k.url.should == "http://elasticsearch.test:9202/my_index/_search"
+      ensure
+        KibanaConfig::Elasticsearch = originalElasticsearchUrlConfig
+      end
+    end
+
+    it "should construct correct url from a url with user info" do
+      originalElasticsearchUrlConfig = KibanaConfig::Elasticsearch
+      begin
+        KibanaConfig::Elasticsearch = "http://user:pass@elasticsearch.test:9202"
+        Kelastic.should_receive(:run).and_return({})
+        k = Kelastic.new("foo", "my_index")
+        k.url.should == "http://user:pass@elasticsearch.test:9202/my_index/_search"
+      ensure
+        KibanaConfig::Elasticsearch = originalElasticsearchUrlConfig
+      end
     end
 
     it "should work convert response" do
@@ -27,9 +52,9 @@ describe "Kelastic" do
   end
 
   context "#all_indices" do
-    def stub_http_get_and_return_body(mock_body)
-      http = Net::HTTP.new("localhost",9200)
-      Net::HTTP.should_receive(:new).with('localhost',9200).and_return(http)
+    def stub_http_get_and_return_body(mock_body,host="localhost",port=9200)
+      http = Net::HTTP.new(host,port)
+      Net::HTTP.should_receive(:new).with(host,port).and_return(http)
       response = double("response")
       response.stub(:body) {
         mock_body
@@ -51,6 +76,25 @@ describe "Kelastic" do
 
       Kelastic.all_indices.sort.should == ["baz", "foo", "logstash-2012.11.06"]
     end
+
+    it "should return list of indices when configured with a url with basic auth" do
+      originalElasticsearchUrlConfig = KibanaConfig::Elasticsearch
+      begin
+        KibanaConfig::Elasticsearch = "http://user:pass@elasticsearch.test:9202"
+        url = URI.parse("#{KibanaConfig::Elasticsearch}/_aliases")
+        http_get = Net::HTTP::Get.new(url.request_uri)
+        Net::HTTP::Get.should_receive(:new).with(url.request_uri).and_return(http_get)
+        http_get.should_receive(:basic_auth).with("user","pass")
+
+        stub_http_get_and_return_body(%Q{
+            {"logstash-2012.11.06":{"aliases":{}}}
+        },"elasticsearch.test",9202)
+
+        Kelastic.all_indices.should == ["logstash-2012.11.06"]
+      ensure
+        KibanaConfig::Elasticsearch = originalElasticsearchUrlConfig
+      end
+    end    
   end
 
   context "#date_range" do

@@ -15,7 +15,7 @@ class Kelastic
 	attr_accessor :response,:url
   def initialize(query,index)
 
-    @url = "http://#{Kelastic.server}/#{index}/_search"
+    @url = "#{Kelastic.server}/#{index}/_search"
     # TODO: This badly needs error handling for missing indices
   	@response = Kelastic.run(@url,query)
 
@@ -31,7 +31,7 @@ class Kelastic
 
   class << self
     def all_indices
-      url = URI.parse("http://#{Kelastic.server}/_aliases")
+      url = URI.parse("#{Kelastic.server}/_aliases")
       http = Net::HTTP.new(url.host,url.port)
       if KibanaConfig.constants.include?("ElasticsearchTimeout")
         if KibanaConfig::ElasticsearchTimeout != ''
@@ -39,8 +39,9 @@ class Kelastic
         end
       end
 
-      @status = JSON.parse(
-        http.request(Net::HTTP::Get.new(url.request_uri)).body)
+      req = Net::HTTP::Get.new(url.request_uri)
+      req.basic_auth(url.user,url.password) if url.user
+      @status = JSON.parse(http.request(req).body)
       indices = @status.keys
       @status.keys.each do |index|
         if @status[index]['aliases'].count > 0
@@ -88,9 +89,11 @@ class Kelastic
         $eslb ||= 0
         $eslb = $eslb < list.length ? $eslb : 0
         server = list[$eslb]
+        server = "http://#{server}" unless server.start_with?('http://')
         $eslb += 1
         server
       else
+        list = "http://#{list}" unless list.start_with?('http://')
         list
       end
     end
@@ -113,14 +116,16 @@ class Kelastic
     end
 
     def mapping(index)
-      url = URI.parse("http://#{Kelastic.server}/#{index}/_mapping")
+      url = URI.parse("#{Kelastic.server}/#{index}/_mapping")
       http = Net::HTTP.new(url.host,url.port)
       if KibanaConfig.constants.include?("ElasticsearchTimeout")
         if KibanaConfig::ElasticsearchTimeout != ''
           http.read_timeout = KibanaConfig::ElasticsearchTimeout
         end
       end
-      JSON.parse(http.request(Net::HTTP::Get.new(url.request_uri)).body)
+      req = Net::HTTP::Get.new(url.request_uri)
+      req.basic_auth(url.user,url.password) if url.user
+      JSON.parse(http.request(req).body)
     end
 
     # It would be nice to handle different types here, but we don't do that
@@ -161,9 +166,12 @@ class Kelastic
           http.read_timeout = KibanaConfig::ElasticsearchTimeout
         end
       end
-      res = http.post(url.path, query.to_s,
-                      'Accept' => 'application/json',
-                      'Content-Type' => 'application/json')
+      req = Net::HTTP::Post.new(url.request_uri,
+        { 'Accept' => 'application/json',
+          'content-type'=>'applications/json' })
+      req.basic_auth(url.user,url.password) if url.user
+      req.body = query.to_s
+      res = http.request(req)
 
       o = JSON.parse(res.body)
       o['kibana'] = {'per_page' => KibanaConfig::Per_page}
@@ -174,9 +182,9 @@ class Kelastic
 
     def index_path(index)
       if KibanaConfig::Type != ''
-        path = "http://#{Kelastic.server}/#{index}/#{KibanaConfig::Type}"
+        path = "#{Kelastic.server}/#{index}/#{KibanaConfig::Type}"
       else
-        path = "http://#{Kelastic.server}/#{index}"
+        path = "#{Kelastic.server}/#{index}"
       end
       path
     end
