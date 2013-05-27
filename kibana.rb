@@ -615,5 +615,6 @@ delete '/api/favorites' do
 end
 
 get '/js/timezone.js' do
+  content_type 'application/javascript'
   erb :timezone
 end
