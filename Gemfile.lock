@@ -19,6 +19,7 @@ GEM
     rack (1.4.1)
     rack-protection (1.2.0)
       rack
+    rake (10.0.4)
     rspec (2.11.0)
       rspec-core (~> 2.11.0)
       rspec-expectations (~> 2.11.0)
@@ -43,5 +44,6 @@ PLATFORMS
 
 DEPENDENCIES
   kibana!
+  rake
   rspec
   rspec-mocks
