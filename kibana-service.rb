@@ -5,7 +5,9 @@ def help
 end
 
 def start
-  run 'start'
+  while(!status)
+    run 'start'
+  end
 end
 
 def stop
@@ -17,7 +19,7 @@ def restart
 end
 
 def status(repeat=0)
-  sleep 1
+  sleep 2
   (0..repeat).each { |n|
     pid_filename = "tmp/kibana.rb.pid"
     if (File::exists?(pid_filename)) then
