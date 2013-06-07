@@ -15,7 +15,9 @@ def stop
 end
 
 def restart
-  run 'restart'
+  while(!status)
+    run 'restart'
+  end
 end
 
 def status(repeat=0)
