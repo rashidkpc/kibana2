@@ -16,22 +16,33 @@ def restart
   run 'restart'
 end
 
-def status
-  pid_filename = "tmp/kibana.rb.pid"
-  if (File::exists?(pid_filename)) then
-    File.open(pid_filename) { |file|
-      pid = file.readline().to_i
-      puts "pid is #{pid}"
-      begin
-        Process.getpgid(pid)
-        return true
-      rescue Errno::ESRCH
+def status(repeat=0)
+  sleep 1
+  (0..repeat).each { |n|
+    pid_filename = "tmp/kibana.rb.pid"
+    if (File::exists?(pid_filename)) then
+      File.open(pid_filename) { |file|
+        pid = file.readline().to_i
+        puts "pid is #{pid}"
+        begin
+          Process.getpgid(pid)
+          puts 'running'
+          return true
+        rescue Errno::ESRCH
+          puts 'not running'
+          return false
+        end
+      }
+    else
+      if(n == repeat)
         return false
+      else
+        print '.'
+        sleep 1
       end
-    }
-  else
-    return false
-  end
+    end
+  }
+  return
 end
 
 def run(cmd)
@@ -44,13 +55,13 @@ else
   case ARGV[0]
     when "start"
       start
-      exit (status) ? 0 : 1
+      exit (status 5) ? 0 : 1
     when "stop"
       stop
       exit (status) ? 1 : 0
     when "restart"
       restart
-      exit (status) ? 0 : 1
+      exit (status 5) ? 0 : 1
     when "status"
       exit (status) ? 0 : 1
     else
