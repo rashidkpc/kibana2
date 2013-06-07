@@ -7,7 +7,7 @@ def help
 end
 
 def start
-  run('start', 5)
+  run 'start'
 end
 
 def stop
@@ -15,7 +15,7 @@ def stop
 end
 
 def restart
-  run('restart', 5)
+  run 'restart'
 end
 
 def status(repeat=0)
@@ -47,15 +47,8 @@ def status(repeat=0)
   return
 end
 
-def run(cmd, repeat=0)
-  (0..repeat).each {
-    print '.'
-    system "ruby kibana-daemon.rb #{cmd}"
-    if(status)
-      return
-    end
-    sleep 1
-  }
+def run(cmd)
+  system "ruby kibana-daemon.rb #{cmd}"
 end
 
 if (ARGV.length == 0) then
