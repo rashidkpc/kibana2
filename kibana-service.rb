@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 
+try_again = 5
+
 def help
   puts "usage ..."
 end
 
 def start
-  while(!status)
-    run 'start'
-  end
+  run('start', 5)
 end
 
 def stop
@@ -15,9 +15,7 @@ def stop
 end
 
 def restart
-  while(!status)
-    run 'restart'
-  end
+  run('restart', 5)
 end
 
 def status(repeat=0)
@@ -38,7 +36,7 @@ def status(repeat=0)
         end
       }
     else
-      if(n == repeat)
+      if (n == repeat)
         return false
       else
         print '.'
@@ -49,8 +47,15 @@ def status(repeat=0)
   return
 end
 
-def run(cmd)
-  system "ruby kibana-daemon.rb #{cmd}"
+def run(cmd, repeat=0)
+  (0..repeat).each {
+    print '.'
+    system "ruby kibana-daemon.rb #{cmd}"
+    if(status)
+      return
+    end
+    sleep 1
+  }
 end
 
 if (ARGV.length == 0) then
