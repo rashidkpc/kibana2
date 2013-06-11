@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'sinatra/base'
 
+require 'net/http'
+
 ruby_18 { require 'fastercsv' }
 ruby_19 { require 'csv' }
 
@@ -15,7 +17,7 @@ class KibanaApp < Sinatra::Base
 	if KibanaConfig::Allow_iframed
       set :protection, :except => :frame_options
     end
-    enable :sessions
+    enable :sessions, :logging
   end
 
   helpers do
@@ -52,6 +54,25 @@ class KibanaApp < Sinatra::Base
     segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
     req     = ClientRequest.new(params[:hash])
+
+    if KibanaConfig::Save_search_queries
+	    url = URI.parse("http://#{Kelastic.server}")
+	    http = Net::HTTP.new(url.host,url.port)
+	    url = '/'+Kelastic.current_index[0]+'/kibanalog'
+	    # Otherwise, use ruby stdlib Time, which is much slower than Joda.
+	    now = Time.new.utc
+	    t = sprintf("%04d-%02d-%02dT%02d:%02d:%02d.%06d%+03d:00", now.year, now.month, now.day, now.hour,now.min, now.sec, now.tv_usec, now.utc_offset / 3600)
+	    d = {"@fields"=> {  "message" => req.search,
+	 		"program" => "kibana",
+		        "logsource" => `hostname -f`.strip,
+			"user" => env["HTTP_REMOTE_USER"],
+			"hash" => KibanaConfig::Save_search_queries_base_url+"#"+params[:hash],
+			"req"=> JSON.parse(req.to_s)}, 
+		"@timestamp"=> t
+	    }
+	    response = http.request_post(url, d.to_json)
+    end
+
     if KibanaConfig::Highlight_results
       query   = HighlightedQuery.new(req.search,req.from,req.to,req.offset)
     else
