@@ -1,8 +1,0 @@
-kibana.rb: process with pid 2579 started.
-== Sinatra/1.3.3 has taken the stage on 5601 for development with backup from Thin
-
-== Sinatra has ended his set (crowd applauds)
->> Thin web server (v1.5.0 codename Knife)
->> Maximum connections set to 1024
->> Listening on 127.0.0.1:5601, CTRL+C to stop
->> Stopping ...
