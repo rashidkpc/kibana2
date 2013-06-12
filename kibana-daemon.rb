@@ -40,7 +40,6 @@ script = 'kibana.rb'
 options = {
     :dir_mode => :normal,
     :dir => pid_dir,
-    :monitor => true,
     :log_dir => log_dir,
     :log_output => true,
     :backtrace => true
