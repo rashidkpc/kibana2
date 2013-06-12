@@ -12,6 +12,19 @@ scriptdir = Pathname.new(File.dirname(__FILE__)).realpath
 # store pidfile in tmp dir
 pid_dir = File.join(scriptdir, "tmp")
 
+# after creating the log dir make sure
+# the kibana user has write access.
+# otherwise it is silently ignored and
+# no log file will be generated
+log_dir = '/var/log/kibana'
+
+begin
+  FileUtils.mkdir(log_dir)
+  puts "log dir #{log_dir} created."
+rescue Errno::EEXIST
+  puts "log dir #{log_dir} exists."
+end
+
 if !File.directory?(pid_dir)
   if ARGV[0] == "start"
     puts "creating pid_dir #{pid_dir}"
@@ -22,7 +35,18 @@ if !File.directory?(pid_dir)
   end
 end
 
-Daemons.run_proc('kibana.rb', {:dir_mode => :normal, :dir => pid_dir}) do
+script = 'kibana.rb'
+
+options = {
+    :dir_mode => :normal,
+    :dir => pid_dir,
+    :monitor => true,
+    :log_dir => log_dir,
+    :log_output => true,
+    :backtrace => true
+}
+
+Daemons.run_proc(script, options) do
   Dir.chdir(scriptdir)
-  exec "ruby kibana.rb"
+  exec "ruby #{script}"
 end
