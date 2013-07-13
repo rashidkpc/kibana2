@@ -134,6 +134,7 @@ function getPage() {
         var fields = window.hashjson.fields.length == 0 ?
           resultjson.kibana.default_fields : window.hashjson.fields
 
+        var timeField = resultjson.kibana.time_field;
         // Create 'Columns' section
         $('#fields').html("<div class='input-prepend'>" +
           "<span class='add-on'><i class='icon-columns'></i></span>" +
@@ -817,6 +818,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
   if (fields.length == 0)
     fields = window.resultjson.kibana.default_fields;
 
+  timeField = window.resultjson.kibana.time_field;
   // If the returned data is an object do nothing, else try to parse
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
 
@@ -855,7 +857,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     var id = object._id;
     var alt = i % 2 == 0 ? '' : 'alt'
     var time = prettyDateString(
-      Date.parse(get_field_value(object,'@timestamp')) + tOffset);
+      Date.parse(get_field_value(object,timeField)) + tOffset);
     str += '<tr data-object="' + objid + '" id="logrow_' + objid + '" '+
       'class="' + alt + ' logrow">';
 
