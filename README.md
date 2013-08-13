@@ -73,7 +73,7 @@ Q: Why is this Ruby instead of PHP now?
 A: Closer integration with logstash, Ruby is shiny. Its mostly javascript 
 anyway. If you want it in something else, it shouldn't be too hard to port.  
 
-Q: Why do I have to set a limit on events to analyze?
+Q: Why do I have to set a limit on events to analyze?  
 A: Big result sets take a long time to retrieve from elasticsearch and parse out  
 
 Q: Well then why don't you use the Elastic Search terms facet?  
