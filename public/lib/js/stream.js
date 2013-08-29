@@ -89,7 +89,7 @@ function getStream() {
             }
             ));
 
-          var jlink = $('<a/>').addClass('jlink').attr('href', "../#" + hash).html($('<i/>').addClass('icon-link'));
+          var jlink = $('<a/>').addClass('jlink').attr('href', location.href.substring( 0, location.href.indexOf( "/stream#") ) + "/#" + hash).html($('<i/>').addClass('icon-link'));
           var linkTableData = $("<td/>").css('white-space', 'nowrap');
           linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset)).prepend(jlink);
           tableRow.append(linkTableData);
