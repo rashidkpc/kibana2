@@ -43,7 +43,7 @@ class Kelastic
         http.request(Net::HTTP::Get.new(url.request_uri)).body)
       indices = @status.keys
       @status.keys.each do |index|
-        if @status[index]['aliases'].count > 0
+        if @status[index]['aliases'] && @status[index]['aliases'].count > 0
           indices.concat(@status[index]['aliases'].keys)
         end
       end
@@ -134,6 +134,9 @@ class Kelastic
       r = []
       field = field.gsub("\.",".properties.")
       types = h.sort_by { |k,v| v }[0][1]
+      if types.has_key?("mappings")
+        types = types['mappings']
+      end
       types.each do | type |
         r << field.split(".",3).inject(type[1]['properties']) { |hash, key|
           if defined?hash[key]
