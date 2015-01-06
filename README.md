@@ -1,7 +1,7 @@
 [![Build Status](https://secure.travis-ci.org/invadersmustdie/Kibana.png?branch=kibana-ruby)](https://travis-ci.org/invadersmustdie/Kibana)
 
 # Kibana
-__NOTE__: You have reached the repository for Kibana 2, the ruby version of Kibana. Kibana 3 can be found at [https://github.com/elasticsearch/kibana](https://github.com/elasticsearch/kibana)
+__NOTE__: You have reached the repository for Kibana 2, the ruby version of Kibana. The latest version can be found at [https://github.com/elasticsearch/kibana](https://github.com/elasticsearch/kibana)
 
 Copyright 2012 Rashid Khan <rashidkpc #logstash irc.freenode.net>
 
