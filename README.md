@@ -1,9 +1,7 @@
-[![Build Status](https://secure.travis-ci.org/invadersmustdie/Kibana.png?branch=kibana-ruby)](https://travis-ci.org/invadersmustdie/Kibana)
-
 # Kibana
-__NOTE__: You have reached the repository for Kibana 2, the ruby version of Kibana. The latest version can be found at [https://github.com/elasticsearch/kibana](https://github.com/elasticsearch/kibana)
+__NOTE__: You probably don't want this repo! Kibana 2 is EOL. The latest version can be found at [https://github.com/elastic/kibana](https://github.com/elastic/kibana)
 
-Copyright 2012 Rashid Khan <rashidkpc #logstash irc.freenode.net>
+Copyright 2012 Rashid Khan <rashidkpc #kibana irc.freenode.net>
 
 Kibana is a browser based interface for Logstash and ElasticSearch that allows 
 you to efficiently search, visualize, analyze and otherwise make sense of your 
