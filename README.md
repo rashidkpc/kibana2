@@ -1,5 +1,5 @@
 # Kibana
-__NOTE__: You probably don't want this repo! Kibana 2 is EOL. The latest version can be found at [https://github.com/elastic/kibana](https://github.com/elastic/kibana)
+## __NOTE__: You probably don't want this repo! Kibana 2 is EOL. The latest version can be found at [https://github.com/elastic/kibana](https://github.com/elastic/kibana)
 
 Copyright 2012 Rashid Khan <rashidkpc #kibana irc.freenode.net>
 
