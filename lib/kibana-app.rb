@@ -49,6 +49,8 @@ class KibanaApp < Sinatra::Base
 
   # Returns
   get '/api/search/:hash/?:segment?' do
+    content_type :json
+
     segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
     req     = ClientRequest.new(params[:hash])
@@ -72,6 +74,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/graph/:mode/:interval/:hash/?:segment?' do
+    content_type :json
+
     segment = params[:segment].nil? ? 0 : params[:segment].to_i
 
     req     = ClientRequest.new(params[:hash])
@@ -90,6 +94,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/id/:id/:index' do
+    content_type :json
+
     ## TODO: Make this verify that the index matches the smart index pattern.
     id      = params[:id]
     index   = "#{params[:index]}"
@@ -99,6 +105,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/analyze/:field/trend/:hash' do
+    content_type :json
+
     limit = KibanaConfig::Analyze_limit
     show  = KibanaConfig::Analyze_show
     req           = ClientRequest.new(params[:hash])
@@ -151,6 +159,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/analyze/:field/terms/:hash' do
+    content_type :json
+
     limit   = KibanaConfig::Analyze_show
     req     = ClientRequest.new(params[:hash])
     fields = Array.new
@@ -169,6 +179,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/analyze/:field/score/:hash' do
+    content_type :json
+
     limit = KibanaConfig::Analyze_limit
     show  = KibanaConfig::Analyze_show
     req     = ClientRequest.new(params[:hash])
@@ -199,6 +211,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/analyze/:field/mean/:hash' do
+    content_type :json
+
     req     = ClientRequest.new(params[:hash])
     query   = StatsFacet.new(req.search,req.from,req.to,params[:field])
     indices = Kelastic.index_range(req.from,req.to,KibanaConfig::Facet_index_limit)
@@ -218,6 +232,8 @@ class KibanaApp < Sinatra::Base
   end
 
   get '/api/stream/:hash/?:from?' do
+    content_type :json
+
     # This is delayed by 10 seconds to account for indexing time and a small time
     # difference between us and the ES server.
     delay = 10
