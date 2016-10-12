@@ -51,7 +51,7 @@ function getStream() {
   var maxEvents = 100;
   var b64json = encodeURIComponent(Base64.encode(JSON.stringify(window.hashjson)));
   var cacheBuster = "?cacheBuster=" + new Date().getTime();
-  var from = ""
+  var from = "";
 
   if (window.last_time != "") {
     from = "/" + window.last_time;
@@ -60,17 +60,17 @@ function getStream() {
   $.getJSON("api/stream/" + b64json + from + cacheBuster, null, function(data) {
     if (data != null) {
       window.i++;
-      var fields = window.hashjson.fields
+      var fields = window.hashjson.fields;
       var has_time = false;
       var id = "";
       var hit = "";
       var i = 0;
       data.hits.hits = data.hits.hits.reverse();
       for (var obj in data.hits.hits) {
-        hit = data.hits.hits[obj]
+        hit = data.hits.hits[obj];
 
-        id = hit['_id']
-        index = hit['_index']
+        id = hit['_id'];
+        index = hit['_index'];
         if (!(has_time)) {
           window.last_time = get_field_value(hit,'@timestamp');
           has_time = true;
@@ -91,7 +91,7 @@ function getStream() {
 
           var jlink = $('<a/>').addClass('jlink').attr('href', "../#" + hash).html($('<i/>').addClass('icon-link'));
           var linkTableData = $("<td/>").css('white-space', 'nowrap');
-          linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset)).prepend(jlink);
+          linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,'@timestamp')))).prepend(jlink);
           tableRow.append(linkTableData);
           for (var field in fields) {
             tableRow.append($("<td/>").text(get_field_value(hit,fields[field])));
@@ -115,19 +115,19 @@ function getStream() {
       }
     }
 
-    var now = new Date()
+    var now = new Date();
 
     if (typeof window.stream_arr === 'undefined') {
-      var now = new Date
-      var range = 900
-      window.stream_arr = []
+      var now = new Date;
+      var range = 900;
+      window.stream_arr = [];
       while(range > 0) {
-        window.stream_arr.push([new Date(now.getTime() - range*1000).getTime(),0])
+        window.stream_arr.push([new Date(now.getTime() - range*1000).getTime(),0]);
         range = range-10;
       }
     }
-    window.stream_arr.shift()
-    window.stream_arr.push([now.getTime(),rate])
+    window.stream_arr.shift();
+    window.stream_arr.push([now.getTime(),rate]);
 
     $.plot(
       $("#streamgraph"), [
