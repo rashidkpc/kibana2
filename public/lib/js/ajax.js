@@ -1084,7 +1084,9 @@ function feedLinks(obj) {
     "<a href=export/" + Base64.encode(JSON.stringify(obj, null, '')) + ">export " +
     "<i class='icon-hdd'></i></a> "+
     "<a href=stream#" + Base64.encode(JSON.stringify(obj, null, '')) + ">stream " +
-    "<i class='icon-dashboard'></i></a>"
+    "<i class='icon-dashboard'></i></a> "+
+    "<a href=/#" + Base64.encode(JSON.stringify(obj, null, '')) + " target='_blank'>share " +
+    "<i class='icon-share'></i></a>"
 }
 
 $(function () {
