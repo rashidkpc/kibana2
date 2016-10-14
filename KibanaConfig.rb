@@ -32,6 +32,10 @@ module KibanaConfig
   # Results to show per page
   Per_page = 50
 
+  # Maximum number of lines from multiline fields to display in collapsed view.
+  # Affects all Default_fields
+  Max_lines = 5
+
   # Timezone. Leave this set to 'user' to have the user's browser autocorrect.
   # Otherwise, set a timezone string
   # Examples: 'UTC', 'America/Phoenix', 'Europe/Athens', MST

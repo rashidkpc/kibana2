@@ -67,6 +67,8 @@ class KibanaApp < Sinatra::Base
     result.response['kibana']['default_fields'] = KibanaConfig::Default_fields
     # Enable clickable URL links
     result.response['kibana']['clickable_urls'] = KibanaConfig::Clickable_URLs
+    # Truncate Default_fields after Max_lines in collapsed view
+    result.response['kibana']['maxlines'] = KibanaConfig::Max_lines
 
     JSON.generate(result.response)
   end

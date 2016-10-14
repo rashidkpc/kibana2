@@ -873,7 +873,14 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
       }
 
       var value = value === undefined ? "-" : value.toString();
-      var value = xmlEnt(wbr(value),10);
+      var maxlines = window.resultjson.kibana.maxlines;
+      var value = xmlEnt(wbr(value, 10)).split('<br/>').slice(0);
+      if (value.length > maxlines) {
+        var omitted = value.length - maxlines;
+        var value = value.slice(0, maxlines).join('<br/>') + '<br/><small>[...' + omitted + ' lines omitted...]</small>';
+      } else {
+        var value = value.join('<br/>');
+      }
       var value = value.replace(RegExp("@KIBANA_HIGHLIGHT_START@(.*?)@KIBANA_HIGHLIGHT_END@", "g"),
 	    function (all, text, char) {
 	      return "<span class='highlightedtext'>" + text + "</span>";
