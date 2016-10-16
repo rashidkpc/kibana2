@@ -166,7 +166,7 @@ class Kelastic
                       'Content-Type' => 'application/json')
 
       o = JSON.parse(res.body)
-      o['kibana'] = {'per_page' => KibanaConfig::Per_page}
+      o['kibana'] = {'per_page' => KibanaConfig::Per_page, 'time_field'=> KibanaConfig::Time_field }
       o['kibana']['error'] = "Invalid query" if res.code.to_i.between?(500, 599)
       o['kibana']['curl_call'] = "curl -XGET #{url}?pretty -d '#{query}'"
       o

@@ -47,6 +47,8 @@ module KibanaConfig
   # Time_format = 'isoDateTime' 
   Time_format = 'mm/dd HH:MM:ss'
 
+  Time_field = '@timestamp'
+
   # Change which fields are shown by default. Must be set as an array
   # Default_fields = ['@fields.vhost','@fields.response','@fields.request']
   Default_fields = ['@message']
