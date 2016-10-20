@@ -33,7 +33,7 @@ function pageload(hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));
 
     window.hashjson.fields = window.hashjson.fields.length > 0 ?
-      window.hashjson.fields : new Array('@message');
+      window.hashjson.fields : window.default_fields;
 
     $('#query h4').text(window.hashjson.search);
 
@@ -72,7 +72,7 @@ function getStream() {
         id = hit['_id']
         index = hit['_index']
         if (!(has_time)) {
-          window.last_time = get_field_value(hit,'@timestamp');
+          window.last_time = get_field_value(hit,window.timestamp_field);
           has_time = true;
         }
         if ($('#logrow_' + id).length == 0) {
@@ -91,7 +91,7 @@ function getStream() {
 
           var jlink = $('<a/>').addClass('jlink').attr('href', "../#" + hash).html($('<i/>').addClass('icon-link'));
           var linkTableData = $("<td/>").css('white-space', 'nowrap');
-          linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,'@timestamp')) + tOffset)).prepend(jlink);
+          linkTableData.text(prettyDateString(Date.parse(get_field_value(hit,window.timestamp_field)) + tOffset)).prepend(jlink);
           tableRow.append(linkTableData);
           for (var field in fields) {
             tableRow.append($("<td/>").text(get_field_value(hit,fields[field])));

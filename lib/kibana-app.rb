@@ -104,7 +104,7 @@ class KibanaApp < Sinatra::Base
     req           = ClientRequest.new(params[:hash])
 
     query_end     = SortedQuery.new(
-      req.search,req.from,req.to,0,limit,'@timestamp','desc')
+      req.search,req.from,req.to,0,limit,KibanaConfig::Timestamp_field,'desc')
     indices_end   = Kelastic.index_range(req.from,req.to)
     result_end    = KelasticMulti.new(query_end,indices_end)
 
@@ -112,7 +112,7 @@ class KibanaApp < Sinatra::Base
     if (result_end.response['hits']['hits'].length < limit)
       limit         = (result_end.response['hits']['hits'].length / 2).to_i
       query_end     = SortedQuery.new(
-        req.search,req.from,req.to,0,limit,'@timestamp','desc')
+        req.search,req.from,req.to,0,limit,KibanaConfig::Timestamp_field,'desc')
       indices_end   = Kelastic.index_range(req.from,req.to)
       result_end    = KelasticMulti.new(query_end,indices_end)
     end
@@ -122,7 +122,7 @@ class KibanaApp < Sinatra::Base
     count_end     = KelasticResponse.count_field(result_end.response,fields)
 
     query_begin   = SortedQuery.new(
-      req.search,req.from,req.to,0,limit,'@timestamp','asc')
+      req.search,req.from,req.to,0,limit,KibanaConfig::Timestamp_field,'asc')
     indices_begin = Kelastic.index_range(req.from,req.to).reverse
     result_begin  = KelasticMulti.new(query_begin,indices_begin)
     count_begin   = KelasticResponse.count_field(result_begin.response,fields)
@@ -273,7 +273,7 @@ class KibanaApp < Sinatra::Base
         i = m.items.new_item
         hash    = IdRequest.new(hit['_id'],hit['_index']).hash
         i.title = KelasticResponse.flatten_hit(hit,req.fields).join(', ')
-        i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,'@timestamp'))
+        i.date  = Time.iso8601(KelasticResponse.get_field_value(hit,KibanaConfig::Timestamp_field))
         i.link  = link_to("/##{hash}")
         i.description = "<pre>#{hit.to_yaml}</pre>"
       end

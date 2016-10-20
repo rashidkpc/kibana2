@@ -1,3 +1,4 @@
+
 $(document).ready(function () {
 
   // Bind all click/change/whatever handlers
@@ -855,7 +856,7 @@ function CreateLogTable(objArray, fields, theme, enableHeader) {
     var id = object._id;
     var alt = i % 2 == 0 ? '' : 'alt'
     var time = prettyDateString(
-      Date.parse(get_field_value(object,'@timestamp')) + tOffset);
+      Date.parse(get_field_value(object,window.timestamp_field)) + tOffset);
     str += '<tr data-object="' + objid + '" id="logrow_' + objid + '" '+
       'class="' + alt + ' logrow">';
 
