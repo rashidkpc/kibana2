@@ -924,7 +924,7 @@ function details_table(objid,theme) {
     if (resultjson.kibana.clickable_urls) {
       var value = value === undefined ? "-" : value.toString();
       // Detect URLs and inserts delimiters
-      var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([-\\w/_\\.]*(\\?\\S+)?)?)?)", "g"),
+      var value = value.replace(RegExp("(https?://([-\\w\\.]+)+(:\\d+)?(/([-\\w/_\\.\\#\\=\\%]*(\\?\\S+)?)?)?)", "g"),
         function (all, text, char) {
           return "@KIBANA_LINK_START@" + text + "@KIBANA_LINK_END@";
         }

@@ -149,4 +149,9 @@ module KibanaConfig
 
   # Use this interval as fallback.
   Fallback_interval = 900
+
+  # save search queries into ES
+  Save_search_queries = true
+  #base uri for backlinks/hashes - for proxies
+  Save_search_queries_base_url = "https://server/kibana/"
 end
