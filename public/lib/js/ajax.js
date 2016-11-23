@@ -196,6 +196,11 @@ function getPage() {
           '<center><br><p><img src=images/barload.gif></center>');
         getGraph(window.interval);
 
+        // buttons to load/save searches
+        $('#saved').html(
+            '<div class="btn-group">' +
+            '<button id="load-search" class="btn btn-mini" title="Load a saved search"><i class="icon-folder-open"></i> Load</button>' +
+            '<button id="save-search" class="btn btn-mini" title="Save current search"><i class="icon-file"></i> Save</button></div>');
       }
     }
   });
@@ -751,7 +756,7 @@ function pageLinks() {
 // This is very ugly
 function blank_page() {
   var selectors = ['#graph','#graphheader','#feedlinks','#logs','.pagelinks',
-    '#fields','#analyze']
+    '#fields','#analyze','#saved']
 
   for (var selector in selectors) {
     $(selectors[selector]).text("");
@@ -1720,4 +1725,116 @@ function bind_clicks() {
     unhighlight_all_events();
   });
 
+  // save and load
+  $("body").delegate("#load-search", "click", function () {
+    window.request = $.ajax({
+      url: "api/saved/",
+      type: "GET",
+      cache: false,
+      success: function (json) {
+        var resp = JSON.parse(json)
+          , elm = [];
+
+        for (var idx in resp.files) {
+          var file = resp.files[idx];
+          elm.push('<option value="');
+          elm.push(file);
+          elm.push('">');
+          elm.push(file);
+          elm.push('</option>');
+        }
+
+        // hide any other popovers
+        if (popover_visible) {
+          $('.popover').remove();
+        }
+
+        // create and show our popover
+        $("#load-search").popover({
+          trigger: 'manual',
+          classes: 'auto-width',
+          title: 'Load saved search',
+          content: '<fieldset><select id="load-select" size="10">' +
+            elm.join('') + '</select>' +
+            '<div class="form-actions">' +
+            '<button id="load-btn-load" class="btn btn-small btn-primary"><i class="icon-ok"></i> Load</button>' +
+            '<div class="pull-right">' +
+            '<button id="load-btn-delete" class="btn btn-small btn-danger"><i class="icon-remove"></i> Delete</button> &nbsp; ' +
+            '<button id="load-btn-cancel" class="btn btn-small">Cancel</button>' +
+            '</div>' +
+            '</div>' +
+            '</fieldset>',
+        }).popover('show');
+      } //end ajax success
+    });
+  });
+
+  $("body").delegate("#load-btn-load", "click", function () {
+    var $sel = $("#load-select"); // hack!!
+    if ($sel[0].selectedIndex >= 0) {
+      var fname = $sel[0].options[$sel[0].selectedIndex].value;
+      window.request = $.ajax({
+        url: "api/saved/" + encodeURIComponent(fname),
+        type: "GET",
+        cache: false,
+        success: function (data, status, xhr) {
+          var hash = data.replace(/^\s+|\s+$/g, '');
+          $("#load-search").popover('destroy');
+          window.location.hash = hash;
+        }, //end ajax success
+        error: function (xhr, status, err) {
+          console.log(err);
+          alert("Load failed for " + fname);
+        } //end ajax error
+      });
+    } else {
+      // tell them to select something
+      $sel.wrap('<div class="control-group error"/>');
+    }
+  });
+  $("body").delegate("#load-btn-delete", "click", function () {
+    var $sel = $("#load-select"); // hack!!
+    if ($sel[0].selectedIndex >= 0) {
+      var fname = $sel[0].options[$sel[0].selectedIndex].value;
+      window.request = $.ajax({
+        url: "api/saved/" + encodeURIComponent(fname),
+        type: "DELETE",
+        cache: false,
+        success: function (data, status, xhr) {
+          alert('Deleted ' + fname);
+          $("#load-search").popover('destroy');
+        }, //end ajax success
+        error: function (xhr, status, err) {
+          console.log(err);
+          alert("Delete failed for " + fname);
+        } //end ajax error
+      });
+    }
+  });
+  $("body").delegate("#load-btn-cancel", "click", function () {
+    $("#load-search").popover('destroy');
+  });
+
+  $("body").delegate("#save-search", "click", function () {
+    var fname = prompt("Save search as:", window.hashjson.fname || '');
+    if (fname) {
+      window.hashjson.fname = fname;
+      var payload = Base64.encode(JSON.stringify(window.hashjson, null, ''));
+      // make the ajax put call
+      window.request = $.ajax({
+        url: "api/saved/" + encodeURIComponent(fname),
+        type: "PUT",
+        data: payload,
+        success: function (data, status, xhr) {
+          alert('Search saved.');
+        }, //end ajax success
+        error: function (xhr, status, err) {
+          console.log(err);
+          alert("Save failed for " + fname);
+        } //end ajax error
+      });
+    } else {
+      alert('No save file name specified.');
+    }
+  });
 }
