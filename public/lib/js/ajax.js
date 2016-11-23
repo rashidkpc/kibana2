@@ -1081,8 +1081,10 @@ function mFields(field) {
 function feedLinks(obj) {
   return "<a href=rss/" + Base64.encode(JSON.stringify(obj, null, '')) +">rss " +
     "<i class='icon-rss'></i></a> "+
-    "<a href=export/" + Base64.encode(JSON.stringify(obj, null, '')) + ">export " +
-    "<i class='icon-hdd'></i></a> "+
+    "<a href=export/" + Base64.encode(JSON.stringify(obj, null, '')) + ">csv " +
+    "<i class='icon-table'></i></a> "+
+    "<a href=raw/" + Base64.encode(JSON.stringify(obj, null, '')) + ">raw " +
+    "<i class='icon-file'></i></a> "+
     "<a href=stream#" + Base64.encode(JSON.stringify(obj, null, '')) + ">stream " +
     "<i class='icon-dashboard'></i></a>"
 }
